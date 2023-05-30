@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<queries>
+
+	<resultMap id="RESULT_MAP" javaClass="java.util.HashMap" />
+	<resultMap id="RESULT_JAVA_MAP" javaClass="java.util.HashMap" keyCase="java" />
+
+	<resultMap id="RESULT_FE_ENG_TRANS_CALC_DTL"
+		javaClass="fxms.ems.bas.dbo.FE_ENG_TRANS_CALC_DTL">
+		<result attr="setTrnsNo()" field="TRNS_NO" />
+		<result attr="setTrnsVol()" field="TRNS_VOL" />
+		<result attr="setInloNo()" field="INLO_NO" />
+		<result attr="setSellInloNo()" field="SELL_INLO_NO" />
+		<result attr="setBuyInloNo()" field="BUY_INLO_NO" />
+		<result attr="setEngRtId()" field="ENG_RT_ID" />
+		<result attr="setEngId()" field="ENG_ID" />
+		<result attr="setSensorMoNo()" field="SENSOR_MO_NO" />
+		<result attr="setStrtMeasrDtm()" field="STRT_MEASR_DTM" />
+		<result attr="setStrtMeasrVal()" field="STRT_MEASR_VAL" />
+		<result attr="setFnshMeasrDtm()" field="FNSH_MEASR_DTM" />
+		<result attr="setFnshMeasrVal()" field="FNSH_MEASR_VAL" />
+	</resultMap>
+
+
+	<select id="select-calculate-amount" resultMap="RESULT_FE_ENG_TRANS_CALC_DTL">
+		<![CDATA[		
+		with DATAS as (
+			select 	a.TRNS_NO
+					, a.ENG_ID
+					, a.INLO_NO
+					, a.SELL_INLO_NO
+					, a.BUY_INLO_NO
+					, b.ENG_RT_ID
+					, c.SENSOR_MO_NO
+			from 	FE_ENG_TRANS_BAS 	a
+					, FE_ENG_TRANS_RT	b
+					, FE_ENG_RT_BAS		c
+			where	a.TRNS_ST_CD 		= '1' /* 계약유지 */
+			and		b.TRNS_NO			= a.TRNS_NO
+			and		b.ENG_RT_USE_YN		= 'Y'
+			and		c.ENG_RT_ID			= b.ENG_RT_ID		
+			and		c.SENSOR_MO_NO		> 0
+		)		
+		select 	a.TRNS_NO
+				, a.ENG_ID
+				, a.INLO_NO
+				, a.SELL_INLO_NO
+				, a.BUY_INLO_NO
+				, a.ENG_RT_ID
+				, a.SENSOR_MO_NO				
+				, min(MEASR_DTM)		as STRT_MEASR_DTM
+				, min(CUR_INTG_VAL)		as STRT_MEASR_VAL
+				, max(MEASR_DTM)		as FNSH_MEASR_DTM
+				, max(CUR_INTG_VAL)		as FNSH_MEASR_VAL
+				, sum(b.DIFF_VAL)		as TRNS_VOL
+		from	DATAS				a
+				, FE_ENG_MEASR_RAW	b
+		where	a.SENSOR_MO_NO		= b.MO_NO
+		and		b.MEASR_DTM			>= $measrDtmStart
+		and		b.MEASR_DTM			<= $measrDtmEnd
+		group by 
+				a.TRNS_NO
+				, a.ENG_ID
+				, a.INLO_NO
+				, a.SELL_INLO_NO
+				, a.BUY_INLO_NO
+				, a.ENG_RT_ID
+				, a.SENSOR_MO_NO
+		]]>
+	</select>
+	
+	<select id="select-factory-list" resultMap="RESULT_JAVA_MAP">
+		<![CDATA[	
+		with datas as (
+			select 	a.INLO_NO		
+					, ( select	 max(T.INLO_NO)
+						from 	FX_CF_INLO_MEM 	T2
+								, FX_CF_INLO 	T
+						where 	T2.LOWER_INLO_NO 	= a.INLO_NO
+						and		T.INLO_NO 			= T2.INLO_NO
+						and     T.INLO_CL_CD 		= 'COMPLEX' )
+	
+								as COMPLEX_INLO_NO
+	
+					, ( select	 max(T.INLO_NO)
+						from 	FX_CF_INLO_MEM 	T2
+								, FX_CF_INLO 	T
+						where 	T2.LOWER_INLO_NO 	= a.INLO_NO
+						and		T.INLO_NO 			= T2.INLO_NO
+						and     T.INLO_CL_CD 		= 'COMPANY' )
+	
+								as COMPANY_INLO_NO
+	
+					, ( select	 max(T.INLO_NO)
+						from 	FX_CF_INLO_MEM 	T2
+								, FX_CF_INLO 	T
+						where 	T2.LOWER_INLO_NO 	= a.INLO_NO
+						and		T.INLO_NO 			= T2.INLO_NO
+						and     T.INLO_CL_CD 		= 'PLANT' )
+	
+								as PLANT_INLO_NO
+	
+			from 	FX_CF_INLO a
+			where   a.DEL_YN = 'N'
+		)
+		select	inlo.*
+				, plant.INLO_TID		as PLANT_TID
+				, plant.INLO_NAME		as PLANT_NAME
+				, company.INLO_TID		as COMPANY_TID
+				, company.INLO_NAME		as COMPANY_NAME
+				, complex.INLO_TID		as COMPLEX_TID
+				, complex.INLO_NAME		as COMPLEX_NAME
+				, a.PLANT_INLO_NO
+				, a.COMPANY_INLO_NO
+				, a.COMPLEX_INLO_NO
+		from 	datas a
+					left join FX_CF_INLO complex 	on complex.INLO_NO = a.COMPLEX_INLO_NO
+					left join FX_CF_INLO company 	on company.INLO_NO = a.COMPANY_INLO_NO
+					left join FX_CF_INLO plant 		on plant.INLO_NO = a.PLANT_INLO_NO
+				, FX_CF_INLO inlo
+		where	a.INLO_NO			= inlo.INLO_NO
+		]]>
+		<test var="inloClCd"> and inlo.INLO_CL_CD = $inloClCd </test>		
+	</select>
+
+</queries>
+

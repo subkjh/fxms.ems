@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<queries>
+
+	<resultMap id="RESULT_MAP" javaClass="java.util.HashMap" />
+
+	<select id="당월 누적 사용금액 현황" resultMap="RESULT_MAP">
+		<![CDATA[
+		with INLOS as (
+			select 	a.INLO_NO													as INLO_NO
+					, a.INLO_NAME												as INLO_NAME
+					, a.INLO_CL_CD												as INLO_CL_CD
+					, ( select	max(T.INLO_NO)
+						from 	FX_CF_INLO_MEM 	T2
+								, FX_CF_INLO 	T
+						where 	T2.LOWER_INLO_NO 	= a.INLO_NO
+						and		T.INLO_NO 			= T2.INLO_NO
+						and     T.INLO_CL_CD 		= 'COMPLEX' )				as COMPLEX_INLO_NO
+					, ( select	max(T.INLO_NO)
+						from 	FX_CF_INLO_MEM 	T2
+								, FX_CF_INLO 	T
+						where 	T2.LOWER_INLO_NO 	= a.INLO_NO
+						and		T.INLO_NO 			= T2.INLO_NO
+						and     T.INLO_CL_CD 		= 'COMPANY' )				as COMPANY_INLO_NO
+					, ( select	max(T.INLO_NO)
+						from 	FX_CF_INLO_MEM 	T2
+								, FX_CF_INLO 	T
+						where 	T2.LOWER_INLO_NO 	= a.INLO_NO
+						and		T.INLO_NO 			= T2.INLO_NO
+						and     T.INLO_CL_CD 		= 'PLANT' )					as PLANT_INLO_NO
+			from 	FX_CF_INLO a
+			where   a.DEL_YN = 'N'
+		)
+		, datas as (
+			select 	a.ENG_ID
+					, b.PLANT_INLO_NO
+					, substr(cast(a.CONS_DATE as char), 1, 6) 	as YYYYMM
+					, sum(a.CONS_AMT) 	as USAGE_VAL
+			from 	FE_ENG_CONS_STAT  a
+					, INLOS b
+			where 	a.CONS_DATE 	>= '20230301'
+			and 	a.CONS_DATE 	<= '20230331'
+			and 	a.INLO_NO 	= b.INLO_NO
+			and 	b.PLANT_INLO_NO is not null
+			group by
+					a.ENG_ID
+					, b.PLANT_INLO_NO
+					, substr(cast(a.CONS_DATE as char), 1, 6)
+		)
+		select  a.*
+				, a1.ENG_PRICE
+				, a1.ENG_PRICE * a.USAGE_VAL    as USAGE_AMT
+		from 	datas a
+				left join FE_ENG_PRICE a1
+						on a1.ENG_ID = a.ENG_ID
+						and a1.INLO_NO = a.PLANT_INLO_NO
+						and a1.RANGE_STRT_VAL <= a.USAGE_VAL
+						and a1.RANGE_FNSH_VAL >= a.USAGE_VAL
+		]]>
+	</select>
+	
+	<select id="에너지 생산/소비 조회" resultMap="RESULT_MAP">
+		<![CDATA[
+		with INLOS as (
+			select 	a.INLO_NO													as INLO_NO
+					, a.INLO_NAME												as INLO_NAME
+					, a.INLO_CL_CD												as INLO_CL_CD
+					, ( select	max(T.INLO_NO)
+						from 	FX_CF_INLO_MEM 	T2
+								, FX_CF_INLO 	T
+						where 	T2.LOWER_INLO_NO 	= a.INLO_NO
+						and		T.INLO_NO 			= T2.INLO_NO
+						and     T.INLO_CL_CD 		= 'COMPLEX' )				as COMPLEX_INLO_NO
+					, ( select	max(T.INLO_NO)
+						from 	FX_CF_INLO_MEM 	T2
+								, FX_CF_INLO 	T
+						where 	T2.LOWER_INLO_NO 	= a.INLO_NO
+						and		T.INLO_NO 			= T2.INLO_NO
+						and     T.INLO_CL_CD 		= 'COMPANY' )				as COMPANY_INLO_NO
+					, ( select	max(T.INLO_NO)
+						from 	FX_CF_INLO_MEM 	T2
+								, FX_CF_INLO 	T
+						where 	T2.LOWER_INLO_NO 	= a.INLO_NO
+						and		T.INLO_NO 			= T2.INLO_NO
+						and     T.INLO_CL_CD 		= 'PLANT' )					as PLANT_INLO_NO
+			from 	FX_CF_INLO a
+			where   a.DEL_YN = 'N'
+			and		a.INLO_NAME = '남도세정'
+		)
+		select 	a.ENG_ID
+				, b.PLANT_INLO_NO	as PLANT_NO
+				, b1.INLO_TID		as PLANT_PID
+				, b1.INLO_NAME		as PLANT_NAME
+				, a.CONS_DTM		as CONS_DATE
+				, a.CONS_AMT
+				, a.EXP_CONS_AMT 
+				, a1.PROD_AMT
+				, a1.EXP_PROD_AMT
+		from 	FE_ENG_CONS_AMT  a
+					left join FE_ENG_PROD_AMT a1 on a1.ENG_ID = a.ENG_ID and a1.INLO_NO = a.INLO_NO and a1.PROD_DTM = a.CONS_DTM and a1.DTM_TYPE = a.DTM_TYPE
+				, INLOS b
+					left join FX_CF_INLO b1 on b1.INLO_NO = b.PLANT_INLO_NO
+		where 	a.CONS_DTM 	>= 20230320000000
+		and		a.DTM_TYPE 	= 'M15'
+		and 	a.INLO_NO 	= b.INLO_NO
+		and		a.ENG_ID 	= 'AIR'
+		and 	b.PLANT_INLO_NO is not null			
+		order by
+				b.PLANT_INLO_NO
+				, a.ENG_ID
+				, a.CONS_DTM desc
+		]]>
+	</select>
+</queries>
+

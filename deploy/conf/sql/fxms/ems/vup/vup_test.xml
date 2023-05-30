@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<queries>
+
+	<resultMap id="RESULT_MAP" javaClass="java.util.HashMap" />
+
+
+	<insert id="make-cons-exp-amt" >
+		<![CDATA[
+		insert into FE_ENG_CONS_AMT (
+			CONS_DTM, DTM_TYPE, FAC_NO, ENG_ID, INLO_NO, CONS_AMT, EXP_CONS_AMT , REG_USER_NO , REG_DTM , CHG_USER_NO , CHG_DTM 
+		) 
+		with ROWDATAS as (
+			select	a.INLO_NO
+					, a.ENG_ID	
+					, a.DTM_TYPE
+					, SUBSTRING(a.CONS_DTM, 9)		as HMS
+					, count(1)						as COUNT
+					, truncate(AVG(a.CONS_AMT), 1)	as EXP_CONS_AMT
+			from	FE_ENG_CONS_AMT a
+			where	a.CONS_DTM	>= $startDate
+			and		a.CONS_DTM	<= $endDate
+			and		a.INLO_NO > 0			
+			group by a.INLO_NO
+					, a.ENG_ID	
+					, a.DTM_TYPE
+					, SUBSTRING(a.CONS_DTM, 9)
+		)
+		select 	concat($date, a.HMS)	as CONS_DTM
+				, a.DTM_TYPE				as DTM_TYPE
+				, -1						as FAC_NO
+				, a.ENG_ID					as ENG_ID
+				, a.INLO_NO					as INLO_NO
+				, null						as CONS_AMT
+				, a.EXP_CONS_AMT			as EXP_CONS_AMT
+				, 0							as REG_USER_NO
+				, DATE_FORMAT(now(), '%Y%m%d%H%i%s')
+											as REG_DTM
+				, 0							as CHG_USER_NO
+				, DATE_FORMAT(now(), '%Y%m%d%H%i%s') 
+											as CHG_DTM
+		from	ROWDATAS a 
+
+		ON DUPLICATE KEY UPDATE
+			EXP_CONS_AMT 		= a.EXP_CONS_AMT	
+			, CHG_DTM		= DATE_FORMAT(now(), '%Y%m%d%H%i%s')		
+		
+		]]>
+	</insert>
+	
+	<insert id="make-prod-exp-amt" >
+		<![CDATA[
+		insert into FE_ENG_PROD_AMT (
+			PROD_DTM, DTM_TYPE, FAC_NO, ENG_ID, INLO_NO, PROD_AMT, EXP_PROD_AMT , REG_USER_NO , REG_DTM , CHG_USER_NO , CHG_DTM 
+		) 
+		with ROWDATAS as (
+			select	a.INLO_NO
+					, a.ENG_ID	
+					, a.DTM_TYPE
+					, SUBSTRING(a.PROD_DTM, 9)		as HMS
+					, count(1)						as COUNT
+					, truncate(AVG(a.PROD_AMT), 1)	as EXP_PROD_AMT
+			from	FE_ENG_PROD_AMT a
+			where	a.PROD_DTM	>= $startDate
+			and		a.PROD_DTM	<= $endDate
+			and		a.INLO_NO > 0
+			group by a.INLO_NO
+					, a.ENG_ID	
+					, a.DTM_TYPE
+					, SUBSTRING(a.PROD_DTM, 9)
+		)
+		select 	concat($date, a.HMS)	as PROD_DTM
+				, a.DTM_TYPE				as DTM_TYPE
+				, -1						as FAC_NO
+				, a.ENG_ID					as ENG_ID
+				, a.INLO_NO					as INLO_NO
+				, null						as PROD_AMT
+				, a.EXP_PROD_AMT			as EXP_PROD_AMT
+				, 0							as REG_USER_NO
+				, DATE_FORMAT(now(), '%Y%m%d%H%i%s')
+											as REG_DTM
+				, 0							as CHG_USER_NO
+				, DATE_FORMAT(now(), '%Y%m%d%H%i%s') 
+											as CHG_DTM
+		from	ROWDATAS a 
+
+		ON DUPLICATE KEY UPDATE
+			EXP_PROD_AMT 		= a.EXP_PROD_AMT	
+			, CHG_DTM		= DATE_FORMAT(now(), '%Y%m%d%H%i%s')		
+		
+		]]>
+	</insert>
+
+</queries>
+
