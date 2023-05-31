@@ -4,8 +4,8 @@
 
 <!ELEMENT databases (database*) >
 
-<!ELEMENT database (driver?, url, dbname?, user?, password?, isReadOnly?
-					,countConnectionMax?, isAutoCommit?,permitConnectionPoolOver?,reconnectTimeout?,sqlSelectKeepAlive?,const*)>
+<!ELEMENT database (driver, url, dbname?, user?, password?, isReadOnly?
+					,countConnectionMax, isAutoCommit?,permitConnectionPoolOver?,reconnectTimeout?,sqlSelectKeepAlive?,const*)>
 <!ATTLIST database name CDATA #REQUIRED >
 <!ATTLIST database java-class CDATA #REQUIRED >
 
@@ -28,7 +28,7 @@
 <databases>
 
 	<!-- VUP 운용 DB -->
-	<database name="FXMSDB22" java-class="subkjh.dao.database.MySql">
+	<database name="FXMSDB11" java-class="subkjh.dao.database.MySql">
 		<driver>com.mysql.cj.jdbc.Driver</driver>
 		<!-- <driver>org.mariadb.jdbc.Driver</driver> -->
 		<url>jdbc:mysql://10.0.1.11:3306/vup?useUnicode=true&amp;characterEncoding=utf8</url>
@@ -157,8 +157,10 @@
 	</database>
 
 
-	<!-- InfluxDB TEST -->
+	<!-- VUP 운용 DB -->
 	<database name="INFLUXDB" java-class="subkjh.dao.database.InfluxDB">
+		<driver>com.wisecoders.dbschema.influxdb.JdbcDriver</driver>
+		<!-- <driver>org.mariadb.jdbc.Driver</driver> -->
 		<url>http://10.0.1.11:8086</url>
 		<dbname>FXMSDB</dbname>
 		<user>fxms</user>
