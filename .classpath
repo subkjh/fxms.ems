@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jre1.8.0_321"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="deploy/libext/xml/jdom.jar"/>
+	<classpathentry kind="lib" path="deploy/libext/jdrivers/mariadb-java-client-2.2.5.jar"/>
+	<classpathentry kind="lib" path="deploy/libext/jdrivers/mysql-connector-java-8.0.29.jar"/>
+	<classpathentry kind="lib" path="deploy/libext/fxms/fxms.2023.jar"/>
+	<classpathentry kind="lib" path="deploy/libext/gson/gson-2.10.1.jar"/>
+	<classpathentry kind="output" path="classes"/>
+</classpath>
