@@ -88,13 +88,13 @@ public class EPowerStatAdapter extends PsStatAfterAdapter {
 			// 현재
 			long startDtm = psKind.getHstimeNext(psDate, -1);
 			long endDtm = psKind.getHstimeEnd(startDtm);
-			Map<Long, Number> curMap = ValueApi.getApi().getStatValue(this.psIdAccum, rawKind, null, startDtm, endDtm,
+			Map<Long, Number> curMap = ValueApi.getApi().getStatValue(this.psIdAccum, rawKind, startDtm, endDtm,
 					StatFunction.Max);
 
 			startDtm = psKind.getHstimeNext(psDate, -2);
 			endDtm = psKind.getHstimeEnd(startDtm);
 
-			Map<Long, Number> prevMap = ValueApi.getApi().getStatValue(this.psIdAccum, rawKind, null, startDtm, endDtm,
+			Map<Long, Number> prevMap = ValueApi.getApi().getStatValue(this.psIdAccum, rawKind, startDtm, endDtm,
 					StatFunction.Max);
 
 			for (Long moNo : curMap.keySet()) {
