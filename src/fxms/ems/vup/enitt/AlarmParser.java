@@ -18,7 +18,6 @@ import fxms.bas.impl.dbo.all.FX_MAPP_AL;
 import fxms.bas.impl.dbo.all.FX_MAPP_PS;
 import fxms.bas.mo.Mo;
 import fxms.bas.vo.Alarm;
-import fxms.bas.vo.ExtraAlarm;
 import fxms.bas.vo.mapp.MappData;
 import fxms.ems.vup.api.VupApi;
 import fxms.ems.vup.dto.Alarm01Dto;
@@ -148,19 +147,19 @@ public class AlarmParser {
 
 		ALARM_LEVEL level = getAlarmLevel(a);
 
-		ExtraAlarm ea = new ExtraAlarm();
-		ea.setAlarmKey(a.alarmKey);
-		ea.setAlarmLevel(level);
-		ea.setPsId(a.psId);
-		ea.setOccurCnt(StringUtil.toInt(a.notify_count, 1));
-		ea.setRecvEventMstime(System.currentTimeMillis());
-		ea.setEventMstime(toMstime(a.created_dt));
+		Map<String, Object> etc = new HashMap<>();
+		etc.put("alarmKey", a.alarmKey);
+		etc.put("alarmLevel", level.getAlarmLevel());
+		etc.put("psId", a.psId);
+		etc.put("occurCnt", StringUtil.toInt(a.notify_count, 1));
+		etc.put("recvEventMstime", System.currentTimeMillis());
+		etc.put("eventMstime", toMstime(a.created_dt));
 
-		Logger.logger.info("FIRE : {}", FxmsUtil.toJson(ea));
+		Logger.logger.info("FIRE : {}", FxmsUtil.toJson(etc));
 
 		try {
 			Mo mo = MoApi.getApi().getMo(a.moNo);
-			AlarmApi.getApi().fireAlarm(mo, null, a.alcdNo, level, a.message, ea);
+			AlarmApi.getApi().fireAlarm(mo, null, a.alcdNo, level, a.message, etc);
 			return AlarmApi.getApi().getCurAlarm(mo, null, a.alcdNo);
 		} catch (Exception e) {
 			Logger.logger.error(e);
