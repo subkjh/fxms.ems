@@ -11,6 +11,7 @@ import fxms.bas.exp.FxTimeoutException;
 import fxms.bas.fxo.FxmsUtil;
 import fxms.bas.fxo.adapter.FxAdapterInfo;
 import fxms.bas.fxo.adapter.FxGetValueAdapter;
+import fxms.bas.impl.dpo.vo.MakeTestPsVoDfo;
 import fxms.bas.mo.Mo;
 import fxms.bas.vo.PsItem;
 import fxms.bas.vo.PsItem.PS_VAL_TYPE;
@@ -44,62 +45,10 @@ public class TestAdapter extends FxGetValueAdapter {
 
 		Logger.logger.debug("{}, {}, {} : {}", mo.getMoName(), mo.getMoClass(), mo.getMoType(), itemList);
 
-		int value;
-		int min, max;
+		MakeTestPsVoDfo dfo = new MakeTestPsVoDfo();
 
 		for (PsItem item : itemList) {
-
-			// offline으로 테스트한다.
-			if (Math.random() <= 0.05d) {
-				return null;
-			}
-
-			PsValueComp vo = null;
-			try {
-				vo = ValueApi.getApi().getCurValue(mo.getMoNo(), null, item.getPsId());
-			} catch (Exception e) {
-			}
-
-			// 누적값이면 이전보다 크게 한다.
-			if (item.getPsValType() == PS_VAL_TYPE.AV) {
-				float value2 = 100;
-				if (vo != null && vo.getCurValue() != null) {
-					value2 = vo.getCurValue().floatValue();
-					value2 += (Math.random() * 20);
-				} else {
-					value2 = 100;
-				}
-				psList.add(new PsVoRaw(mo.getMoNo(), item.getPsId(), value2));
-				continue;
-			}
-
-			min = item.getMinVal() == null ? 0 : item.getMinVal().intValue();
-			max = item.getMaxVal() == null ? 100 : item.getMaxVal().intValue();
-
-			if (vo != null) {
-
-				value = vo.getCurValue().intValue();
-
-				if (Math.random() >= 0.5d) {
-					value += (Math.random() * -100);
-				} else {
-					value += (Math.random() * 100);
-				}
-
-				if (value < min) {
-					value = min;
-				} else if (value > max) {
-					value = max;
-				}
-
-			} else {
-				value = (int) (Math.random() * max);
-				if (value < min) {
-					value = min;
-				}
-			}
-
-			psList.add(new PsVoRaw(mo.getMoNo(), item.getPsId(), value));
+			psList.add(dfo.makeTestValue(mo, null, item));
 		}
 
 		return psList;

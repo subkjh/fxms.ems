@@ -63,7 +63,6 @@ public class SelectEnergyPsIdDfo implements FxDfo<Void, List<EngPsVo>> {
 				if (FxApi.isNotEmpty(eng.getPresPsId())) {
 					ret.add(new EngPsVo(eng.getEngId(), eng.getPresPsId(), PsType.pressure));
 				}
-
 				if (FxApi.isNotEmpty(eng.getTempPsId())) {
 					ret.add(new EngPsVo(eng.getEngId(), eng.getTempPsId(), PsType.temperature));
 				}

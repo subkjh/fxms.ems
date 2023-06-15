@@ -70,6 +70,7 @@ public class FxmsEmsInit {
 	public void makeSource() {
 		SqlTool tool = new SqlTool();
 		tool.makeXml2JavaQid("deploy/conf/sql/fxms/ems/ems.xml", "fxms.ems.bas.dao.EmsQid", "src/fxms/ems/bas/dao");
+		tool.makeXml2JavaQid("deploy/conf/sql/fxms/ems/h2/h2.xml", "fxms.ems.h2.dao.H2Qid", "src/fxms/ems/h2/dao");
 		tool.makeXml2JavaQid("deploy/conf/sql/fxms/ems/vup/vup.xml", "fxms.ems.vup.dao.VupQid", "src/fxms/ems/vup/dao");
 //		tool.makeXml2JavaQid("deploy/conf/sql/fxms/ems/vup/vup_ui.xml", "fxms.ems.vup.dao.VupUiQid", "src/fxms/ems/vup/dao");
 		tool.makeXml2JavaQid("deploy/conf/sql/fxms/ems/vup/vup_test.xml", "fxms.ems.vup.dao.VupTestQid", "src/fxms/ems/vup/dao");

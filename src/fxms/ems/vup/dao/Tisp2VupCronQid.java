@@ -2,7 +2,7 @@ package fxms.ems.vup.dao;
 
 /**
 * File : deploy/conf/sql/fxms/ems/vup/Tisp2VupCron.xml<br>
-* @since 20230522174934
+* @since 20230614162949
 * @author subkjh 
 *
 */

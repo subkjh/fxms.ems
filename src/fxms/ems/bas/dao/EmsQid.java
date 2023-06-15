@@ -2,7 +2,7 @@ package fxms.ems.bas.dao;
 
 /**
 * File : deploy/conf/sql/fxms/ems/ems.xml<br>
-* @since 20230522174934
+* @since 20230614162949
 * @author subkjh 
 *
 */
@@ -15,6 +15,69 @@ public static final String QUERY_XML_FILE = "deploy/conf/sql/fxms/ems/ems.xml";
 
 public EmsQid() { 
 } 
+/**
+* para : $psDate<br>
+* ---------------------------------------------------------------------------------- <br>
+* database : null<br>
+* sql <br><br>
+ * <br>insert into FE_ENG_CONS_AMT (<br>			CONS_DTM, DTM_TYPE, FAC_NO, ENG_ID, INLO_NO, EXP_CONS_AMT, CONS_AMT , REG_USER_NO , REG_DTM , CHG_USER_NO , CHG_DTM <br>		) <br>		with ROWDATAS as (<br>			select 	a.CONS_DTM					as CONS_DTM<br>					, 'M15'						as DTM_TYPE<br>					, -1 						as FAC_NO<br>					, a.ENG_ID 					as ENG_ID<br>					, a.INLO_NO 				as INLO_NO<br>					, 0							as EXP_CONS_AMT<br>					, truncate(a.DIFF_VAL, 2)   as CONS_AMT<br>					, 0							as REG_USER_NO<br>					, DATE_FORMAT(now(), '%Y%m%d%H%i%s')	<br>												as REG_DTM<br>					, 0							as CHG_USER_NO<br>					, DATE_FORMAT(now(), '%Y%m%d%H%i%s')<br>												as CHG_DTM			<br>			from 	VUP_ENG_CONS_RAW a<br>			where	a.CONS_DTM	= $psDate<br>		)<br>		select 	a.*<br>		from	ROWDATAS a <br><br>		ON DUPLICATE KEY UPDATE<br>			CONS_AMT 		= a.CONS_AMT	<br>			, CHG_DTM		= DATE_FORMAT(now(), '%Y%m%d%H%i%s')<br><br> <br>
+*/
+public final String insert_cons_amt_m15_from_raw = "insert-cons-amt-m15-from-raw";
+
+/**
+* para : $psDate<br>
+* ---------------------------------------------------------------------------------- <br>
+* database : null<br>
+* sql <br><br>
+ * <br>insert into FE_ENG_PROD_AMT (<br>			PROD_DTM, DTM_TYPE, FAC_NO, ENG_ID, INLO_NO, EXP_PROD_AMT, PROD_AMT , REG_USER_NO , REG_DTM , CHG_USER_NO , CHG_DTM <br>		) <br>		with ROWDATAS as (<br>			select 	a.PROD_DTM					as PROD_DTM<br>					, 'M15'						as DTM_TYPE<br>					, -1 						as FAC_NO<br>					, a.ENG_ID 					as ENG_ID<br>					, a.INLO_NO 				as INLO_NO<br>					, 0							as EXP_PROD_AMT<br>					, truncate(a.DIFF_VAL, 2)   as PROD_AMT<br>					, 0							as REG_USER_NO<br>					, DATE_FORMAT(now(), '%Y%m%d%H%i%s')	<br>												as REG_DTM<br>					, 0							as CHG_USER_NO<br>					, DATE_FORMAT(now(), '%Y%m%d%H%i%s')<br>												as CHG_DTM			<br>			from 	FE_ENG_PROD_RAW a<br>			where	a.PROD_DTM	= $psDate<br>		)<br>		select 	a.*<br>		from	ROWDATAS a <br><br>		ON DUPLICATE KEY UPDATE<br>			PROD_AMT 		= a.PROD_AMT	<br>			, CHG_DTM		= DATE_FORMAT(now(), '%Y%m%d%H%i%s')<br><br> <br>
+*/
+public final String insert_prod_amt_m15_from_raw = "insert-prod-amt-m15-from-raw";
+
+/**
+* para : $dateHh, $dateHh, $dateHh<br>
+* ---------------------------------------------------------------------------------- <br>
+* database : null<br>
+* sql <br><br>
+ * <br>insert into FE_ENG_CONS_AMT (<br>			CONS_DTM<br>			, DTM_TYPE<br>			, FAC_NO<br>			, ENG_ID<br>			, INLO_NO<br>			, EXP_CONS_AMT<br>			, CONS_AMT<br>			, REG_USER_NO<br>			, REG_DTM<br>			, CHG_USER_NO<br>			, CHG_DTM<br>		)<br>		with <br>			ROWDATAS as (<br>				select	concat($dateHh, '0000')		as CONS_DTM<br>						, a.FAC_NO				as FAC_NO 		' 설비번호 '<br>						, a.ENG_ID				as ENG_ID 		' 에너지ID '<br>						, a.INLO_NO				as INLO_NO 		' 설치위치번호 '<br>						, truncate(sum(a.EXP_CONS_AMT), 1)<br>												as EXP_CONS_AMT 		' 예상생산량 '<br>						, truncate(sum(a.CONS_AMT), 1)<br>												as CONS_AMT 		' 생산량 '<br>				from 	FE_ENG_CONS_AMT a 		' 에너지생산량테이블 '<br>				where	a.CONS_DTM >= concat($dateHh, '0000')<br>				and		a.CONS_DTM <= concat($dateHh, '5959')<br>				and		a.DTM_TYPE	= 'M15'<br>				group by  <br>					a.FAC_NO<br>					, a.ENG_ID<br>					, a.INLO_NO	<br>			)<br>			select<br>					  a.CONS_DTM		as CONS_DTM<br>					, 'H1'				as DTM_TYPE<br>					, a.FAC_NO<br>					, a.ENG_ID<br>					, a.INLO_NO<br>					, a.EXP_CONS_AMT<br>					, a.CONS_AMT<br>					, 1											as REG_USER_NO<br>					, DATE_FORMAT(now(), '%Y%m%d%H%i%s')		as REG_DTM<br>					, 1											as CHG_USER_NO<br>					, DATE_FORMAT(now(), '%Y%m%d%H%i%s')		as CHG_DTM<br>			from	ROWDATAS	a<br>			<br>			ON DUPLICATE KEY UPDATE		<br>					EXP_CONS_AMT 	= a.EXP_CONS_AMT<br>					, CONS_AMT		= a.CONS_AMT<br>					, CHG_DTM		= DATE_FORMAT(now(), '%Y%m%d%H%i%s')<br><br> <br>
+*/
+public final String make_cons_h1_from_m15 = "make-cons-h1-from-m15";
+
+/**
+* para : #engRawTable, #measrDtmName, $measrDtm, #measrDtmName, $measrDtm, $moUsageClCd<br>
+* ---------------------------------------------------------------------------------- <br>
+* database : null<br>
+* sql <br><br>
+ * <br>insert into #engRawTable (<br>			#measrDtmName<br>			, INLO_NO<br>			, ENG_ID<br>			, INST_VAL<br>			, PREV_INTG_VAL<br>			, CUR_INTG_VAL<br>			, DIFF_VAL<br>			, PRES_VAL<br>			, TEMP_VAL<br>			, MEMO<br>			, REG_USER_NO<br>			, REG_DTM<br>			, CHG_USER_NO<br>			, CHG_DTM<br>		)<br>		with DATAS as (<br>			select 	 $measrDtm						as #measrDtmName<br>					, a.INLO_NO						as INLO_NO<br>					, a.ENG_ID						as ENG_ID<br>					, max(a.INST_VAL)				as INST_VAL<br>					, max(a.PREV_INTG_VAL)			as PREV_INTG_VAL<br>					, max(a.CUR_INTG_VAL)			as CUR_INTG_VAL<br>					, sum(a.DIFF_VAL)				as DIFF_VAL<br>					, avg(a.PRES_VAL)				as PRES_VAL<br>					, avg(a.TEMP_VAL)				as TEMP_VAL<br>					, 'FE_ENG_MEASR_RAW'			as MEMO<br>					, 1											as REG_USER_NO<br>					, DATE_FORMAT(now(), '%Y%m%d%H%i%s')		as REG_DTM<br>					, 1											as CHG_USER_NO<br>					, DATE_FORMAT(now(), '%Y%m%d%H%i%s')		as CHG_DTM				<br>			from	FE_ENG_MEASR_RAW 	a<br>					, FX_MO 			b<br>			where	a.MEASR_DTM			= $measrDtm<br>			and		a.MO_NO 			= b.MO_NO<br>			and		b.MO_USAGE_CL_CD	= $moUsageClCd<br>			group by <br>					a.INLO_NO<br>					, a.ENG_ID<br>		)<br>		select	*<br>		from	DATAS 	a<br>								<br>		ON DUPLICATE KEY UPDATE		<br>				INST_VAL 		= a.INST_VAL<br>				, PREV_INTG_VAL	= a.PREV_INTG_VAL<br>				, CUR_INTG_VAL	= a.CUR_INTG_VAL<br>				, DIFF_VAL		= a.DIFF_VAL<br>				, PRES_VAL		= a.PRES_VAL<br>				, TEMP_VAL		= a.TEMP_VAL<br>				, MEMO			= a.MEMO<br>				, CHG_DTM		= a.CHG_DTM<br><br> <br>
+*/
+public final String make_cons_prod_raw_from_energy_raw = "make-cons-prod-raw-from-energy-raw";
+
+/**
+* para : $date, $date, $date<br>
+* ---------------------------------------------------------------------------------- <br>
+* database : null<br>
+* sql <br><br>
+ * <br>insert into FE_ENG_CONS_STAT (<br>			CONS_DATE<br>			, FAC_NO<br>			, ENG_ID<br>			, INLO_NO<br>			, EXP_CONS_AMT<br>			, CONS_AMT<br>			, REG_USER_NO<br>			, REG_DTM<br>			, CHG_USER_NO<br>			, CHG_DTM<br>		)<br>		with <br>		ROWDATAS as (<br>			select	a.FAC_NO				as FAC_NO 		' 설비번호 '<br>					, a.ENG_ID				as ENG_ID 		' 에너지ID '<br>					, a.INLO_NO				as INLO_NO 		' 설치위치번호 '<br>					, truncate(sum(a.EXP_CONS_AMT), 1)<br>											as EXP_CONS_AMT 		' 예상생산량 '<br>					, truncate(SUM(a.CONS_AMT), 1)<br>											as CONS_AMT 		' 생산량 '<br>			from 	FE_ENG_CONS_AMT a 		' 에너지생산량테이블 '<br>			where	a.CONS_DTM >= concat($date, '000000')<br>			and		a.CONS_DTM <= concat($date, '235959')<br>			and		a.DTM_TYPE	= 'H1'<br>			group by  <br>				a.FAC_NO<br>				, a.ENG_ID<br>				, a.INLO_NO	<br>		)<br>		select<br>				$date				as CONS_DATE<br>				, a.FAC_NO<br>				, a.ENG_ID<br>				, a.INLO_NO<br>				, a.EXP_CONS_AMT<br>				, a.CONS_AMT<br>				, 1											as REG_USER_NO<br>				, DATE_FORMAT(now(), '%Y%m%d%H%i%s')		as REG_DTM<br>				, 1											as CHG_USER_NO<br>				, DATE_FORMAT(now(), '%Y%m%d%H%i%s')		as CHG_DTM<br>		from	ROWDATAS	a<br>		<br>		ON DUPLICATE KEY UPDATE		<br>				EXP_CONS_AMT 	= a.EXP_CONS_AMT<br>				, CONS_AMT		= a.CONS_AMT<br>				, CHG_DTM		= DATE_FORMAT(now(), '%Y%m%d%H%i%s')<br><br> <br>
+*/
+public final String make_cons_stat_from_h1 = "make-cons-stat-from-h1";
+
+/**
+* para : $dateHh, $dateHh, $dateHh<br>
+* ---------------------------------------------------------------------------------- <br>
+* database : null<br>
+* sql <br><br>
+ * <br>insert into FE_ENG_PROD_AMT (<br>				PROD_DTM<br>				, DTM_TYPE<br>				, FAC_NO<br>				, ENG_ID<br>				, INLO_NO<br>				, EXP_PROD_AMT<br>				, PROD_AMT<br>				, REG_USER_NO<br>				, REG_DTM<br>				, CHG_USER_NO<br>				, CHG_DTM<br>		)<br>		with <br>		ROWDATAS as (<br>			select	concat($dateHh, '0000')	as PROD_DTM<br>					, a.FAC_NO				as FAC_NO 		' 설비번호 '<br>					, a.ENG_ID				as ENG_ID 		' 에너지ID '<br>					, a.INLO_NO				as INLO_NO 		' 설치위치번호 '<br>					, truncate(sum(a.EXP_PROD_AMT), 1)	<br>											as EXP_PROD_AMT 		' 예상생산량 '<br>					, truncate(sum(a.PROD_AMT), 1)<br>											as PROD_AMT 		' 생산량 '<br>			from 	FE_ENG_PROD_AMT a 		' 에너지생산량테이블 '<br>			where	a.PROD_DTM 	>= concat($dateHh, '0000')<br>			and		a.PROD_DTM 	<= concat($dateHh, '5959')<br>			and		a.DTM_TYPE	= 'M15'<br>			group by  <br>				a.FAC_NO<br>				, a.ENG_ID<br>				, a.INLO_NO	<br>		)<br>		select<br>				  a.PROD_DTM<br>				, 'H1'				as DTM_TYPE<br>				, a.FAC_NO<br>				, a.ENG_ID<br>				, a.INLO_NO<br>				, a.EXP_PROD_AMT<br>				, a.PROD_AMT<br>				, 1											as REG_USER_NO<br>				, DATE_FORMAT(now(), '%Y%m%d%H%i%s')		as REG_DTM<br>				, 1											as CHG_USER_NO<br>				, DATE_FORMAT(now(), '%Y%m%d%H%i%s')		as CHG_DTM<br>		from	ROWDATAS	a<br>		<br>		ON DUPLICATE KEY UPDATE		<br>				EXP_PROD_AMT 	= a.EXP_PROD_AMT<br>				, PROD_AMT		= a.PROD_AMT<br>				, CHG_DTM			= DATE_FORMAT(now(), '%Y%m%d%H%i%s')<br><br> <br>
+*/
+public final String make_prod_h1_from_m15 = "make-prod-h1-from-m15";
+
+/**
+* para : $date, $date, $date<br>
+* ---------------------------------------------------------------------------------- <br>
+* database : null<br>
+* sql <br><br>
+ * <br>insert into FE_ENG_PROD_STAT (<br>			PROD_DATE<br>			, FAC_NO<br>			, ENG_ID<br>			, INLO_NO<br>			, EXP_PROD_AMT<br>			, PROD_AMT<br>			, REG_USER_NO<br>			, REG_DTM<br>			, CHG_USER_NO<br>			, CHG_DTM<br>		)<br>		with <br>		ROWDATAS as (<br>			select	a.FAC_NO				as FAC_NO 		' 설비번호 '<br>					, a.ENG_ID				as ENG_ID 		' 에너지ID '<br>					, a.INLO_NO				as INLO_NO 		' 설치위치번호 '<br>					, truncate(sum(a.EXP_PROD_AMT), 1)	<br>											as EXP_PROD_AMT 		' 예상생산량 '<br>					, truncate(sum(a.PROD_AMT), 1)<br>											as PROD_AMT 		' 생산량 '<br>			from 	FE_ENG_PROD_AMT a 		' 에너지생산량테이블 '<br>			where	a.PROD_DTM 	>= concat($date, '000000')<br>			and		a.PROD_DTM 	<= concat($date, '235959')<br>			and		a.DTM_TYPE	= 'H1'<br>			group by  <br>				a.FAC_NO<br>				, a.ENG_ID<br>				, a.INLO_NO	<br>		)<br>		select<br>				$date			as PROD_DATE<br>				, a.FAC_NO<br>				, a.ENG_ID<br>				, a.INLO_NO<br>				, a.EXP_PROD_AMT<br>				, a.PROD_AMT<br>				, 1											as REG_USER_NO<br>				, DATE_FORMAT(now(), '%Y%m%d%H%i%s')		as REG_DTM<br>				, 1											as CHG_USER_NO<br>				, DATE_FORMAT(now(), '%Y%m%d%H%i%s')		as CHG_DTM<br>		from	ROWDATAS	a<br>		<br>		ON DUPLICATE KEY UPDATE		<br>				EXP_PROD_AMT 	= a.EXP_PROD_AMT<br>				, PROD_AMT		= a.PROD_AMT<br>				, CHG_DTM			= DATE_FORMAT(now(), '%Y%m%d%H%i%s')<br><br> <br>
+*/
+public final String make_prod_stat_from_h1 = "make-prod-stat-from-h1";
+
 /**
 * para : $measrDtmStart, $measrDtmEnd<br>
 * result : RESULT_FE_ENG_TRANS_CALC_DTL=fxms.ems.bas.dbo.FE_ENG_TRANS_CALC_DTL<br>

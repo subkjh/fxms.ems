@@ -448,7 +448,7 @@ public class VupHandler extends BaseHandler {
 
 		List<PsValues> values = null;
 		if (psId != null) {
-			values = ValueApi.getApi().getValues(moNo, psId, psKind, null, startDtm, endDtm);
+			values = ValueApi.getApi().getValues(moNo, null, psId, psKind, null, startDtm, endDtm);
 		} else {
 			values = ValueApi.getApi().getValues(moNo, psKind, startDtm, endDtm);
 		}

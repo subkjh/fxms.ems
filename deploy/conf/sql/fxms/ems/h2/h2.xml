@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<queries>
+
+	<resultMap id="RESULT_MAP" javaClass="java.util.HashMap" keyCase="java"/>
+
+
+	<select id="select-test-mo-psid" resultMap="RESULT_MAP">
+		<![CDATA[
+		select 	b.MO_NO				as MO_NO
+				, b.MO_NAME			as MO_NAME
+				, a.PS_ID			as PS_ID
+				, a.POINT_TID 		as MO_INSTANCE 
+		from 	FX_PS_POINT a
+				, FX_MO b
+		where	b.MO_TID = a.MO_TID
+		and		a.PS_ID is not null
+		and		b.MO_TID = $moTid
+		]]>
+	</select>
+
+</queries>
+

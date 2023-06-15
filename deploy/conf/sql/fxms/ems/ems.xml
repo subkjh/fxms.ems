@@ -119,8 +119,348 @@
 				, FX_CF_INLO inlo
 		where	a.INLO_NO			= inlo.INLO_NO
 		]]>
-		<test var="inloClCd"> and inlo.INLO_CL_CD = $inloClCd </test>		
+		<test var="inloClCd"> and inlo.INLO_CL_CD = $inloClCd </test>	
 	</select>
+	
+	<!-- 수집한 원천 데이터를 이용하여 생산, 소비의 원천 데이터를 생성한다.-->
+	<insert id="make-cons-prod-raw-from-energy-raw">
+		<![CDATA[
+		insert into #engRawTable (
+			#measrDtmName
+			, INLO_NO
+			, ENG_ID
+			, INST_VAL
+			, PREV_INTG_VAL
+			, CUR_INTG_VAL
+			, DIFF_VAL
+			, PRES_VAL
+			, TEMP_VAL
+			, MEMO
+			, REG_USER_NO
+			, REG_DTM
+			, CHG_USER_NO
+			, CHG_DTM
+		)
+		with DATAS as (
+			select 	 $measrDtm						as #measrDtmName
+					, a.INLO_NO						as INLO_NO
+					, a.ENG_ID						as ENG_ID
+					, max(a.INST_VAL)				as INST_VAL
+					, max(a.PREV_INTG_VAL)			as PREV_INTG_VAL
+					, max(a.CUR_INTG_VAL)			as CUR_INTG_VAL
+					, sum(a.DIFF_VAL)				as DIFF_VAL
+					, avg(a.PRES_VAL)				as PRES_VAL
+					, avg(a.TEMP_VAL)				as TEMP_VAL
+					, 'FE_ENG_MEASR_RAW'			as MEMO
+					, 1											as REG_USER_NO
+					, DATE_FORMAT(now(), '%Y%m%d%H%i%s')		as REG_DTM
+					, 1											as CHG_USER_NO
+					, DATE_FORMAT(now(), '%Y%m%d%H%i%s')		as CHG_DTM				
+			from	FE_ENG_MEASR_RAW 	a
+					, FX_MO 			b
+			where	a.MEASR_DTM			= $measrDtm
+			and		a.MO_NO 			= b.MO_NO
+			and		b.MO_USAGE_CL_CD	= $moUsageClCd
+			group by 
+					a.INLO_NO
+					, a.ENG_ID
+		)
+		select	*
+		from	DATAS 	a
+								
+		ON DUPLICATE KEY UPDATE		
+				INST_VAL 		= a.INST_VAL
+				, PREV_INTG_VAL	= a.PREV_INTG_VAL
+				, CUR_INTG_VAL	= a.CUR_INTG_VAL
+				, DIFF_VAL		= a.DIFF_VAL
+				, PRES_VAL		= a.PRES_VAL
+				, TEMP_VAL		= a.TEMP_VAL
+				, MEMO			= a.MEMO
+				, CHG_DTM		= a.CHG_DTM
+		]]>
+	</insert>
+
+	<!-- 원천 테이블를 이용하여 15분 데이터를 생성한다. -->
+	<insert id="insert-cons-amt-m15-from-raw">
+		<![CDATA[
+		insert into FE_ENG_CONS_AMT (
+			CONS_DTM, DTM_TYPE, FAC_NO, ENG_ID, INLO_NO, EXP_CONS_AMT, CONS_AMT , REG_USER_NO , REG_DTM , CHG_USER_NO , CHG_DTM 
+		) 
+		with ROWDATAS as (
+			select 	a.CONS_DTM					as CONS_DTM
+					, 'M15'						as DTM_TYPE
+					, -1 						as FAC_NO
+					, a.ENG_ID 					as ENG_ID
+					, a.INLO_NO 				as INLO_NO
+					, 0							as EXP_CONS_AMT
+					, truncate(a.DIFF_VAL, 2)   as CONS_AMT
+					, 0							as REG_USER_NO
+					, DATE_FORMAT(now(), '%Y%m%d%H%i%s')	
+												as REG_DTM
+					, 0							as CHG_USER_NO
+					, DATE_FORMAT(now(), '%Y%m%d%H%i%s')
+												as CHG_DTM			
+			from 	VUP_ENG_CONS_RAW a
+			where	a.CONS_DTM	= $psDate
+		)
+		select 	a.*
+		from	ROWDATAS a 
+
+		ON DUPLICATE KEY UPDATE
+			CONS_AMT 		= a.CONS_AMT	
+			, CHG_DTM		= DATE_FORMAT(now(), '%Y%m%d%H%i%s')
+		]]>
+	</insert>
+	
+	<insert id="insert-prod-amt-m15-from-raw">
+		<![CDATA[
+		insert into FE_ENG_PROD_AMT (
+			PROD_DTM, DTM_TYPE, FAC_NO, ENG_ID, INLO_NO, EXP_PROD_AMT, PROD_AMT , REG_USER_NO , REG_DTM , CHG_USER_NO , CHG_DTM 
+		) 
+		with ROWDATAS as (
+			select 	a.PROD_DTM					as PROD_DTM
+					, 'M15'						as DTM_TYPE
+					, -1 						as FAC_NO
+					, a.ENG_ID 					as ENG_ID
+					, a.INLO_NO 				as INLO_NO
+					, 0							as EXP_PROD_AMT
+					, truncate(a.DIFF_VAL, 2)   as PROD_AMT
+					, 0							as REG_USER_NO
+					, DATE_FORMAT(now(), '%Y%m%d%H%i%s')	
+												as REG_DTM
+					, 0							as CHG_USER_NO
+					, DATE_FORMAT(now(), '%Y%m%d%H%i%s')
+												as CHG_DTM			
+			from 	FE_ENG_PROD_RAW a
+			where	a.PROD_DTM	= $psDate
+		)
+		select 	a.*
+		from	ROWDATAS a 
+
+		ON DUPLICATE KEY UPDATE
+			PROD_AMT 		= a.PROD_AMT	
+			, CHG_DTM		= DATE_FORMAT(now(), '%Y%m%d%H%i%s')
+		]]>
+	</insert>
+
+	<!-- 15분 에너지 소비/생산량을 이용하여 1시간 내역을 생성한다. -->
+
+	<insert id="make-prod-h1-from-m15" resultMap="RESULT_MAP">
+		<![CDATA[
+		insert into FE_ENG_PROD_AMT (
+				PROD_DTM
+				, DTM_TYPE
+				, FAC_NO
+				, ENG_ID
+				, INLO_NO
+				, EXP_PROD_AMT
+				, PROD_AMT
+				, REG_USER_NO
+				, REG_DTM
+				, CHG_USER_NO
+				, CHG_DTM
+		)
+		with 
+		ROWDATAS as (
+			select	concat($dateHh, '0000')	as PROD_DTM
+					, a.FAC_NO				as FAC_NO 		/* 설비번호 */
+					, a.ENG_ID				as ENG_ID 		/* 에너지ID */
+					, a.INLO_NO				as INLO_NO 		/* 설치위치번호 */
+					, truncate(sum(a.EXP_PROD_AMT), 1)	
+											as EXP_PROD_AMT 		/* 예상생산량 */
+					, truncate(sum(a.PROD_AMT), 1)
+											as PROD_AMT 		/* 생산량 */
+			from 	FE_ENG_PROD_AMT a 		/* 에너지생산량테이블 */
+			where	a.PROD_DTM 	>= concat($dateHh, '0000')
+			and		a.PROD_DTM 	<= concat($dateHh, '5959')
+			and		a.DTM_TYPE	= 'M15'
+			group by  
+				a.FAC_NO
+				, a.ENG_ID
+				, a.INLO_NO	
+		)
+		select
+				  a.PROD_DTM
+				, 'H1'				as DTM_TYPE
+				, a.FAC_NO
+				, a.ENG_ID
+				, a.INLO_NO
+				, a.EXP_PROD_AMT
+				, a.PROD_AMT
+				, 1											as REG_USER_NO
+				, DATE_FORMAT(now(), '%Y%m%d%H%i%s')		as REG_DTM
+				, 1											as CHG_USER_NO
+				, DATE_FORMAT(now(), '%Y%m%d%H%i%s')		as CHG_DTM
+		from	ROWDATAS	a
+		
+		ON DUPLICATE KEY UPDATE		
+				EXP_PROD_AMT 	= a.EXP_PROD_AMT
+				, PROD_AMT		= a.PROD_AMT
+				, CHG_DTM			= DATE_FORMAT(now(), '%Y%m%d%H%i%s')	
+
+		]]>
+	</insert>
+	<insert id="make-cons-h1-from-m15" resultMap="RESULT_MAP">
+		<![CDATA[
+		insert into FE_ENG_CONS_AMT (
+			CONS_DTM
+			, DTM_TYPE
+			, FAC_NO
+			, ENG_ID
+			, INLO_NO
+			, EXP_CONS_AMT
+			, CONS_AMT
+			, REG_USER_NO
+			, REG_DTM
+			, CHG_USER_NO
+			, CHG_DTM
+		)
+		with 
+			ROWDATAS as (
+				select	concat($dateHh, '0000')		as CONS_DTM
+						, a.FAC_NO				as FAC_NO 		/* 설비번호 */
+						, a.ENG_ID				as ENG_ID 		/* 에너지ID */
+						, a.INLO_NO				as INLO_NO 		/* 설치위치번호 */
+						, truncate(sum(a.EXP_CONS_AMT), 1)
+												as EXP_CONS_AMT 		/* 예상생산량 */
+						, truncate(sum(a.CONS_AMT), 1)
+												as CONS_AMT 		/* 생산량 */
+				from 	FE_ENG_CONS_AMT a 		/* 에너지생산량테이블 */
+				where	a.CONS_DTM >= concat($dateHh, '0000')
+				and		a.CONS_DTM <= concat($dateHh, '5959')
+				and		a.DTM_TYPE	= 'M15'
+				group by  
+					a.FAC_NO
+					, a.ENG_ID
+					, a.INLO_NO	
+			)
+			select
+					  a.CONS_DTM		as CONS_DTM
+					, 'H1'				as DTM_TYPE
+					, a.FAC_NO
+					, a.ENG_ID
+					, a.INLO_NO
+					, a.EXP_CONS_AMT
+					, a.CONS_AMT
+					, 1											as REG_USER_NO
+					, DATE_FORMAT(now(), '%Y%m%d%H%i%s')		as REG_DTM
+					, 1											as CHG_USER_NO
+					, DATE_FORMAT(now(), '%Y%m%d%H%i%s')		as CHG_DTM
+			from	ROWDATAS	a
+			
+			ON DUPLICATE KEY UPDATE		
+					EXP_CONS_AMT 	= a.EXP_CONS_AMT
+					, CONS_AMT		= a.CONS_AMT
+					, CHG_DTM		= DATE_FORMAT(now(), '%Y%m%d%H%i%s')
+		]]>
+	</insert>
+
+
+	<!-- 1시간 에너지 소비/생산량을 이용하여 1일 내역을 생성한다. -->
+
+
+	<insert id="make-prod-stat-from-h1" resultMap="RESULT_MAP">
+		<![CDATA[
+		insert into FE_ENG_PROD_STAT (
+			PROD_DATE
+			, FAC_NO
+			, ENG_ID
+			, INLO_NO
+			, EXP_PROD_AMT
+			, PROD_AMT
+			, REG_USER_NO
+			, REG_DTM
+			, CHG_USER_NO
+			, CHG_DTM
+		)
+		with 
+		ROWDATAS as (
+			select	a.FAC_NO				as FAC_NO 		/* 설비번호 */
+					, a.ENG_ID				as ENG_ID 		/* 에너지ID */
+					, a.INLO_NO				as INLO_NO 		/* 설치위치번호 */
+					, truncate(sum(a.EXP_PROD_AMT), 1)	
+											as EXP_PROD_AMT 		/* 예상생산량 */
+					, truncate(sum(a.PROD_AMT), 1)
+											as PROD_AMT 		/* 생산량 */
+			from 	FE_ENG_PROD_AMT a 		/* 에너지생산량테이블 */
+			where	a.PROD_DTM 	>= concat($date, '000000')
+			and		a.PROD_DTM 	<= concat($date, '235959')
+			and		a.DTM_TYPE	= 'H1'
+			group by  
+				a.FAC_NO
+				, a.ENG_ID
+				, a.INLO_NO	
+		)
+		select
+				$date			as PROD_DATE
+				, a.FAC_NO
+				, a.ENG_ID
+				, a.INLO_NO
+				, a.EXP_PROD_AMT
+				, a.PROD_AMT
+				, 1											as REG_USER_NO
+				, DATE_FORMAT(now(), '%Y%m%d%H%i%s')		as REG_DTM
+				, 1											as CHG_USER_NO
+				, DATE_FORMAT(now(), '%Y%m%d%H%i%s')		as CHG_DTM
+		from	ROWDATAS	a
+		
+		ON DUPLICATE KEY UPDATE		
+				EXP_PROD_AMT 	= a.EXP_PROD_AMT
+				, PROD_AMT		= a.PROD_AMT
+				, CHG_DTM			= DATE_FORMAT(now(), '%Y%m%d%H%i%s')
+		]]>
+	</insert>
+	<insert id="make-cons-stat-from-h1" resultMap="RESULT_MAP">
+		<![CDATA[
+		insert into FE_ENG_CONS_STAT (
+			CONS_DATE
+			, FAC_NO
+			, ENG_ID
+			, INLO_NO
+			, EXP_CONS_AMT
+			, CONS_AMT
+			, REG_USER_NO
+			, REG_DTM
+			, CHG_USER_NO
+			, CHG_DTM
+		)
+		with 
+		ROWDATAS as (
+			select	a.FAC_NO				as FAC_NO 		/* 설비번호 */
+					, a.ENG_ID				as ENG_ID 		/* 에너지ID */
+					, a.INLO_NO				as INLO_NO 		/* 설치위치번호 */
+					, truncate(sum(a.EXP_CONS_AMT), 1)
+											as EXP_CONS_AMT 		/* 예상생산량 */
+					, truncate(SUM(a.CONS_AMT), 1)
+											as CONS_AMT 		/* 생산량 */
+			from 	FE_ENG_CONS_AMT a 		/* 에너지생산량테이블 */
+			where	a.CONS_DTM >= concat($date, '000000')
+			and		a.CONS_DTM <= concat($date, '235959')
+			and		a.DTM_TYPE	= 'H1'
+			group by  
+				a.FAC_NO
+				, a.ENG_ID
+				, a.INLO_NO	
+		)
+		select
+				$date				as CONS_DATE
+				, a.FAC_NO
+				, a.ENG_ID
+				, a.INLO_NO
+				, a.EXP_CONS_AMT
+				, a.CONS_AMT
+				, 1											as REG_USER_NO
+				, DATE_FORMAT(now(), '%Y%m%d%H%i%s')		as REG_DTM
+				, 1											as CHG_USER_NO
+				, DATE_FORMAT(now(), '%Y%m%d%H%i%s')		as CHG_DTM
+		from	ROWDATAS	a
+		
+		ON DUPLICATE KEY UPDATE		
+				EXP_CONS_AMT 	= a.EXP_CONS_AMT
+				, CONS_AMT		= a.CONS_AMT
+				, CHG_DTM		= DATE_FORMAT(now(), '%Y%m%d%H%i%s')
+		]]>
+	</insert>	
 
 </queries>
 
