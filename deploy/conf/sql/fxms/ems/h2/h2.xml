@@ -9,7 +9,8 @@
 		select 	b.MO_NO				as MO_NO
 				, b.MO_NAME			as MO_NAME
 				, a.PS_ID			as PS_ID
-				, a.POINT_TID 		as MO_INSTANCE 
+				, IF(a.PS_ID = 'UNDEF', a.POINT_TID, null) 		
+									as MO_INSTANCE 
 		from 	FX_PS_POINT a
 				, FX_MO b
 		where	b.MO_TID = a.MO_TID

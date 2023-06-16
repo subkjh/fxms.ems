@@ -25,7 +25,7 @@ public class MakeEnergyAmtDfo implements FxDfo<Long, Void> {
 
 		MakeEnergyAmtDfo dfo = new MakeEnergyAmtDfo();
 		try {
-			dfo.makeDatas(20230614000000L);
+			dfo.makeDatas(20230616114500L);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -40,12 +40,13 @@ public class MakeEnergyAmtDfo implements FxDfo<Long, Void> {
 	}
 
 	public void makeDatas(long measrDtm) throws Exception {
+		
 		List<Integer> cntRaw = this.makeRaw(measrDtm); // 수집데이터로 원천 데이터
 		List<Integer> cntM15 = this.makeM15(measrDtm); // 원천으로 생산/소비량 15분
 		List<Integer> cntH1 = this.makeH1(measrDtm); // 15분으로 1시간 데이터
 		List<Integer> cntD1 = this.makeD1(measrDtm); // 1시간 데이터로 1일 데이터
 
-		Logger.logger.info("Raw={}/{}, M15={}/{}, H1={}/{}, D1={}/{}", cntRaw.get(0), cntRaw.get(1), cntM15.get(0),
+		Logger.logger.info("{} : Raw={}/{}, M15={}/{}, H1={}/{}, D1={}/{}", measrDtm, cntRaw.get(0), cntRaw.get(1), cntM15.get(0),
 				cntM15.get(1), cntH1.get(0), cntH1.get(1), cntD1.get(0), cntD1.get(1));
 	}
 

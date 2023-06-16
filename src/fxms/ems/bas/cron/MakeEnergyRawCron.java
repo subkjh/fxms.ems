@@ -66,6 +66,7 @@ public class MakeEnergyRawCron extends Crontab {
 
 			PsKind psKind = PsApi.getApi().getPsKind("MIN15");
 			long mstime = psKind.toMstime(psKind.getHstimeStart(dtm));
+			long psDtm;
 
 			List<EngPsVo> psList = new SelectEnergyPsIdDfo().selectEnergyPsId();
 
@@ -73,13 +74,14 @@ public class MakeEnergyRawCron extends Crontab {
 			for (long ms = mstime; ms < System.currentTimeMillis(); ms += MIN15) {
 
 				// 15분 데이터 생성
-				new MakeEnergyRawDfo().makeEnergyRaws(psKind, DateUtil.toHstime(mstime), psList);
+				psDtm = DateUtil.toHstime(ms);
+				new MakeEnergyRawDfo().makeEnergyRaws(psKind, psDtm, psList);
 
 				// 처리 내역 기록
 				// 다음에 시작할 때 이전 내용을 다시해도 상관 없고 혹시 데이터가 늦게 들어올 것을 감안하여 1시간으로 돌려놓는다.
 				VarApi.getApi().setVarValue(VAR_NAME, DateUtil.toHstime(ms - MIN15 * 4), false);
-
 			}
+			
 
 		} catch (Exception e) {
 			Logger.logger.error(e);

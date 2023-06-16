@@ -1,5 +1,6 @@
 package fxms.ems.vup.adapter;
 
+import java.util.List;
 import java.util.Map;
 
 import fxms.bas.api.PsApi;
@@ -46,7 +47,7 @@ public class EPowerStatAdapter extends PsStatAfterAdapter {
 		try {
 			a.psIdAccum = "ePowerAccum";
 			a.psIdVal = "ePowerAmt";
-			a.afterStat("FX_V_EPWR", "MIN15", psDate);
+			a.afterStat("FX_V_EPWR", null, "MIN15", psDate);
 			PsVoRawList list = a.makeMin15EPower(psDate);
 			System.out.println(FxmsUtil.toJson(list));
 		} catch (Exception e) {
@@ -55,7 +56,7 @@ public class EPowerStatAdapter extends PsStatAfterAdapter {
 	}
 
 	@Override
-	public void afterStat(String psTable, String psKindName, long psDate) throws Exception {
+	public void afterStat(String psTable, List<String> psIds, String psKindName, long psDate) throws Exception {
 
 		PsVoRawList valueList = null;
 

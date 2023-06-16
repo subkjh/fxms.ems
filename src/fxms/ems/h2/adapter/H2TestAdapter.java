@@ -38,9 +38,14 @@ public class H2TestAdapter extends FxGetValueAdapter {
 		final String moInstance;
 		final String psId;
 
-		Data(String moInstance, String psId) {
-			this.moInstance = moInstance;
-			this.psId = psId;
+		Data(Object moInstance, Object psId) {
+			this.moInstance = moInstance == null ? null : moInstance.toString();
+			this.psId = psId.toString();
+		}
+		
+		@Override
+		public String toString() {
+			return psId + "," + moInstance;
 		}
 	}
 
@@ -98,7 +103,7 @@ public class H2TestAdapter extends FxGetValueAdapter {
 
 		List<Data> ret = new ArrayList<>();
 		for (Map<String, Object> data : datas) {
-			ret.add(new Data(data.get("moInstance").toString(), data.get("psId").toString()));
+			ret.add(new Data(data.get("moInstance"), data.get("psId")));
 		}
 
 		return ret;

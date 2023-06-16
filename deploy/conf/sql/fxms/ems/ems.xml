@@ -200,7 +200,7 @@
 					, 0							as CHG_USER_NO
 					, DATE_FORMAT(now(), '%Y%m%d%H%i%s')
 												as CHG_DTM			
-			from 	VUP_ENG_CONS_RAW a
+			from 	FE_ENG_CONS_RAW a
 			where	a.CONS_DTM	= $psDate
 		)
 		select 	a.*

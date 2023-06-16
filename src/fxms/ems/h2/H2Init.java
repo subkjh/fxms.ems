@@ -10,6 +10,7 @@ import fxms.bas.cron.MoSyncCron;
 import fxms.bas.fxo.adapter.AlarmAfterLogAdapter;
 import fxms.bas.fxo.adapter.AlarmAfterMailAdapter;
 import fxms.bas.fxo.cron.CheckACron;
+import fxms.bas.impl.adapter.SampleStatAdapter;
 import fxms.bas.impl.adapter.SmsBizppurioAlarmAfterAdapter;
 import fxms.bas.impl.api.AdapterApiDfo;
 import fxms.bas.impl.cron.AlarmReleaseCron;
@@ -126,11 +127,13 @@ public class H2Init {
 
 		try {
 
+			api.insert(SampleStatAdapter.class);
+
 			api.insert(TestAdapter.class);
 			api.insert(H2TestAdapter.class);
 			api.insert(MakeEnergyRawCron.class);
 			api.insert(MakeEnergyConsProdAmtCron.class);
-			
+
 			api.insert(CheckACron.class);
 			api.insert(MoSyncCron.class);
 			api.insert(AlarmStatDailyCron.class);

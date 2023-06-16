@@ -51,7 +51,7 @@ public class SelectEnergyPsIdDfo implements FxDfo<Void, List<EngPsVo>> {
 			tran.start();
 
 			List<EngPsVo> ret = new ArrayList<>();
-			List<FE_ENG_BAS> list = tran.select(FE_ENG_BAS.class, null);
+			List<FE_ENG_BAS> list = tran.select(FE_ENG_BAS.class, FxApi.makePara("useYn", "Y"));
 
 			for (FE_ENG_BAS eng : list) {
 				if (FxApi.isNotEmpty(eng.getInstPsId())) {
@@ -65,6 +65,9 @@ public class SelectEnergyPsIdDfo implements FxDfo<Void, List<EngPsVo>> {
 				}
 				if (FxApi.isNotEmpty(eng.getTempPsId())) {
 					ret.add(new EngPsVo(eng.getEngId(), eng.getTempPsId(), PsType.temperature));
+				}
+				if (FxApi.isNotEmpty(eng.getUsedPsId())) {
+					ret.add(new EngPsVo(eng.getEngId(), eng.getUsedPsId(), PsType.used));
 				}
 			}
 

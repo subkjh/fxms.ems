@@ -25,7 +25,7 @@ public class MakeEnergyConsProdAmtCron extends Crontab {
 
 	@Override
 	public String getGroup() {
-		return "FeMS";
+		return "FEMS";
 	}
 
 	@Override
@@ -47,14 +47,14 @@ public class MakeEnergyConsProdAmtCron extends Crontab {
 
 			PsKind psKind = PsApi.getApi().getPsKind("MIN15");
 			long mstime = psKind.toMstime(psKind.getHstimeStart(dtm));
-			long hstime;
+			long psDtm;
 
 			// 최종 처리일시 이후부터 현재에서 5분전까지 처리함.
 			for (long ms = mstime; ms < System.currentTimeMillis(); ms += MIN15) {
 
-				hstime = DateUtil.toHstime(mstime);
+				psDtm = DateUtil.toHstime(ms);
 
-				new MakeEnergyAmtDfo().makeDatas(hstime);
+				new MakeEnergyAmtDfo().makeDatas(psDtm);
 
 				// 처리 내역 기록
 				// 다음에 시작할 때 이전 내용을 다시해도 상관 없고 혹시 데이터가 늦게 들어올 것을 감안하여 1시간으로 돌려놓는다.

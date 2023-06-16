@@ -4,10 +4,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import fxms.bas.api.AlarmApi;
+import fxms.bas.api.AppApi;
 import fxms.bas.api.FxApi;
+import fxms.bas.api.MoApi;
 import fxms.bas.api.PsApi;
 import fxms.bas.api.ValueApi;
 import fxms.bas.fxo.FxCfg;
+import fxms.bas.impl.api.AlarmApiDfo;
+import fxms.bas.impl.api.AppApiDfo;
+import fxms.bas.impl.api.MoApiDfo;
+import fxms.bas.impl.api.ValueApiDfo;
 import fxms.bas.impl.dpo.FxDfo;
 import fxms.bas.impl.dpo.FxFact;
 import fxms.bas.vo.PsItem;
@@ -31,12 +38,17 @@ import subkjh.dao.util.FxTableMaker;
 public class MakeEnergyRawDfo implements FxDfo<List<EngPsVo>, Integer> {
 
 	public static void main(String[] args) throws Exception {
+		
+		AppApi.api = new AppApiDfo();
+		ValueApi.api = new ValueApiDfo();
+		MoApi.api = new MoApiDfo();
+		AlarmApi.api = new AlarmApiDfo();
 
 		List<EngPsVo> psList = new SelectEnergyPsIdDfo().selectEnergyPsId();
 
 		MakeEnergyRawDfo dfo = new MakeEnergyRawDfo();
 		try {
-			dfo.makeEnergyRaws(PsApi.getApi().getPsKind("MIN15"), 20230614000000L, psList);
+			dfo.makeEnergyRaws(PsApi.getApi().getPsKind("MIN15"), 20230616144500L, psList);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -78,9 +90,11 @@ public class MakeEnergyRawDfo implements FxDfo<List<EngPsVo>, Integer> {
 			}
 		}
 
-		save(map);
+		int size = save(map);
 
-		return map.size();
+		Logger.logger.info("EnergyRawData : date={}, size={}", psDtm, size);
+
+		return size;
 
 	}
 
@@ -124,6 +138,8 @@ public class MakeEnergyRawDfo implements FxDfo<List<EngPsVo>, Integer> {
 				raw.setPresVal(round(cur.getValue().doubleValue()));
 			} else if (engPs.psType == PsType.temperature) {
 				raw.setTempVal(round(cur.getValue().doubleValue()));
+			} else if (engPs.psType == PsType.used) {
+				raw.setDiffVal(round(cur.getValue().doubleValue()));
 			}
 
 		}
@@ -141,7 +157,7 @@ public class MakeEnergyRawDfo implements FxDfo<List<EngPsVo>, Integer> {
 	 * @param map2
 	 * @throws Exception
 	 */
-	private void save(Map<String, FE_ENG_MEASR_RAW> map) throws Exception {
+	private int save(Map<String, FE_ENG_MEASR_RAW> map) throws Exception {
 
 		ClassDao tran = DBManager.getMgr().getDataBase(FxCfg.DB_CONFIG).createClassDao();
 
@@ -165,6 +181,9 @@ public class MakeEnergyRawDfo implements FxDfo<List<EngPsVo>, Integer> {
 			}
 
 			tran.commit();
+
+			return map.size();
+
 		} catch (Exception e) {
 			tran.rollback();
 			Logger.logger.error(e);

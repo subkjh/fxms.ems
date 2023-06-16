@@ -9,7 +9,7 @@ package fxms.ems.bas.vo;
 public class EngPsVo {
 
 	public enum PsType {
-		pressure, instance, accumulate, temperature
+		pressure, instance, accumulate, temperature, used
 	}
 
 	/** 에너지ID */
