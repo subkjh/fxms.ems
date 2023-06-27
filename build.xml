@@ -80,8 +80,6 @@
 			<arg line="-g" />
 			<arg line="-v1.2" />
 
-			<!-- Flare 서비스 -->
-			<arg line="fxms.ems.flare.FlareServiceImpl" />
 			<arg line="fxms.ems.vup.VupServiceImpl" />
 
 		</exec>
@@ -111,6 +109,15 @@
 		<jar destfile="${lib.dir}/fxms.ems.vup.jar" update="false">
 			<fileset dir="${classes.dir}">
 				<include name="fxms/ems/vup/**/*" />
+			</fileset>
+		</jar>
+	</target>
+	
+	<target name="fxms.ems.h2.jar">
+		<jar destfile="${lib.dir}/fxms.ems.h2.jar" update="false">
+			<fileset dir="${classes.dir}">
+				<include name="fxms/ems/bas/**/*" />
+				<include name="fxms/ems/h2/**/*" />
 			</fileset>
 		</jar>
 	</target>

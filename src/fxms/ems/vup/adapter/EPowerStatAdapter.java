@@ -23,7 +23,7 @@ public class EPowerStatAdapter extends PsStatAfterAdapter {
 	@FxAttr(name = "psTable", description = "생성되는 성능그룹", value = "FX_V_EPWR")
 	private String psTable;
 
-	@FxAttr(name = "psKindName", description = "성능종류", value = "MIN15")
+	@FxAttr(name = "psKindName", description = "성능종류", value = "15M")
 	private String psKindName;
 
 	@FxAttr(name = "psIdAccum", description = "누적성능항목", value = "ePowerAccum")
@@ -47,7 +47,7 @@ public class EPowerStatAdapter extends PsStatAfterAdapter {
 		try {
 			a.psIdAccum = "ePowerAccum";
 			a.psIdVal = "ePowerAmt";
-			a.afterStat("FX_V_EPWR", null, "MIN15", psDate);
+			a.afterStat("FX_V_EPWR", null, PsKind.PSKIND_15M, psDate);
 			PsVoRawList list = a.makeMin15EPower(psDate);
 			System.out.println(FxmsUtil.toJson(list));
 		} catch (Exception e) {
@@ -78,7 +78,7 @@ public class EPowerStatAdapter extends PsStatAfterAdapter {
 		Logger.logger.info("psTable={}:{}, psKind={}:{}, psDate={}, psId={},{}", this.psTable, psTable, this.psKindName,
 				psKindName, psDate, this.psIdAccum, this.psIdVal);
 
-		PsKind psKind = PsApi.getApi().getPsKind("MIN15");
+		PsKind psKind = PsApi.getApi().getPsKind(PsKind.PSKIND_15M);
 		PsKind rawKind = PsApi.getApi().getPsKindRaw();
 
 		if (psKind != null) {

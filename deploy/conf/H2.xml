@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<!DOCTYPE service[
+
+<!ELEMENT service (para*) >
+
+<!ELEMENT para EMPTY >
+<!ATTLIST para name CDATA #REQUIRED >
+<!ATTLIST para value CDATA #REQUIRED>
+
+<!-- match condition -->
+<!ATTLIST para os CDATA #IMPLIED >
+<!ATTLIST para service CDATA #IMPLIED >
+<!ATTLIST para ip CDATA #IMPLIED >
+
+]>
+
+<service>
+
+	<!-- TISP Public Data Search URL -->
+	<para name="tisp.data.url" value="http://10.0.1.11:18194/" />
+
+</service>

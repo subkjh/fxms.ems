@@ -66,7 +66,7 @@ public class MakeVupEnergyRawCron extends Crontab {
 			// 최종 처리일시 가져옴.
 			long dtm = VarApi.getApi().getVarValue("vup-energy-made-time", 20230404000000L);
 			
-			PsKind psKind = PsApi.getApi().getPsKind("MIN15");
+			PsKind psKind = PsApi.getApi().getPsKind(PsKind.PSKIND_15M);
 			long mstime = psKind.toMstime(psKind.getHstimeStart(dtm));
 			long hstime;
 
@@ -165,7 +165,7 @@ public class MakeVupEnergyRawCron extends Crontab {
 
 		QidDao tran = DBManager.getMgr().getDataBase(FxCfg.DB_CONFIG)
 				.createQidDao(BasCfg.getHome(VupQid.QUERY_XML_FILE));
-		PsKind kind = PsApi.getApi().getPsKind("MIN15");
+		PsKind kind = PsApi.getApi().getPsKind(PsKind.PSKIND_15M);
 
 		Map<String, Object> para = new HashMap<String, Object>();
 		para.put("psDate", kind.getHstimeStart(hstime));

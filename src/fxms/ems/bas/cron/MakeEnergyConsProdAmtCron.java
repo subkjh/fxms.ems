@@ -45,7 +45,7 @@ public class MakeEnergyConsProdAmtCron extends Crontab {
 			// 최종 처리일시 가져옴.
 			long dtm = VarApi.getApi().getVarValue(VAR_NAME, 20230404000000L);
 
-			PsKind psKind = PsApi.getApi().getPsKind("MIN15");
+			PsKind psKind = PsApi.getApi().getPsKind(PsKind.PSKIND_15M);
 			long mstime = psKind.toMstime(psKind.getHstimeStart(dtm));
 			long psDtm;
 

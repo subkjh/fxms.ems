@@ -9,6 +9,8 @@ import fxms.bas.signal.ReloadSignal.ReloadType;
 import fxms.ems.bas.adapter.TestAdapter;
 import fxms.ems.bas.cron.CalcTrnsChrgCron;
 import fxms.ems.bas.cron.MakeEnergyRawCron;
+import fxms.ems.bas.cron.SyncAddrCron;
+import fxms.ems.bas.cron.SyncWeatherCron;
 import fxms.ems.vup.adapter.EPowerStatAdapter;
 import fxms.ems.vup.adapter.VupAnsanAdapter;
 import fxms.ems.vup.cron.AnsanEPowerCron;
@@ -22,8 +24,8 @@ public class FxmsEmsInit {
 
 	public static void main(String[] args) {
 		FxmsEmsInit init = new FxmsEmsInit();
-//		init.initAdapter();
-		init.makeSource();
+		init.initAdapter();
+//		init.makeSource();
 	}
 
 	public void initAdapter() {
@@ -32,18 +34,21 @@ public class FxmsEmsInit {
 
 		try {
 
-			api.insert(TestAdapter.class);
-			api.insert(VupAnsanAdapter.class);
-			api.insert(EPowerStatAdapter.class);
+//			api.insert(TestAdapter.class);
+//			api.insert(VupAnsanAdapter.class);
+//			api.insert(EPowerStatAdapter.class);
+//
+//			api.insert(MakeExpAmtCron.class);
+//
+//			api.insert(MakeEnergyRawCron.class);
+//			api.insert(MakeVupEnergyRawCron.class);
+//			api.insert(AnsanEPowerCron.class);
+//			api.insert(CalcTrnsChrgCron.class);
+//
+//			api.insert(GemvaxDbCron.class);
 
-			api.insert(MakeExpAmtCron.class);
-
-			api.insert(MakeEnergyRawCron.class);
-			api.insert(MakeVupEnergyRawCron.class);
-			api.insert(AnsanEPowerCron.class);
-			api.insert(CalcTrnsChrgCron.class);
-
-			api.insert(GemvaxDbCron.class);
+			api.insert(SyncAddrCron.class);
+			api.insert(SyncWeatherCron.class);
 
 //			VarApi.getApi().setTimeUpdated(ReloadType.Adapter, DateUtil.getDtm());
 			return;
@@ -73,10 +78,15 @@ public class FxmsEmsInit {
 		tool.makeXml2JavaQid("deploy/conf/sql/fxms/ems/h2/h2.xml", "fxms.ems.h2.dao.H2Qid", "src/fxms/ems/h2/dao");
 		tool.makeXml2JavaQid("deploy/conf/sql/fxms/ems/vup/vup.xml", "fxms.ems.vup.dao.VupQid", "src/fxms/ems/vup/dao");
 //		tool.makeXml2JavaQid("deploy/conf/sql/fxms/ems/vup/vup_ui.xml", "fxms.ems.vup.dao.VupUiQid", "src/fxms/ems/vup/dao");
-		tool.makeXml2JavaQid("deploy/conf/sql/fxms/ems/vup/vup_test.xml", "fxms.ems.vup.dao.VupTestQid", "src/fxms/ems/vup/dao");
-		tool.makeXml2JavaQid("deploy/conf/sql/fxms/ems/vup/enitt_loc.xml", "fxms.ems.vup.dao.EnittLocQid", "src/fxms/ems/vup/dao");
-		tool.makeXml2JavaQid("deploy/conf/sql/fxms/ems/vup/gemvax.xml", "fxms.ems.vup.dao.GemvaxQid", "src/fxms/ems/vup/dao");
-		tool.makeXml2JavaQid("deploy/conf/sql/fxms/ems/vup/Tisp2VupCron.xml", "fxms.ems.vup.dao.Tisp2VupCronQid", "src/fxms/ems/vup/dao");
-		tool.makeXml2JavaQid("deploy/conf/sql/fxms/ems/vup/VupHandler.xml", "fxms.ems.vup.dao.VupHandlerQid", "src/fxms/ems/vup/dao");
+		tool.makeXml2JavaQid("deploy/conf/sql/fxms/ems/vup/vup_test.xml", "fxms.ems.vup.dao.VupTestQid",
+				"src/fxms/ems/vup/dao");
+		tool.makeXml2JavaQid("deploy/conf/sql/fxms/ems/vup/enitt_loc.xml", "fxms.ems.vup.dao.EnittLocQid",
+				"src/fxms/ems/vup/dao");
+		tool.makeXml2JavaQid("deploy/conf/sql/fxms/ems/vup/gemvax.xml", "fxms.ems.vup.dao.GemvaxQid",
+				"src/fxms/ems/vup/dao");
+		tool.makeXml2JavaQid("deploy/conf/sql/fxms/ems/vup/Tisp2VupCron.xml", "fxms.ems.vup.dao.Tisp2VupCronQid",
+				"src/fxms/ems/vup/dao");
+		tool.makeXml2JavaQid("deploy/conf/sql/fxms/ems/vup/VupHandler.xml", "fxms.ems.vup.dao.VupHandlerQid",
+				"src/fxms/ems/vup/dao");
 	}
 }

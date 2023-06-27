@@ -13,6 +13,7 @@ import fxms.bas.fxo.service.ValueService;
 import fxms.bas.fxo.service.ValueServiceImpl;
 import fxms.bas.impl.api.ValueApiDfo;
 import fxms.bas.vo.PsItem;
+import fxms.bas.vo.PsKind;
 import fxms.ems.vup.api.VupApi;
 
 public class ValueServiceTest {
@@ -39,7 +40,7 @@ public class ValueServiceTest {
 
 	void test() throws Exception {
 		ValueService service = getService();
-		String psKind = "MIN15";
+		String psKind = PsKind.PSKIND_15M;
 		String psId = VupApi.VUP_PS_ITEM.E01V4.name();
 		long startDtm = 20230410000000L;
 		long endDtm = 20230410235959L;
@@ -59,7 +60,7 @@ public class ValueServiceTest {
 
 	void test2() throws Exception {
 		ValueService service = getService();
-		String psKind = "MIN15";
+		String psKind = PsKind.PSKIND_15M;
 		String psId = VupApi.VUP_PS_ITEM.E01V4.name();
 		long startDtm = 20230410000000L;
 		long endDtm = 20230410235959L;

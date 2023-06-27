@@ -94,7 +94,7 @@ public class MakeEnergyAmtDfo implements FxDfo<Long, Void> {
 	 */
 	private List<Integer> makeM15(long measrDtm) throws Exception {
 
-		PsKind kind = PsApi.getApi().getPsKind("MIN15");
+		PsKind kind = PsApi.getApi().getPsKind(PsKind.PSKIND_15M);
 
 		Map<String, Object> para = FxApi.makePara("psDate", kind.getHstimeStart(measrDtm));
 

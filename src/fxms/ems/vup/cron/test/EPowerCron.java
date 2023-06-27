@@ -48,7 +48,7 @@ public class EPowerCron extends Crontab {
 
 			// 최종 처리일시 가져옴.
 			long dtm = VarApi.getApi().getVarValue("vup-epower-made-time", 20221231235500L);
-			PsKind psKind = PsApi.getApi().getPsKind("MIN15");
+			PsKind psKind = PsApi.getApi().getPsKind(PsKind.PSKIND_15M);
 			long mstime = psKind.toMstime(psKind.getHstimeStart(dtm));
 
 			// 최종 처리일시 이후부터 현재에서 5분전까지 처리함.
@@ -86,7 +86,7 @@ public class EPowerCron extends Crontab {
 			tran.start();
 
 			PsItem item = PsApi.getApi().getPsItem("ePowerAmt");
-			PsKind kind = PsApi.getApi().getPsKind("MIN15");
+			PsKind kind = PsApi.getApi().getPsKind(PsKind.PSKIND_15M);
 			if (item != null && kind != null && item.existKindCol("SUM")) {
 				long hstime = kind.toHstime(mstime);
 

@@ -48,7 +48,7 @@ public class MakeEnergyRawDfo implements FxDfo<List<EngPsVo>, Integer> {
 
 		MakeEnergyRawDfo dfo = new MakeEnergyRawDfo();
 		try {
-			dfo.makeEnergyRaws(PsApi.getApi().getPsKind("MIN15"), 20230616144500L, psList);
+			dfo.makeEnergyRaws(PsApi.getApi().getPsKind(PsKind.PSKIND_15M), 20230616144500L, psList);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
