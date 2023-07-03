@@ -42,23 +42,28 @@ public class MakeEnergyConsProdAmtCron extends Crontab {
 			varInfo.put("varDesc", "에너지 생산/소비량 생성일시를 나타낸다.");
 			VarApi.getApi().updateVarInfo(VAR_NAME, varInfo);
 
-			// 최종 처리일시 가져옴.
-			long dtm = VarApi.getApi().getVarValue(VAR_NAME, 20230404000000L);
-
 			PsKind psKind = PsApi.getApi().getPsKind(PsKind.PSKIND_15M);
-			long mstime = psKind.toMstime(psKind.getHstimeStart(dtm));
-			long psDtm;
+
+			// 최종 처리일시 가져옴.
+			long psDtm, mstime;
+			long dtm = VarApi.getApi().getVarValue(VAR_NAME, 0L);
+			if (dtm == 0) {
+				mstime = psKind.getMstimeStart(System.currentTimeMillis());
+			} else {
+				// 혹시 데이터가 늦게 들어올 것을 감안하여 1시간 전부터 처리한다.
+				mstime = psKind.toMstime(psKind.getHstimeStart(dtm)) - 3600000L;
+			}
 
 			// 최종 처리일시 이후부터 현재에서 5분전까지 처리함.
+			MakeEnergyAmtDfo dfo = new MakeEnergyAmtDfo();
 			for (long ms = mstime; ms < System.currentTimeMillis(); ms += MIN15) {
 
 				psDtm = DateUtil.toHstime(ms);
 
-				new MakeEnergyAmtDfo().makeDatas(psDtm);
+				dfo.makeDatas(psDtm);
 
 				// 처리 내역 기록
-				// 다음에 시작할 때 이전 내용을 다시해도 상관 없고 혹시 데이터가 늦게 들어올 것을 감안하여 1시간으로 돌려놓는다.
-				VarApi.getApi().setVarValue(VAR_NAME, DateUtil.toHstime(ms - MIN15 * 4), false);
+				VarApi.getApi().setVarValue(VAR_NAME, DateUtil.toHstime(ms), false);
 			}
 
 		} catch (Exception e) {

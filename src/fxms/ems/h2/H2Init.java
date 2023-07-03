@@ -20,6 +20,7 @@ import fxms.ems.bas.adapter.TestAdapter;
 import fxms.ems.bas.cron.MakeEnergyConsProdAmtCron;
 import fxms.ems.bas.cron.MakeEnergyRawCron;
 import fxms.ems.h2.adapter.H2TestAdapter;
+import fxms.ems.h2.adapter.H2TestContainerAdapter;
 import subkjh.bas.co.utils.DateUtil;
 import subkjh.bas.co.utils.FileUtil;
 import subkjh.dao.QidDao;
@@ -131,6 +132,8 @@ public class H2Init {
 
 			api.insert(TestAdapter.class);
 			api.insert(H2TestAdapter.class);
+			api.insert(H2TestContainerAdapter.class);
+
 			api.insert(MakeEnergyRawCron.class);
 			api.insert(MakeEnergyConsProdAmtCron.class);
 

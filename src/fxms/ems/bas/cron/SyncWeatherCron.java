@@ -34,11 +34,6 @@ public class SyncWeatherCron extends Crontab {
 	}
 
 	@Override
-	protected String getSchedule() {
-		return schedule;
-	}
-
-	@Override
 	public String getGroup() {
 		return "FeMS";
 	}
@@ -54,5 +49,10 @@ public class SyncWeatherCron extends Crontab {
 
 		dfo.syncWeather(DateUtil.getYmdStr(System.currentTimeMillis() + 86400000L)); // 내일
 
+	}
+
+	@Override
+	protected String getSchedule() {
+		return schedule;
 	}
 }

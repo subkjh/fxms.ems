@@ -39,7 +39,6 @@ public class MakeEnergyRawCron extends Crontab {
 	@FxAttr(name = "schedule", description = "실행계획", value = "2,17,32,47 * * * *")
 	private String schedule;
 
-	private final long MIN15 = 15 * 60000L;
 
 	public MakeEnergyRawCron() {
 
@@ -52,6 +51,9 @@ public class MakeEnergyRawCron extends Crontab {
 
 	@Override
 	public void start() throws Exception {
+		
+		final long MIN15 = 15 * 60000L;
+
 		try {
 
 			String VAR_NAME = "fems-energy-made-time-raw";
@@ -62,12 +64,18 @@ public class MakeEnergyRawCron extends Crontab {
 			VarApi.getApi().updateVarInfo(VAR_NAME, varInfo);
 
 			// 최종 처리일시 가져옴.
-			long dtm = VarApi.getApi().getVarValue(VAR_NAME, 20230404000000L);
 
-			PsKind psKind = PsApi.getApi().getPsKind("15M");
-			long mstime = psKind.toMstime(psKind.getHstimeStart(dtm));
-			long psDtm;
+			PsKind psKind = PsApi.getApi().getPsKind(PsKind.PSKIND_15M);
+			long psDtm, mstime;
+			long dtm = VarApi.getApi().getVarValue(VAR_NAME, 0L);
+			if (dtm == 0) {
+				mstime = psKind.getMstimeStart(System.currentTimeMillis());
+			} else {
+				// 혹시 데이터가 늦게 들어올 것을 감안하여 1시간 전부터 처리한다.
+				mstime = psKind.toMstime(psKind.getHstimeStart(dtm)) - 3600000L;
+			}
 
+			MakeEnergyRawDfo dfo = new MakeEnergyRawDfo();
 			List<EngPsVo> psList = new SelectEnergyPsIdDfo().selectEnergyPsId();
 
 			// 최종 처리일시 이후부터 현재에서 5분전까지 처리함.
@@ -75,13 +83,11 @@ public class MakeEnergyRawCron extends Crontab {
 
 				// 15분 데이터 생성
 				psDtm = DateUtil.toHstime(ms);
-				new MakeEnergyRawDfo().makeEnergyRaws(psKind, psDtm, psList);
+				dfo.makeEnergyRaws(psKind, psDtm, psList);
 
 				// 처리 내역 기록
-				// 다음에 시작할 때 이전 내용을 다시해도 상관 없고 혹시 데이터가 늦게 들어올 것을 감안하여 1시간으로 돌려놓는다.
-				VarApi.getApi().setVarValue(VAR_NAME, DateUtil.toHstime(ms - MIN15 * 4), false);
+				VarApi.getApi().setVarValue(VAR_NAME, DateUtil.toHstime(ms), false);
 			}
-			
 
 		} catch (Exception e) {
 			Logger.logger.error(e);

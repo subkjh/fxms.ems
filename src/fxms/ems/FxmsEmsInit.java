@@ -6,17 +6,9 @@ import java.util.Map;
 import fxms.bas.api.VarApi;
 import fxms.bas.impl.api.AdapterApiDfo;
 import fxms.bas.signal.ReloadSignal.ReloadType;
-import fxms.ems.bas.adapter.TestAdapter;
-import fxms.ems.bas.cron.CalcTrnsChrgCron;
-import fxms.ems.bas.cron.MakeEnergyRawCron;
 import fxms.ems.bas.cron.SyncAddrCron;
+import fxms.ems.bas.cron.SyncDateCron;
 import fxms.ems.bas.cron.SyncWeatherCron;
-import fxms.ems.vup.adapter.EPowerStatAdapter;
-import fxms.ems.vup.adapter.VupAnsanAdapter;
-import fxms.ems.vup.cron.AnsanEPowerCron;
-import fxms.ems.vup.cron.MakeVupEnergyRawCron;
-import fxms.ems.vup.cron.test.GemvaxDbCron;
-import fxms.ems.vup.cron.test.MakeExpAmtCron;
 import subkjh.bas.co.utils.DateUtil;
 import subkjh.dao.util.SqlTool;
 
@@ -49,6 +41,7 @@ public class FxmsEmsInit {
 
 			api.insert(SyncAddrCron.class);
 			api.insert(SyncWeatherCron.class);
+			api.insert(SyncDateCron.class);
 
 //			VarApi.getApi().setTimeUpdated(ReloadType.Adapter, DateUtil.getDtm());
 			return;

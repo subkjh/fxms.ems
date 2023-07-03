@@ -4,14 +4,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import fxms.bas.fxo.FxCfg;
+import fxms.bas.api.VarApi;
+import fxms.bas.exp.NotFoundException;
 import fxms.bas.fxo.FxmsUtil;
 import fxms.bas.impl.dbo.all.FX_CO_DONG;
 import fxms.bas.impl.dpo.FxDfo;
 import fxms.bas.impl.dpo.FxFact;
+import subkjh.bas.co.lang.Lang;
 import subkjh.bas.co.log.Logger;
 import subkjh.bas.co.user.User;
-import subkjh.bas.co.utils.DateUtil;
 import subkjh.bas.net.url.UrlClientGet;
 import subkjh.dao.ClassDaoEx;
 import subkjh.dao.util.FxTableMaker;
@@ -23,6 +24,8 @@ import subkjh.dao.util.FxTableMaker;
  *
  */
 public class SyncAddrDfo implements FxDfo<Void, Integer> {
+
+	private final String VAR_NAME = SyncDateDfo.VAR_NAME;
 
 	public static void main(String[] args) {
 
@@ -47,7 +50,10 @@ public class SyncAddrDfo implements FxDfo<Void, Integer> {
 	 */
 	public int syncAddr() throws Exception {
 
-		String site = FxCfg.getCfg().getString("tisp.data.url", null);
+		String site = VarApi.getApi().getVarValue(VAR_NAME, null);
+		if (site == null) {
+			throw new NotFoundException("conf", VAR_NAME, Lang.get("Environment variable not set.", VAR_NAME));
+		}
 
 		int siDocnt = syncSido(site);
 		int siGunGu = syncSigungu(site);
@@ -64,7 +70,7 @@ public class SyncAddrDfo implements FxDfo<Void, Integer> {
 		String body = client.get(url.toString());
 
 		Map<String, Object> map = FxmsUtil.toMapFromJson(body);
-		System.out.println(map);
+
 		Object obj = map.get("data");
 		if (obj instanceof List) {
 			return (List) obj;
@@ -79,13 +85,17 @@ public class SyncAddrDfo implements FxDfo<Void, Integer> {
 		Map<String, Object> para = new HashMap<>();
 
 		for (Map<String, Object> data : datas) {
-			
+
+			if (data.get("geoFence") == null) {
+				data.put("geoFence", data.get("geometry"));
+			}
+
 			// 시간
 			FxTableMaker.initRegChgMap(User.USER_NO_SYSTEM, data);
-			
+
 			// 조회조건
 			para.put("areaNum", data.get("areaNum"));
-			
+
 			dao.setOfClass(FX_CO_DONG.class, para, data);
 		}
 

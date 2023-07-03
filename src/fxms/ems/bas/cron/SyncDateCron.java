@@ -7,17 +7,17 @@ import fxms.bas.fxo.FxAttr;
 import fxms.bas.fxo.adapter.FxAdapterInfo;
 import fxms.bas.impl.api.MoApiDfo;
 import fxms.bas.impl.api.ValueApiDfo;
-import fxms.ems.bas.dpo.SyncAddrDfo;
+import fxms.ems.bas.dpo.SyncDateDfo;
 
-@FxAdapterInfo(service = "AppService", descr = "법정동을 TISP-DATA에서 가져와 동기화한다.")
-public class SyncAddrCron extends Crontab {
+@FxAdapterInfo(service = "AppService", descr = "요일정보를 TISP-DATA에서 가져와 동기화한다.")
+public class SyncDateCron extends Crontab {
 
 	public static void main(String[] args) {
 
 		ValueApi.api = new ValueApiDfo();
 		MoApi.api = new MoApiDfo();
 
-		SyncAddrCron cron = new SyncAddrCron();
+		SyncDateCron cron = new SyncDateCron();
 		try {
 			cron.start();
 		} catch (Exception e) {
@@ -25,10 +25,10 @@ public class SyncAddrCron extends Crontab {
 		}
 	}
 
-	@FxAttr(name = "schedule", description = "실행계획", value = "5 5 * * *")
+	@FxAttr(name = "schedule", description = "실행계획", value = "8 12 * * *")
 	private String schedule;
 
-	public SyncAddrCron() {
+	public SyncDateCron() {
 
 	}
 
@@ -39,7 +39,10 @@ public class SyncAddrCron extends Crontab {
 
 	@Override
 	public void start() throws Exception {
-		new SyncAddrDfo().syncAddr();
+
+		SyncDateDfo dfo = new SyncDateDfo();
+		dfo.syncDate();
+
 	}
 
 	@Override

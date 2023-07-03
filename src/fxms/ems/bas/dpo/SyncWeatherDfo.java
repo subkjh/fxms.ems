@@ -1,16 +1,20 @@
 package fxms.ems.bas.dpo;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import fxms.bas.api.FxApi;
-import fxms.bas.fxo.FxCfg;
+import fxms.bas.api.VarApi;
+import fxms.bas.exp.NotFoundException;
 import fxms.bas.fxo.FxmsUtil;
 import fxms.bas.impl.dbo.all.FX_CF_INLO;
+import fxms.bas.impl.dbo.all.FX_CO_DONG;
 import fxms.bas.impl.dbo.all.FX_CO_WEATHER;
 import fxms.bas.impl.dpo.FxDfo;
 import fxms.bas.impl.dpo.FxFact;
+import subkjh.bas.co.lang.Lang;
 import subkjh.bas.co.log.Logger;
 import subkjh.bas.co.user.User;
 import subkjh.bas.co.utils.DateUtil;
@@ -26,19 +30,23 @@ import subkjh.dao.util.FxTableMaker;
  */
 public class SyncWeatherDfo implements FxDfo<Void, Integer> {
 
+	private final String VAR_NAME = SyncDateDfo.VAR_NAME;
+
 	public static void main(String[] args) {
 
 		SyncWeatherDfo dfo = new SyncWeatherDfo();
 		try {
-			System.out.println(dfo.syncWeather("20230620"));
+			System.out.println(dfo.syncWeather("20230628"));
+			System.out.println(dfo.syncWeather("20230629"));
+			System.out.println(dfo.syncWeather("20230630"));
+//			System.out.println(FxmsUtil.toJson(dfo.getDongs()));
 		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 
 	@Override
 	public Integer call(FxFact fact, Void data) throws Exception {
-		return syncWeather("20");
+		return syncWeather(DateUtil.getYmdStr());
 	}
 
 	/**
@@ -50,16 +58,18 @@ public class SyncWeatherDfo implements FxDfo<Void, Integer> {
 	public int syncWeather(String yyyymmdd) throws Exception {
 
 		int count = 0;
-		String site = FxCfg.getCfg().getString("tisp.data.url", null);
+		String site = VarApi.getApi().getVarValue(VAR_NAME, null);
+		if (site == null) {
+			throw new NotFoundException("conf", VAR_NAME, Lang.get("Environment variable not set.", VAR_NAME));
+		}
 
 		StringBuffer url = new StringBuffer();
 		url.append(site).append("/api/tisp/02").append("?tm=").append(yyyymmdd);
 
-		List<FX_CF_INLO> list = ClassDaoEx.SelectDatas(FX_CF_INLO.class,
-				FxApi.makePara("DEL_YN", "N", "AREA_NUM is not", null));
+		List<FX_CO_DONG> list = getDongs();
 
-		for (FX_CF_INLO inlo : list) {
-			List<Map<String, Object>> datas = getData(url.toString() + "&areaNum=" + inlo.getAreaNum());
+		for (FX_CO_DONG dong : list) {
+			List<Map<String, Object>> datas = getData(url.toString() + "&areaNum=" + dong.getAreaNum());
 			if (datas != null) {
 				save(datas);
 				count++;
@@ -69,12 +79,20 @@ public class SyncWeatherDfo implements FxDfo<Void, Integer> {
 		return count;
 	}
 
+	private void fillDong(ClassDaoEx dao, List<FX_CO_DONG> list, FX_CO_DONG dong) throws Exception {
+		FX_CO_DONG upper = dao.selectData(FX_CO_DONG.class, FxApi.makePara("areaNum", dong.getUpperAreaNum()));
+		if (upper != null) {
+			list.add(upper);
+			fillDong(dao, list, upper);
+		}
+	}
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private List<Map<String, Object>> getData(String url) throws Exception {
 
 		UrlClientGet client = new UrlClientGet();
 		String body = client.get(url.toString());
-		
+
 		Logger.logger.debug("{}\n{}", url, body);
 
 		Map<String, Object> map = FxmsUtil.toMapFromJson(body);
@@ -84,6 +102,31 @@ public class SyncWeatherDfo implements FxDfo<Void, Integer> {
 		} else {
 			return null;
 		}
+	}
+
+	private List<FX_CO_DONG> getDongs() throws Exception {
+
+		ClassDaoEx dao = ClassDaoEx.open();
+		List<FX_CO_DONG> ret = new ArrayList<>();
+
+		// 등록된 주소 목록 조회
+		List<FX_CF_INLO> list = dao.selectDatas(FX_CF_INLO.class,
+				FxApi.makePara("DEL_YN", "N", "AREA_NUM is not", null));
+
+		// 법정동 목록 조회
+		for (FX_CF_INLO inlo : list) {
+			if (inlo.getAreaNum() != null) {
+				FX_CO_DONG dong = dao.selectData(FX_CO_DONG.class, FxApi.makePara("areaNum", inlo.getAreaNum()));
+				if (dong != null) {
+					ret.add(dong);
+					fillDong(dao, ret, dong);
+				}
+			}
+		}
+
+		dao.close();
+
+		return ret;
 	}
 
 	private int save(List<Map<String, Object>> datas) throws Exception {
