@@ -5,7 +5,7 @@ import fxms.bas.fxo.FxAttr;
 public class PointValueDto {
 
 	@FxAttr(description = "관제점", example = "MT0001010101")
-	private String pointPid;
+	private String pointId;
 
 	@FxAttr(description = "수집값", example = "123")
 	private Number value;
@@ -13,8 +13,8 @@ public class PointValueDto {
 	@FxAttr(description = "수집일시", example = "20200101000000")
 	private String date;
 
-	public String getPointPid() {
-		return pointPid;
+	public String getPointId() {
+		return pointId;
 	}
 
 	public Number getValue() {

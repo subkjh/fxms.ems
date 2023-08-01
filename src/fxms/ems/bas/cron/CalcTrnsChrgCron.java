@@ -63,7 +63,7 @@ public class CalcTrnsChrgCron extends Crontab {
 			VarApi.getApi().updateVarInfo(varName, varInfo);
 
 			// 최종 처리일시 가져옴.
-			String date = VarApi.getApi().getVarValue(varName, "20230401");
+			String date = VarApi.getApi().getVarValue(varName, DateUtil.getYmdStr(System.currentTimeMillis()));
 			long mstime = DateUtil.toMstime(date + "000000") - DAY;
 
 			CalculateDpo dpo = new CalculateDpo();

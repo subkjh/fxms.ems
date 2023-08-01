@@ -24,6 +24,12 @@ import subkjh.bas.co.utils.DateUtil;
 import subkjh.dao.QidDao;
 import subkjh.dao.database.DBManager;
 
+/**
+ * 반월/시화 전력계 값을 가져와 기록한다.
+ * 
+ * @author subkjh
+ *
+ */
 @FxAdapterInfo(service = "VupService", descr = "안산 전력계 데이터 VUP에 넣기")
 public class AnsanEPowerCron extends Crontab {
 

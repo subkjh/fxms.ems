@@ -130,7 +130,7 @@ public class AlarmParser {
 
 		if (alarm != null) {
 			try {
-				AlarmApi.getApi().clearAlarm(alarm, ALARM_RLSE_RSN_CD.Release, "", toMstime(a.updated_dt),
+				AlarmApi.getApi().clearAlarm(alarm.getAlarmNo(), toMstime(a.updated_dt), ALARM_RLSE_RSN_CD.Release, "",
 						User.USER_NO_SYSTEM);
 			} catch (Exception e) {
 				Logger.logger.error(e);

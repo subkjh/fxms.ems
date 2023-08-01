@@ -17,6 +17,7 @@ import fxms.ems.vup.dbo.all.VUP_COMM_ENITT_POINT;
 import fxms.ems.vup.dpo.EnittSyncPointDpo;
 import subkjh.bas.co.log.Logger;
 import subkjh.dao.ClassDao;
+import subkjh.dao.ClassDaoEx;
 import subkjh.dao.database.DBManager;
 
 /**
@@ -189,17 +190,7 @@ public class 애니트관제점확인 {
 	}
 
 	List<VUP_COMM_ENITT_POINT> getDatas() throws Exception {
-		ClassDao tran = DBManager.getMgr().getDataBase("VUPCOMMDB").createClassDao();
-
-		try {
-			tran.start();
-			return tran.select(VUP_COMM_ENITT_POINT.class, null);
-		} catch (Exception e) {
-			Logger.logger.error(e);
-			throw e;
-		} finally {
-			tran.stop();
-		}
+		return ClassDaoEx.SelectDatas(VUP_COMM_ENITT_POINT.class, null);
 	}
 
 	void updateMoPs(List<VUP_COMM_ENITT_POINT> list) throws Exception {

@@ -46,11 +46,11 @@ private Long facNo = -1L;
 
 
 @FxColumn(name = "EXP_PROD_AMT", size = 14, nullable = true, comment = "예상생산량", defValue = "-1")
-private Double expProdAmt = -1D;
+private Double expProdAmt;
 
 
 @FxColumn(name = "PROD_AMT", size = 14, nullable = true, comment = "생산량", defValue = "-1")
-private Double prodAmt = -1D;
+private Double prodAmt;
 
 
 @FxColumn(name = "REG_USER_NO", size = 9, operator = COLUMN_OP.insert, nullable = true, comment = "등록사용자번호", defValue = "0")

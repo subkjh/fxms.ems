@@ -2,7 +2,7 @@ package fxms.ems.vup.dao;
 
 /**
 * File : deploy/conf/sql/fxms/ems/vup/gemvax.xml<br>
-* @since 20230614162949
+* @since 20230726103724
 * @author subkjh 
 *
 */
@@ -54,5 +54,15 @@ public final String select_settlement_sale_list = "select-settlement-sale-list";
  * <br>select 	a.SEQ						as TRNS_NO							 '거래번호 '<br>				, if(a.ENERGY_GROUP_NAME = '압축공기', 'E01', <br>					if(a.ENERGY_GROUP_NAME = '스팀', 'E02', 'E03')) <br>					 						as ENG_TID							'에너지ID '<br>				, a.SOURCE_FACTORY_ID		as SELL_INLO_TID					'판매설치위치번호 '<br>				, a.SINK_FACTORY_ID			as BUY_INLO_TID						'구입설치위치번호 '<br>				, DATE_FORMAT(a.TRADING_START_DATE, '%Y%m%d%H%i%S') <br>											as TRNS_STRT_DTM					'거래시작일시 '<br>				, DATE_FORMAT(a.TRADING_END_DATE, '%Y%m%d%H%i%S')		<br>											as TRNS_FNSH_DTM					'거래종료일시 '<br>				, a.BUY_MAX_UNIT_VOLUME		as HOURLY_MAX_CNTRT_TRNS_VOL		'시간당최대계약거래량 '<br>		from 	view_tbl_trading_buy 		a<br>		where 	a.CANCEL_FLAG	= 'N'<br>		and		a.SEQ >= $trnsNo<br><br> <br>
 */
 public final String select_trade_list = "select-trade-list";
+
+/**
+* para : <br>
+* result : RESULT_MAP=java.util.HashMap<br>
+* ---------------------------------------------------------------------------------- <br>
+* database : null<br>
+* sql <br><br>
+ * <br>with datas as (<br>			select 	a.SEQ<br>					, a.FACTORY_GROUP_ID<br>					, a.ENERGY_GROUP_ID<br>					, a.ROOM_NAME 					<br>					, a.ROOM_START_MONTH <br>					, a.ROOM_END_MONTH<br>					, a.TRADING_MODEL_CD<br>					, ( select CODE_NAME from tbl_common_code t1 where t1.CODE_GROUP_ID = '43' and t1.CODE_ID = a.TRADING_MODEL_CD )<br>												as TRADING_MODEL_NM<br>					, a.UNIT_PRICE_TYPE_CD <br>					, ( select CODE_NAME from tbl_common_code t1 where t1.CODE_GROUP_ID = '42' and t1.CODE_ID = a.UNIT_PRICE_TYPE_CD )<br>												as UNIT_PRICE_TYPE_NM<br>					, a.SETTLEMENT_TYPE_CD <br>					, ( select CODE_NAME from tbl_common_code t1 where t1.CODE_GROUP_ID = '52' and t1.CODE_ID = a.SETTLEMENT_TYPE_CD )<br>												as SETTLEMENT_TYPE_NM<br>					, b.TRADING_ROOM_SEQ <br>					, b.SOURCE_FACTORY_ID <br>					, b.SALE_UNIT_PRICE <br>					, b.SALE_UNIT_VOLUME <br>					, c.SINK_FACTORY_ID<br>					, c.TRADING_ROOM_SALE_SEQ<br>					, c.BUY_START_MONTH<br>					, c.BUY_END_MONTH <br>					, c.BUY_UNIT_VOLUME<br>					, c.BUY_MAX_UNIT_VOLUME<br>					, DATE_FORMAT(c.TRADING_DATE , '%Y%m%d%H%i%s') <br>												as TRADING_DATE<br>					, c.SEQ as SEQ2<br>			from 	tbl_trading_room 		a<br>					, tbl_trading_room_sale b<br>					, tbl_trading_room_buy 	c<br>			where 	a.SEQ 					= b.TRADING_ROOM_SEQ <br>			and 	c.TRADING_ROOM_SALE_SEQ = b.SEQ<br>			and 	a.USE_FLAG  			= 'Y'<br>			and 	c.CANCEL_FLAG 			= 'N'<br>			and 	DATE_FORMAT(c.TRADING_DATE , '%Y%m%d%H%i%s') <br>											> '20230101000000'<br>		) <br>		select 	a.*<br>				, a.FACTORY_GROUP_ID			as COMPLEX_TID<br>				, a.SOURCE_FACTORY_ID			as SELL_PLANT_TID<br>				, a.SINK_FACTORY_ID				as BUY_PLANT_TID<br>				, a.ENERGY_GROUP_ID				as ENG_TID<br>				, a.TRADING_MODEL_CD 			as TRNS_METHD_CD<br>				, a.TRADING_DATE				as TRNS_DTM<br>				, concat(a.BUY_START_MONTH, '01000000')<br>									 			as TRNS_STRT_DTM<br>				, concat(a.BUY_END_MONTH, '01000000')									 			<br>												as TRNS_FNSH_DTM<br>				, a.BUY_UNIT_VOLUME 			as HOURLY_MAX_CNTRT_TRNS_VOL		<br>				, concat(SEQ, '-', TRADING_ROOM_SEQ, '-', TRADING_ROOM_SALE_SEQ, '-', SEQ2) 	<br>												as CNTRT_DOC_NUM<br>				, concat(SEQ, ' ', ROOM_NAME, '/', TRADING_MODEL_NM )<br>												as TRNS_DESCR<br>		from 	datas a<br><br> <br>
+*/
+public final String select_trading_list = "select-trading-list";
 
 }

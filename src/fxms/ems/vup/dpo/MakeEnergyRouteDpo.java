@@ -19,7 +19,9 @@ import fxms.ems.bas.dbo.FE_ENG_RT_PATH;
 import fxms.ems.bas.dbo.FE_FAC_PIPE;
 import fxms.ems.bas.dbo.FE_FAC_PIPE_PATH;
 import fxms.ems.bas.mo.SensorMo;
+import fxms.ems.vup.dbo.all.VUP_COMM_ENITT_POINT;
 import subkjh.dao.ClassDao;
+import subkjh.dao.ClassDaoEx;
 import subkjh.dao.database.DBManager;
 import subkjh.dao.util.FxTableMaker;
 
@@ -151,9 +153,9 @@ public class MakeEnergyRouteDpo implements FxDpo<Void, Boolean> {
 		List<FE_ENG_BAS> engs;
 		List<FX_CF_INLO> inlos;
 
-		ClassDao tran = DBManager.getMgr().getDataBase(FxCfg.DB_CONFIG).createClassDao();
-		try {
-			tran.start();
+		ClassDaoEx.SelectDatas("VUPCOMMDB", VUP_COMM_ENITT_POINT.class, null);
+
+		ClassDaoEx tran = ClassDaoEx.open();
 //			list = tran.select(FE_FAC_PIPE.class, FxApi.makePara("engId", "AIR", "mngInloNo", 11000));
 //			list = tran.select(FE_FAC_PIPE.class, FxApi.makePara("engId", "AIR", "mngInloNo", 12000));
 //			list = tran.select(FE_FAC_PIPE.class, FxApi.makePara("engId", "AIR", "mngInloNo", 13000));
@@ -162,18 +164,14 @@ public class MakeEnergyRouteDpo implements FxDpo<Void, Boolean> {
 //			list = tran.select(FE_FAC_PIPE.class, FxApi.makePara("engId", "STEAM", "mngInloNo", 12000));
 //			list = tran.select(FE_FAC_PIPE.class, FxApi.makePara("engId", "STEAM", "mngInloNo", 13000));
 //			list = tran.select(FE_FAC_PIPE.class, FxApi.makePara("engId", "STEAM", "mngInloNo", 14000));
-			list = tran.select(FE_FAC_PIPE.class, null);
-			paths = tran.select(FE_FAC_PIPE_PATH.class, null);
-			engs = tran.select(FE_ENG_BAS.class, null);
-			inlos = tran.select(FX_CF_INLO.class, null);
+		list = tran.selectDatas(FE_FAC_PIPE.class, null);
+		paths = tran.selectDatas(FE_FAC_PIPE_PATH.class, null);
+		engs = tran.selectDatas(FE_ENG_BAS.class, null);
+		inlos = tran.selectDatas(FX_CF_INLO.class, null);
 
-			init(list, paths, engs, inlos);
+		tran.close();
 
-		} catch (Exception e) {
-			throw e;
-		} finally {
-			tran.stop();
-		}
+		init(list, paths, engs, inlos);
 
 	}
 

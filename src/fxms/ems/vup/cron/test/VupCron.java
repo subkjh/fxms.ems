@@ -26,8 +26,9 @@ import subkjh.dao.database.DBManager;
  * 
  * 
  * @author subkjh
- *
+ * @deprecated 
  */
+
 @FxAdapterInfo(service = "VupService", descr = "에너지 생산 소비 가상으로 만들기")
 public class VupCron extends Crontab {
 

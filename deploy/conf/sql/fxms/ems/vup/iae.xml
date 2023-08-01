@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<queries>
+
+	<resultMap id="RESULT_MAP" javaClass="java.util.HashMap" keyCase="java" />
+
+
+	<select id="select_iae_steam_prediction" resultMap="RESULT_MAP">
+		<![CDATA[
+		select 	
+				history_id
+				, DATE_FORMAT(timestamp, '%Y%m%d%H%i%s') 
+											as EXP_DTM
+				, path						as ENG_RT_ID
+				, source_company
+				, source_plant
+				, sink_company
+				, sink_plant
+				, energy_category
+				, volume					as	EXP_AMT
+				, unit
+		from	iae_steam_prediction
+		where 	history_id > $history_id
+		order by history_id
+		]]>
+	</select>
+	
+	<select id="select_iae_air_compressed_prediction" resultMap="RESULT_MAP">
+		<![CDATA[
+		select 	
+				history_id
+				, DATE_FORMAT(timestamp, '%Y%m%d%H%i%s') 
+											as EXP_DTM
+				, path						as ENG_RT_ID
+				, source_company
+				, source_plant
+				, sink_company
+				, sink_plant
+				, energy_category
+				, volume					as	EXP_AMT
+				, unit
+		from	iae_air_compressed_prediction
+		where 	history_id > $history_id
+		order by history_id
+		]]>
+	</select>
+	
+
+</queries>
+

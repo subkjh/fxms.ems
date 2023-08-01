@@ -50,6 +50,7 @@ import subkjh.bas.co.log.LOG_LEVEL;
 import subkjh.bas.co.log.Logger;
 import subkjh.bas.co.utils.ObjectUtil;
 import subkjh.dao.ClassDao;
+import subkjh.dao.ClassDaoEx;
 import subkjh.dao.database.DBManager;
 import subkjh.dao.util.FxTableMaker;
 
@@ -488,7 +489,7 @@ public class VupApi extends FxApi {
 		ClassDao tran = DBManager.getMgr().getDataBase(FxCfg.DB_CONFIG).createClassDao();
 		try {
 			tran.start();
-			List<FE_FAC_PIPE> list = tran.select(FE_FAC_PIPE.class, makePara("pipeId", pipeId));
+			List<FE_FAC_PIPE> list = tran.selectDatas(FE_FAC_PIPE.class, makePara("pipeId", pipeId));
 			if (list.size() == 0) {
 				FE_FAC_PIPE data = new FE_FAC_PIPE();
 				ObjectUtil.toObject(para, data);
@@ -659,20 +660,7 @@ public class VupApi extends FxApi {
 	}
 
 	private List<FE_ENG_BAS> loadEngIds() throws Exception {
-		ClassDao tran = DBManager.getMgr().getDataBase(FxCfg.DB_CONFIG).createClassDao();
-
-		try {
-			tran.start();
-
-			return tran.select(FE_ENG_BAS.class, FxApi.makePara("useYn", "Y"));
-
-		} catch (Exception e) {
-			Logger.logger.error(e);
-
-			throw e;
-		} finally {
-			tran.stop();
-		}
+		return ClassDaoEx.SelectDatas(FE_ENG_BAS.class, FxApi.makePara("useYn", "Y"));
 	}
 
 	private Map<String, Object> makeCompany(VUP_COMM_PLANT c, Inlo complex) {
@@ -862,22 +850,12 @@ public class VupApi extends FxApi {
 	}
 
 	private <T> List<T> selectList(Class<T> classOfT, Object para) throws Exception {
-
-		ClassDao tran = DBManager.getMgr().getDataBase(FxCfg.DB_CONFIG).createClassDao();
-		try {
-			tran.start();
-			return tran.select(classOfT, para);
-		} catch (Exception e) {
-			throw e;
-		} finally {
-			tran.stop();
-		}
-
+		return ClassDaoEx.SelectDatas(classOfT, para);
 	}
 
 	private void setFac(ClassDao tran, Map<String, Object> wherePara, Map<String, Object> para) throws Exception {
 
-		List<FE_FAC_BAS> list = tran.select(FE_FAC_BAS.class, wherePara);
+		List<FE_FAC_BAS> list = tran.selectDatas(FE_FAC_BAS.class, wherePara);
 		if (list.size() == 0) {
 			FE_FAC_BAS data = new FE_FAC_BAS();
 			ObjectUtil.toObject(para, data);

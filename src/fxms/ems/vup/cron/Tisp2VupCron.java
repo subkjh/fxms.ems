@@ -59,7 +59,7 @@ public class Tisp2VupCron extends Crontab {
 
 		try {
 			cron.start();
-			cron.makeRoute();
+//			cron.makeRoute();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -68,86 +68,65 @@ public class Tisp2VupCron extends Crontab {
 	@FxAttr(name = "schedule", description = "실행계획", value = "* * * * *")
 	private String schedule;
 
-	private List<FE_FAC_PIPE_PATH> getPaths(Map<String, Object> map, VUP_COMM_PIPE pipe) {
+	@Override
+	public void start() throws Exception {
 
-		if (pipe.getPipePaths() == null || pipe.getPipePaths().trim().length() == 0) {
-			return null;
+		try {
+//			this.syncComplex();
+//			this.syncPlant();
+//			this.syncFacility();
+//			this.syncModel();
+//			this.syncPlc();
+//			this.syncDevice();
+			this.syncDevicePs();
+//			this.syncPipe();
+
+		} catch (Exception e) {
+			Logger.logger.error(e);
 		}
-
-		FE_FAC_PIPE_PATH c;
-		List<FE_FAC_PIPE_PATH> list = new ArrayList<FE_FAC_PIPE_PATH>();
-		String ss[] = pipe.getPipePaths().split(",");
-		Object obj;
-
-		for (String s : ss) {
-			String name = s.split(":")[0];
-
-			if ("PVALVE".equalsIgnoreCase(name)) {
-				c = new FE_FAC_PIPE_PATH();
-				c.setPipeId(pipe.getPipeId());
-				c.setLinkSeq(list.size() + 1);
-				c.setLinkDescr("");
-				c.setLinkObjClCd("PVALUE");
-				c.setLinkObjId("");
-				c.setLinkObjName("");
-				list.add(c);
-				continue;
-			}
-			obj = map.get(name);
-			if (obj != null) {
-				c = new FE_FAC_PIPE_PATH();
-				c.setPipeId(pipe.getPipeId());
-
-				c.setLinkSeq(list.size() + 1);
-				if (obj instanceof FE_FAC_PIPE) {
-					FE_FAC_PIPE o = (FE_FAC_PIPE) obj;
-					c.setLinkDescr("");
-					c.setLinkObjClCd("PIPE");
-					c.setLinkObjId(o.getPipeId());
-					c.setLinkObjName(o.getPipeName());
-				} else if (obj instanceof FE_FAC_BAS) {
-					FE_FAC_BAS o = (FE_FAC_BAS) obj;
-					c.setLinkDescr("");
-					c.setLinkObjClCd("FAC");
-					c.setLinkObjId(o.getFacTid());
-					c.setLinkObjName(o.getFacName());
-				} else if (obj instanceof FX_MO) {
-					FX_MO o = (FX_MO) obj;
-					c.setLinkDescr("");
-					c.setLinkObjClCd("MO");
-					c.setLinkObjId(o.getMoTid());
-					c.setLinkObjName(o.getMoName());
-				}
-
-				list.add(c);
-			} else {
-				System.out.println(name);
-			}
-		}
-
-		return list;
 	}
 
-	private Map<String, Object> loadDataForPipe() throws Exception {
-		Map<String, Object> retMap = new HashMap<String, Object>();
+	void makeRoute() throws Exception {
+		MakeEnergyRouteDpo dpo = new MakeEnergyRouteDpo();
+		dpo.makeEnergrRoute();
+	}
+
+	void makeRoute2() throws Exception {
+
+		List<FE_FAC_PIPE> list;
+		Map<String, FE_ENG_BAS> engMap = new HashMap<>();
+		Map<Integer, FX_CF_INLO> inloMap = new HashMap<>();
+		Map<String, List<FE_FAC_PIPE_PATH>> pathsMap = new HashMap<>();
+
 		ClassDao tran = DBManager.getMgr().getDataBase(FxCfg.DB_CONFIG).createClassDao();
 		try {
 			tran.start();
-			List<FE_FAC_PIPE> pipeList = tran.select(FE_FAC_PIPE.class, null);
-			List<FX_MO> sensorList = tran.select(FX_MO.class,
-					FxApi.makePara("delYn", "N", "moClass", VupApi.SENSOR_MO_CLASS));
-			List<FE_FAC_BAS> facList = tran.select(FE_FAC_BAS.class, null);
-
-			for (FE_FAC_PIPE obj : pipeList) {
-				retMap.put(obj.getPipeId(), obj);
-			}
-			for (FX_MO obj : sensorList) {
-				if (obj.getMoDispName() != null) {
-					retMap.put(obj.getMoDispName().trim(), obj);
+//			list = tran.select(FE_FAC_PIPE.class, FxApi.makePara("engId", "AIR", "mngInloNo", 11000));
+//			list = tran.select(FE_FAC_PIPE.class, FxApi.makePara("engId", "AIR", "mngInloNo", 12000));
+//			list = tran.select(FE_FAC_PIPE.class, FxApi.makePara("engId", "AIR", "mngInloNo", 13000));
+//			list = tran.select(FE_FAC_PIPE.class, FxApi.makePara("engId", "AIR", "mngInloNo", 14000));
+//			list = tran.select(FE_FAC_PIPE.class, FxApi.makePara("engId", "STEAM", "mngInloNo", 11000));
+//			list = tran.select(FE_FAC_PIPE.class, FxApi.makePara("engId", "STEAM", "mngInloNo", 12000));
+//			list = tran.select(FE_FAC_PIPE.class, FxApi.makePara("engId", "STEAM", "mngInloNo", 13000));
+			list = tran.selectDatas(FE_FAC_PIPE.class, FxApi.makePara("engId", "STEAM", "mngInloNo", 14000));
+//			list = tran.select(FE_FAC_PIPE.class, null);
+			List<FE_FAC_PIPE_PATH> paths = tran.selectDatas(FE_FAC_PIPE_PATH.class, null);
+			for (FE_FAC_PIPE_PATH path : paths) {
+				List<FE_FAC_PIPE_PATH> entry = pathsMap.get(path.getPipeId());
+				if (entry == null) {
+					entry = new ArrayList<FE_FAC_PIPE_PATH>();
+					pathsMap.put(path.getPipeId(), entry);
 				}
+				entry.add(path);
 			}
-			for (FE_FAC_BAS obj : facList) {
-				retMap.put(obj.getFacTid(), obj);
+
+			List<FE_ENG_BAS> list2 = tran.selectDatas(FE_ENG_BAS.class, null);
+			for (FE_ENG_BAS eng : list2) {
+				engMap.put(eng.getEngId(), eng);
+			}
+			List<FX_CF_INLO> list3 = tran.selectDatas(FX_CF_INLO.class, null);
+			for (FX_CF_INLO eng : list3) {
+				inloMap.put(eng.getInloNo(), eng);
 			}
 		} catch (Exception e) {
 			throw e;
@@ -155,25 +134,53 @@ public class Tisp2VupCron extends Crontab {
 			tran.stop();
 		}
 
-		return retMap;
-	}
-
-	private String makeCapa(String press, String temp) {
-		StringBuffer sb = new StringBuffer();
-		if (press != null && press.trim().length() > 0) {
-			sb.append("PRESS:").append(press.trim());
+		List<FE_FAC_PIPE> srcList = new ArrayList<FE_FAC_PIPE>();
+		List<FE_FAC_PIPE> sinkList = new ArrayList<FE_FAC_PIPE>();
+		for (FE_FAC_PIPE pipe : list) {
+			if (pipe.getPipeClCd().equals("SINK")) {
+				sinkList.add(pipe);
+			} else if (pipe.getPipeClCd().equals("SOURCE")) {
+				srcList.add(pipe);
+			} else if (pipe.getPipeClCd().equals("PUBLIC")) {
+				srcList.add(pipe);
+			}
 		}
-		if (temp != null && temp.trim().length() > 0) {
-			if (sb.length() > 0)
-				sb.append(",");
-			sb.append(" TEMP:").append(temp.trim());
-		}
-		return sb.toString().trim();
-	}
 
-	@Override
-	protected String getSchedule() {
-		return schedule;
+		for (FE_FAC_PIPE src : srcList) {
+			for (FE_FAC_PIPE sink : sinkList) {
+
+//				System.out.println(FxmsUtil.toJson(src));
+//				System.out.println(FxmsUtil.toJson(sink));
+
+				if (src.getEngId().equals(sink.getEngId())
+						&& src.getMngInloNo().intValue() == sink.getMngInloNo().intValue()
+						&& src.getLinkInloNo().intValue() != sink.getLinkInloNo().intValue()) {
+
+					List<FE_FAC_PIPE_PATH> srcPaths = pathsMap.get(src.getPipeId());
+					List<FE_FAC_PIPE_PATH> sinkPaths = pathsMap.get(sink.getPipeId());
+					if (isLinked(srcPaths, sinkPaths)) {
+
+						FE_ENG_BAS eng = engMap.get(src.getEngId());
+						FX_CF_INLO srcInlo = inloMap.get(src.getLinkInloNo());
+						FX_CF_INLO sinkInlo = inloMap.get(sink.getLinkInloNo());
+
+						String rtId = eng.getEngTid() + "-" + srcInlo.getInloTid() + "-" + sinkInlo.getInloTid();
+						FE_ENG_RT_BAS rt = new FE_ENG_RT_BAS();
+						rt.setEngId(eng.getEngId());
+						rt.setEngRtDescr(
+								"(" + eng.getEngName() + ") " + srcInlo.getInloName() + " - " + sinkInlo.getInloName());
+						rt.setEngRtId(rtId);
+						rt.setFnshInloNo(sinkInlo.getInloNo());
+						rt.setFnshInloName(sinkInlo.getInloName());
+						rt.setStrtInloNo(srcInlo.getInloNo());
+						rt.setStrtInloName(srcInlo.getInloName());
+
+						System.out.println(FxmsUtil.toJson(rt));
+						System.out.println(FxmsUtil.toJson(getPath(rtId, srcPaths, sinkPaths)));
+					}
+				}
+			}
+		}
 	}
 
 	/**
@@ -201,19 +208,6 @@ public class Tisp2VupCron extends Crontab {
 	}
 
 	/**
-	 * 모델 동기화
-	 * 
-	 * @throws Exception
-	 */
-	void syncModel() throws Exception {
-
-		List<VUP_COMM_DEVICE> deviceList = select(VUP_COMM_DEVICE.class);
-
-		VupApi.getApi().updateModels(deviceList);
-
-	}
-
-	/**
 	 * 관제점 동기화
 	 * 
 	 * @throws Exception
@@ -236,14 +230,18 @@ public class Tisp2VupCron extends Crontab {
 					String ss[] = c.getPsIds().split(",");
 					for (String s : ss) {
 						String ss2[] = s.split(":");
+						if (ss2.length < 2)
+							continue;
 						String tag = c.getPlantPid() + "-" + ss2[0].replaceAll("-", "");
 						String psId = ss2[1];
 
 						MappData mappData = VupApi.getApi().makeMappPs(tag, tag);
 						PsItem psItem = psMap.get(psId);
 						if (psItem != null) {
+
 							MappingApi.getApi().setMappPs(0, mappData, mo.getMoNo(), mo.getMoName(), psItem.getPsId(),
 									psItem.getPsName());
+
 						} else {
 							Logger.logger.fail("not found psItem '{}'", psId);
 						}
@@ -333,6 +331,19 @@ public class Tisp2VupCron extends Crontab {
 	}
 
 	/**
+	 * 모델 동기화
+	 * 
+	 * @throws Exception
+	 */
+	void syncModel() throws Exception {
+
+		List<VUP_COMM_DEVICE> deviceList = select(VUP_COMM_DEVICE.class);
+
+		VupApi.getApi().updateModels(deviceList);
+
+	}
+
+	/**
 	 * 배관 동기화
 	 * 
 	 * @throws Exception
@@ -419,18 +430,6 @@ public class Tisp2VupCron extends Crontab {
 
 	}
 
-	private <T> List<T> select(Class<T> classOfT) throws Exception {
-		ClassDao tran = DBManager.getMgr().getDataBase("VUPCOMMDB").createClassDao();
-		try {
-			tran.start();
-			return tran.select(classOfT, null);
-		} catch (Exception e) {
-			throw e;
-		} finally {
-			tran.stop();
-		}
-	}
-
 	/**
 	 * PLC 동기화
 	 * 
@@ -479,153 +478,9 @@ public class Tisp2VupCron extends Crontab {
 		}
 	}
 
-	private String getPlcMoType(VUP_COMM_PLC c) {
-		if (c.getPlcName().contains("전용망")) {
-			return "전용망";
-		} else if (c.getPlcName().contains("공유기")) {
-			return "공유기";
-		} else if (c.getPlcName().contains("LOC")) {
-			return "LOC Server";
-		} else if (c.getPlcName().contains("DB")) {
-			return "PLC DB Server";
-		}
-
-		return VupApi.PLC_MO_TYPE;
-	}
-
 	@Override
-	public void start() throws Exception {
-
-		try {
-			this.syncComplex();
-			this.syncPlant();
-			this.syncFacility();
-			this.syncModel();
-			this.syncPlc();
-			this.syncDevice();
-			this.syncDevicePs();
-			this.syncPipe();
-
-		} catch (Exception e) {
-			Logger.logger.error(e);
-		}
-	}
-
-	void makeRoute() throws Exception {
-		MakeEnergyRouteDpo dpo = new MakeEnergyRouteDpo();
-		dpo.makeEnergrRoute();
-	}
-
-	void makeRoute2() throws Exception {
-
-		List<FE_FAC_PIPE> list;
-		Map<String, FE_ENG_BAS> engMap = new HashMap<>();
-		Map<Integer, FX_CF_INLO> inloMap = new HashMap<>();
-		Map<String, List<FE_FAC_PIPE_PATH>> pathsMap = new HashMap<>();
-
-		ClassDao tran = DBManager.getMgr().getDataBase(FxCfg.DB_CONFIG).createClassDao();
-		try {
-			tran.start();
-//			list = tran.select(FE_FAC_PIPE.class, FxApi.makePara("engId", "AIR", "mngInloNo", 11000));
-//			list = tran.select(FE_FAC_PIPE.class, FxApi.makePara("engId", "AIR", "mngInloNo", 12000));
-//			list = tran.select(FE_FAC_PIPE.class, FxApi.makePara("engId", "AIR", "mngInloNo", 13000));
-//			list = tran.select(FE_FAC_PIPE.class, FxApi.makePara("engId", "AIR", "mngInloNo", 14000));
-//			list = tran.select(FE_FAC_PIPE.class, FxApi.makePara("engId", "STEAM", "mngInloNo", 11000));
-//			list = tran.select(FE_FAC_PIPE.class, FxApi.makePara("engId", "STEAM", "mngInloNo", 12000));
-//			list = tran.select(FE_FAC_PIPE.class, FxApi.makePara("engId", "STEAM", "mngInloNo", 13000));
-			list = tran.select(FE_FAC_PIPE.class, FxApi.makePara("engId", "STEAM", "mngInloNo", 14000));
-//			list = tran.select(FE_FAC_PIPE.class, null);
-			List<FE_FAC_PIPE_PATH> paths = tran.select(FE_FAC_PIPE_PATH.class, null);
-			for (FE_FAC_PIPE_PATH path : paths) {
-				List<FE_FAC_PIPE_PATH> entry = pathsMap.get(path.getPipeId());
-				if (entry == null) {
-					entry = new ArrayList<FE_FAC_PIPE_PATH>();
-					pathsMap.put(path.getPipeId(), entry);
-				}
-				entry.add(path);
-			}
-
-			List<FE_ENG_BAS> list2 = tran.select(FE_ENG_BAS.class, null);
-			for (FE_ENG_BAS eng : list2) {
-				engMap.put(eng.getEngId(), eng);
-			}
-			List<FX_CF_INLO> list3 = tran.select(FX_CF_INLO.class, null);
-			for (FX_CF_INLO eng : list3) {
-				inloMap.put(eng.getInloNo(), eng);
-			}
-		} catch (Exception e) {
-			throw e;
-		} finally {
-			tran.stop();
-		}
-
-		List<FE_FAC_PIPE> srcList = new ArrayList<FE_FAC_PIPE>();
-		List<FE_FAC_PIPE> sinkList = new ArrayList<FE_FAC_PIPE>();
-		for (FE_FAC_PIPE pipe : list) {
-			if (pipe.getPipeClCd().equals("SINK")) {
-				sinkList.add(pipe);
-			} else if (pipe.getPipeClCd().equals("SOURCE")) {
-				srcList.add(pipe);
-			} else if (pipe.getPipeClCd().equals("PUBLIC")) {
-				srcList.add(pipe);
-			}
-		}
-
-		for (FE_FAC_PIPE src : srcList) {
-			for (FE_FAC_PIPE sink : sinkList) {
-
-//				System.out.println(FxmsUtil.toJson(src));
-//				System.out.println(FxmsUtil.toJson(sink));
-
-				if (src.getEngId().equals(sink.getEngId())
-						&& src.getMngInloNo().intValue() == sink.getMngInloNo().intValue()
-						&& src.getLinkInloNo().intValue() != sink.getLinkInloNo().intValue()) {
-
-					List<FE_FAC_PIPE_PATH> srcPaths = pathsMap.get(src.getPipeId());
-					List<FE_FAC_PIPE_PATH> sinkPaths = pathsMap.get(sink.getPipeId());
-					if (isLinked(srcPaths, sinkPaths)) {
-
-						FE_ENG_BAS eng = engMap.get(src.getEngId());
-						FX_CF_INLO srcInlo = inloMap.get(src.getLinkInloNo());
-						FX_CF_INLO sinkInlo = inloMap.get(sink.getLinkInloNo());
-
-						String rtId = eng.getEngTid() + "-" + srcInlo.getInloTid() + "-" + sinkInlo.getInloTid();
-						FE_ENG_RT_BAS rt = new FE_ENG_RT_BAS();
-						rt.setEngId(eng.getEngId());
-						rt.setEngRtDescr(
-								"(" + eng.getEngName() + ") " + srcInlo.getInloName() + " - " + sinkInlo.getInloName());
-						rt.setEngRtId(rtId);
-						rt.setFnshInloNo(sinkInlo.getInloNo());
-						rt.setFnshInloName(sinkInlo.getInloName());
-						rt.setStrtInloNo(srcInlo.getInloNo());
-						rt.setStrtInloName(srcInlo.getInloName());
-
-						System.out.println(FxmsUtil.toJson(rt));
-						System.out.println(FxmsUtil.toJson(getPath(rtId, srcPaths, sinkPaths)));
-					}
-				}
-			}
-		}
-	}
-
-	/**
-	 * 동일 파이프가 존재하면 연결 가능하다.
-	 * 
-	 * @param srcPaths
-	 * @param sinkPaths
-	 * @return
-	 */
-	private boolean isLinked(List<FE_FAC_PIPE_PATH> srcPaths, List<FE_FAC_PIPE_PATH> sinkPaths) {
-		for (FE_FAC_PIPE_PATH src : srcPaths) {
-			if ("PIPE".equals(src.getLinkObjClCd())) {
-				for (FE_FAC_PIPE_PATH sink : sinkPaths) {
-					if (FxApi.isSame(src.getLinkObjId(), sink.getLinkObjId())) {
-						return true;
-					}
-				}
-			}
-		}
-		return false;
+	protected String getSchedule() {
+		return schedule;
 	}
 
 	private List<FE_ENG_RT_PATH> getPath(String engRtId, List<FE_FAC_PIPE_PATH> srcPaths,
@@ -657,12 +512,161 @@ public class Tisp2VupCron extends Crontab {
 		return ret;
 	}
 
+	private List<FE_FAC_PIPE_PATH> getPaths(Map<String, Object> map, VUP_COMM_PIPE pipe) {
+
+		if (pipe.getPipePaths() == null || pipe.getPipePaths().trim().length() == 0) {
+			return null;
+		}
+
+		FE_FAC_PIPE_PATH c;
+		List<FE_FAC_PIPE_PATH> list = new ArrayList<FE_FAC_PIPE_PATH>();
+		String ss[] = pipe.getPipePaths().split(",");
+		Object obj;
+
+		for (String s : ss) {
+			String name = s.split(":")[0];
+
+			if ("PVALVE".equalsIgnoreCase(name)) {
+				c = new FE_FAC_PIPE_PATH();
+				c.setPipeId(pipe.getPipeId());
+				c.setLinkSeq(list.size() + 1);
+				c.setLinkDescr("");
+				c.setLinkObjClCd("PVALUE");
+				c.setLinkObjId("");
+				c.setLinkObjName("");
+				list.add(c);
+				continue;
+			}
+			obj = map.get(name);
+			if (obj != null) {
+				c = new FE_FAC_PIPE_PATH();
+				c.setPipeId(pipe.getPipeId());
+
+				c.setLinkSeq(list.size() + 1);
+				if (obj instanceof FE_FAC_PIPE) {
+					FE_FAC_PIPE o = (FE_FAC_PIPE) obj;
+					c.setLinkDescr("");
+					c.setLinkObjClCd("PIPE");
+					c.setLinkObjId(o.getPipeId());
+					c.setLinkObjName(o.getPipeName());
+				} else if (obj instanceof FE_FAC_BAS) {
+					FE_FAC_BAS o = (FE_FAC_BAS) obj;
+					c.setLinkDescr("");
+					c.setLinkObjClCd("FAC");
+					c.setLinkObjId(o.getFacTid());
+					c.setLinkObjName(o.getFacName());
+				} else if (obj instanceof FX_MO) {
+					FX_MO o = (FX_MO) obj;
+					c.setLinkDescr("");
+					c.setLinkObjClCd("MO");
+					c.setLinkObjId(o.getMoTid());
+					c.setLinkObjName(o.getMoName());
+				}
+
+				list.add(c);
+			} else {
+				System.out.println(name);
+			}
+		}
+
+		return list;
+	}
+
+	private String getPlcMoType(VUP_COMM_PLC c) {
+		if (c.getPlcName().contains("전용망")) {
+			return "전용망";
+		} else if (c.getPlcName().contains("공유기")) {
+			return "공유기";
+		} else if (c.getPlcName().contains("LOC")) {
+			return "LOC Server";
+		} else if (c.getPlcName().contains("DB")) {
+			return "PLC DB Server";
+		}
+
+		return VupApi.PLC_MO_TYPE;
+	}
+
+	/**
+	 * 동일 파이프가 존재하면 연결 가능하다.
+	 * 
+	 * @param srcPaths
+	 * @param sinkPaths
+	 * @return
+	 */
+	private boolean isLinked(List<FE_FAC_PIPE_PATH> srcPaths, List<FE_FAC_PIPE_PATH> sinkPaths) {
+		for (FE_FAC_PIPE_PATH src : srcPaths) {
+			if ("PIPE".equals(src.getLinkObjClCd())) {
+				for (FE_FAC_PIPE_PATH sink : sinkPaths) {
+					if (FxApi.isSame(src.getLinkObjId(), sink.getLinkObjId())) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	private Map<String, Object> loadDataForPipe() throws Exception {
+		Map<String, Object> retMap = new HashMap<String, Object>();
+		ClassDao tran = DBManager.getMgr().getDataBase(FxCfg.DB_CONFIG).createClassDao();
+		try {
+			tran.start();
+			List<FE_FAC_PIPE> pipeList = tran.selectDatas(FE_FAC_PIPE.class, null);
+			List<FX_MO> sensorList = tran.selectDatas(FX_MO.class,
+					FxApi.makePara("delYn", "N", "moClass", VupApi.SENSOR_MO_CLASS));
+			List<FE_FAC_BAS> facList = tran.selectDatas(FE_FAC_BAS.class, null);
+
+			for (FE_FAC_PIPE obj : pipeList) {
+				retMap.put(obj.getPipeId(), obj);
+			}
+			for (FX_MO obj : sensorList) {
+				if (obj.getMoDispName() != null) {
+					retMap.put(obj.getMoDispName().trim(), obj);
+				}
+			}
+			for (FE_FAC_BAS obj : facList) {
+				retMap.put(obj.getFacTid(), obj);
+			}
+		} catch (Exception e) {
+			throw e;
+		} finally {
+			tran.stop();
+		}
+
+		return retMap;
+	}
+
+	private String makeCapa(String press, String temp) {
+		StringBuffer sb = new StringBuffer();
+		if (press != null && press.trim().length() > 0) {
+			sb.append("PRESS:").append(press.trim());
+		}
+		if (temp != null && temp.trim().length() > 0) {
+			if (sb.length() > 0)
+				sb.append(",");
+			sb.append(" TEMP:").append(temp.trim());
+		}
+		return sb.toString().trim();
+	}
+
 	private FE_ENG_RT_PATH makeRtPath(String engRtId, String pipeId, String pipeDescr) {
 		FE_ENG_RT_PATH ret = new FE_ENG_RT_PATH();
 		ret.setEngRtId(engRtId);
 		ret.setPipeDescr(pipeDescr);
 		ret.setPipeId(pipeId);
 		return ret;
+	}
+
+	private <T> List<T> select(Class<T> classOfT) throws Exception {
+		ClassDao tran = DBManager.getMgr().getDataBase("VUPCOMMDB").createClassDao();
+		try {
+			tran.start();
+			return tran.selectDatas(classOfT, null);
+		} catch (Exception e) {
+			throw e;
+		} finally {
+			tran.stop();
+		}
 	}
 
 }

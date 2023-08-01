@@ -165,6 +165,7 @@ public class MakeEnergyTransactionDfo implements FxDfo<Void, Boolean> {
 			if (rt != null) {
 				rt.setTrnsNo(bas.getTrnsNo());
 				rt.setRtStrtDtm(DateUtil.getDtm());
+				rt.setRtFnshDtm(99991231000000L);
 				FxTableMaker.initRegChg(0, rt);
 				tran.insertOfClass(FE_ENG_TRANS_RT.class, rt);
 			}

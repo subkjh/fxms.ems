@@ -2,12 +2,11 @@ package fxms.ems.vup.dpo;
 
 import java.util.List;
 
+import fxms.bas.fxo.FxmsUtil;
 import fxms.bas.impl.dpo.FxDfo;
 import fxms.bas.impl.dpo.FxFact;
 import fxms.ems.vup.dbo.all.VUP_COMM_ENITT_POINT;
-import subkjh.bas.co.log.Logger;
-import subkjh.dao.ClassDao;
-import subkjh.dao.database.DBManager;
+import subkjh.dao.ClassDaoEx;
 
 /**
  * 애니트의 관제점 데이터를 확인한다.
@@ -16,6 +15,16 @@ import subkjh.dao.database.DBManager;
  *
  */
 public class EnittSelectPointDfo implements FxDfo<Void, List<VUP_COMM_ENITT_POINT>> {
+
+	public static void main(String[] args) {
+		EnittSelectPointDfo dfo = new EnittSelectPointDfo();
+		try {
+			System.out.println(FxmsUtil.toJson(dfo.select()));
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 	public EnittSelectPointDfo() {
 	}
@@ -26,16 +35,6 @@ public class EnittSelectPointDfo implements FxDfo<Void, List<VUP_COMM_ENITT_POIN
 	}
 
 	public List<VUP_COMM_ENITT_POINT> select() throws Exception {
-		ClassDao tran = DBManager.getMgr().getDataBase("VUPCOMMDB").createClassDao();
-
-		try {
-			tran.start();
-			return tran.select(VUP_COMM_ENITT_POINT.class, null);
-		} catch (Exception e) {
-			Logger.logger.error(e);
-			throw e;
-		} finally {
-			tran.stop();
-		}
+		return ClassDaoEx.SelectDatas("VUPCOMMDB", VUP_COMM_ENITT_POINT.class, null);
 	}
 }

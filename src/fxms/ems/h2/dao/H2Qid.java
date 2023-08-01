@@ -2,7 +2,7 @@ package fxms.ems.h2.dao;
 
 /**
 * File : deploy/conf/sql/fxms/ems/h2/h2.xml<br>
-* @since 20230614162949
+* @since 20230726103724
 * @author subkjh 
 *
 */
@@ -21,7 +21,7 @@ public H2Qid() {
 * ---------------------------------------------------------------------------------- <br>
 * database : null<br>
 * sql <br><br>
- * <br>select 	b.MO_NO				as MO_NO<br>				, b.MO_NAME			as MO_NAME<br>				, a.PS_ID			as PS_ID<br>				, a.POINT_TID 		as MO_INSTANCE <br>		from 	FX_PS_POINT a<br>				, FX_MO b<br>		where	b.MO_TID = a.MO_TID<br>		and		a.PS_ID is not null<br>		and		b.MO_TID = $moTid<br><br> <br>
+ * <br>select 	b.MO_NO				as MO_NO<br>				, b.MO_NAME			as MO_NAME<br>				, a.PS_ID			as PS_ID<br>				, IF(a.PS_ID = 'UNDEF', a.POINT_TID, null) 		<br>									as MO_INSTANCE <br>		from 	FX_PS_POINT a<br>				, FX_MO b<br>		where	b.MO_TID = a.MO_TID<br>		and		a.PS_ID is not null<br>		and		b.MO_TID = $moTid<br><br> <br>
 */
 public final String select_test_mo_psid = "select-test-mo-psid";
 

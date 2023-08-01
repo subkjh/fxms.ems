@@ -10,7 +10,7 @@ public class Tran02Dto {
 	@FxAttr(description = "SINK 공장P&ID", example = "F010001", required = false)
 	public String sink_pid;
 
-	@FxAttr(description = "에너지코드", example = "E01")
+	@FxAttr(description = "에너지코드", example = "E01", required = false)
 	public String energy_code;
 
 	@FxAttr(description = "거래월", example = "202304")

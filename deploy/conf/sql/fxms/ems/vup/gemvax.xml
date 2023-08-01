@@ -22,7 +22,7 @@
 		and		a.SEQ >= $trnsNo
 		]]>
 	</select>
-	
+
 	<select id="select-settlement-list" resultMap="RESULT_MAP">
 		<![CDATA[
 		select    0									as TRNS_NO                           /*거래번호 */
@@ -56,7 +56,7 @@
 		where	concat(a.YEAR, a.MONTH) >= $calcYm
 		]]>
 	</select>
-	
+
 	<select id="select-settlement-buy-list" resultMap="RESULT_MAP">
 		<![CDATA[
 		select    a.SINK_FACTORY_ID					as PLANT_PID                         /*공장PID */
@@ -94,7 +94,7 @@
 		where	concat(a.YEAR, a.MONTH) >= $calcYm
 		]]>
 	</select>
-	
+
 	<select id="select-settlement-sale-list" resultMap="RESULT_MAP">
 		<![CDATA[
 		select    a.SOURCE_FACTORY_ID				as PLANT_PID                         /*공장PID */
@@ -133,5 +133,93 @@
 		]]>
 	</select>
 
+	<!-- 거래 내역을 조회한다. ( 2023.07.26 ) -->
+	<select id="select-trading-list" resultMap="RESULT_MAP">
+		<![CDATA[
+		with datas as (
+			select 	a.SEQ
+					, a.FACTORY_GROUP_ID
+					, a.ENERGY_GROUP_ID
+					, a.ROOM_NAME 					
+					, a.ROOM_START_MONTH 
+					, a.ROOM_END_MONTH
+					, a.TRADING_MODEL_CD
+					, ( select CODE_NAME from tbl_common_code t1 where t1.CODE_GROUP_ID = '43' and t1.CODE_ID = a.TRADING_MODEL_CD )
+												as TRADING_MODEL_NM
+					, a.UNIT_PRICE_TYPE_CD 
+					, ( select CODE_NAME from tbl_common_code t1 where t1.CODE_GROUP_ID = '42' and t1.CODE_ID = a.UNIT_PRICE_TYPE_CD )
+												as UNIT_PRICE_TYPE_NM
+					, a.SETTLEMENT_TYPE_CD 
+					, ( select CODE_NAME from tbl_common_code t1 where t1.CODE_GROUP_ID = '52' and t1.CODE_ID = a.SETTLEMENT_TYPE_CD )
+												as SETTLEMENT_TYPE_NM
+					, b.TRADING_ROOM_SEQ 
+					, b.SOURCE_FACTORY_ID 
+					, b.SALE_UNIT_PRICE 
+					, b.SALE_UNIT_VOLUME 
+					, c.SINK_FACTORY_ID
+					, c.TRADING_ROOM_SALE_SEQ
+					, c.BUY_START_MONTH
+					, c.BUY_END_MONTH 
+					, c.BUY_UNIT_VOLUME
+					, c.BUY_MAX_UNIT_VOLUME
+					, DATE_FORMAT(c.TRADING_DATE , '%Y%m%d%H%i%s') 
+												as TRADING_DATE
+					, c.SEQ as SEQ2
+			from 	tbl_trading_room 		a
+					, tbl_trading_room_sale b
+					, tbl_trading_room_buy 	c
+			where 	a.SEQ 					= b.TRADING_ROOM_SEQ 
+			and 	c.TRADING_ROOM_SALE_SEQ = b.SEQ
+			and 	a.USE_FLAG  			= 'Y'
+			and 	c.CANCEL_FLAG 			= 'N'
+			and 	DATE_FORMAT(c.TRADING_DATE , '%Y%m%d%H%i%s') 
+											>= $tradingDate
+		) 
+		select 	a.FACTORY_GROUP_ID				as COMPLEX_TID
+				, a.SOURCE_FACTORY_ID			as SELL_PLANT_TID
+				, a.SINK_FACTORY_ID				as BUY_PLANT_TID
+				, a.ENERGY_GROUP_ID				as ENG_TID
+				, a.TRADING_MODEL_CD 			as TRNS_METHD_CD
+				, a.TRADING_DATE				as TRNS_DTM
+				, concat(a.BUY_START_MONTH, '01000000')
+									 			as TRNS_STRT_DTM
+				, concat(a.BUY_END_MONTH, '01000000')									 			
+												as TRNS_FNSH_DTM
+				, a.BUY_UNIT_VOLUME 			as HOURLY_MAX_CNTRT_TRNS_VOL		
+				, concat(SEQ, '-', TRADING_ROOM_SEQ, '-', TRADING_ROOM_SALE_SEQ, '-', SEQ2) 	
+												as CNTRT_DOC_NUM
+				, concat(SEQ, ' ', ROOM_NAME, '/', TRADING_MODEL_NM )
+												as TRNS_DESCR
+		from 	datas a
+		]]>
+	</select>
+	
+		<!-- 거래에 따른 경로 확인용 쿼리 ( 2023.07.26 ) -->
+	<select id="select-trading-route-list" resultMap="RESULT_MAP">
+		<![CDATA[
+		select 	a.TRNS_NO 
+				, a.TRNS_ST_CD		as "거래상태"
+				, a.ENG_ID			as "에너지"
+				, a1.INLO_NAME		as "산단"
+				, a2.INLO_NAME		as "판매공장"
+				, a3.INLO_NAME		as "구입공장"
+				, a.TRNS_STRT_DTM	as "구입시작일시"
+				, a.TRNS_FNSH_DTM	as "구입종료일시"
+				, a.TRNS_DESCR		as "거래설명"
+				, a.HOURLY_MAX_CNTRT_TRNS_VOL
+									as "시간당거래량"
+				, b.ENG_RT_ID		as "거래경로"
+				, b.ENG_RT_DESCR	as "거래경로명"				
+		from 	FE_ENG_TRANS_BAS a
+					left join FX_CF_INLO a1 on a1.INLO_NO = a.INLO_NO
+					left join FX_CF_INLO a2 on a2.INLO_NO = a.SELL_INLO_NO
+					left join FX_CF_INLO a3 on a3.INLO_NO = a.BUY_INLO_NO 
+				, FE_ENG_RT_BAS b
+		where 	a.INLO_NO  		= b.INLO_NO 
+		and 	a.SELL_INLO_NO 	= b.STRT_INLO_NO 
+		and 	a.BUY_INLO_NO  	= b.FNSH_INLO_NO 
+		and		a.ENG_ID		= b.ENG_ID
+		]]>
+	</select>
 </queries>
 

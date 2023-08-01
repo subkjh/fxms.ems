@@ -7,6 +7,7 @@ import fxms.bas.impl.dpo.FxFact;
 import fxms.ems.bas.dbo.FE_ENG_TRANS_BAS;
 import subkjh.bas.co.log.Logger;
 import subkjh.dao.ClassDao;
+import subkjh.dao.ClassDaoEx;
 import subkjh.dao.database.DBManager;
 
 /**
@@ -27,18 +28,6 @@ public class EngTransSelectDfo implements FxDfo<Long, FE_ENG_TRANS_BAS> {
 	}
 
 	public FE_ENG_TRANS_BAS select(long trnsNo) throws Exception {
-
-		ClassDao tran = DBManager.getMgr().getDataBase(FxCfg.DB_CONFIG).createClassDao();
-
-		try {
-			tran.start();
-			return tran.selectOne(FE_ENG_TRANS_BAS.class, FxApi.makePara("trnsNo", trnsNo));
-		} catch (Exception e) {
-			Logger.logger.error(e);
-			throw e;
-		} finally {
-			tran.stop();
-		}
-
+		return ClassDaoEx.SelectData(FE_ENG_TRANS_BAS.class, FxApi.makePara("trnsNo", trnsNo));
 	}
 }

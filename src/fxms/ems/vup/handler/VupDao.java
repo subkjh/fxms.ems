@@ -1,91 +1,116 @@
 package fxms.ems.vup.handler;
 
-import fxms.bas.fxo.FxCfg;
+import java.util.HashMap;
+import java.util.Map;
+
+import fxms.bas.api.FxApi;
+import fxms.ems.bas.dbo.FE_ENG_CONS_AMT;
 import fxms.ems.bas.dbo.FE_ENG_CONS_STAT;
+import fxms.ems.bas.dbo.FE_ENG_PROD_AMT;
 import fxms.ems.bas.dbo.FE_ENG_PROD_STAT;
 import fxms.ems.vup.api.VupApi;
-import fxms.ems.vup.dao.VupHandlerQid;
 import fxms.ems.vup.dto.Tran04Dto;
 import fxms.ems.vup.dto.Tran05Dto;
-import subkjh.bas.BasCfg;
-import subkjh.bas.co.log.Logger;
 import subkjh.bas.co.utils.DateUtil;
-import subkjh.dao.QidDao;
-import subkjh.dao.database.DBManager;
+import subkjh.dao.ClassDaoEx;
 
 public class VupDao {
 
-	private final VupHandlerQid QID = new VupHandlerQid();
+	public static void main(String[] args) {
 
-	protected QidDao getTran() throws Exception {
-		return DBManager.getMgr().getDataBase(FxCfg.DB_CONFIG)
-				.createQidDao(BasCfg.getHome(VupHandlerQid.QUERY_XML_FILE));
+		Tran05Dto dto = new Tran05Dto();
+		dto.date = "20230725";
+		dto.factory_pid = "F010001";
+		dto.energy_code = "E01";
+		dto.date = "20230725";
+		dto.time = "10;15";
+		dto.expAmt = 1234.23f;
+
+		VupDao dao = new VupDao();
+		try {
+			dao.updateTran05(dto);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	public Boolean updateTran04(Tran04Dto dto) throws Exception {
 
-		QidDao tran = getTran();
-
+		String date = DateUtil.checkDate(dto.date);
+		long inloNo = VupApi.getApi().getPlant(dto.factory_pid).getInloNo();
+		String engId = VupApi.getApi().getEngId(dto.energy_code);
+		long facNo = -1L;
 		try {
-			tran.start();
-
-			FE_ENG_PROD_STAT data;
-			data = new FE_ENG_PROD_STAT();
-			data.setEngId(VupApi.getApi().getEngId(dto.energy_code));
-			data.setExpProdAmt((double) dto.expAmt);
-			try {
-				data.setFacNo(VupApi.getApi().getFacNo(dto.device_pid));
-			} catch (Exception e2) {
-				data.setFacNo(-1L);
-			}
-			data.setInloNo(VupApi.getApi().getPlant(dto.factory_pid).getInloNo());
-			data.setProdDate(DateUtil.checkDate(dto.date));
-
-			tran.execute(QID.INSERT_FE_ENG_PROD_STAT, data);
-
-			tran.commit();
-
-			return true;
-
-		} catch (Exception ex) {
-			Logger.logger.error(ex);
-			tran.rollback();
-			throw ex;
-		} finally {
-			tran.stop();
+			facNo = VupApi.getApi().getFacNo(dto.device_pid);
+		} catch (Exception e2) {
 		}
+
+		if (FxApi.isNotEmpty(dto.time)) {
+
+			Map<String, Object> para = FxApi.makePara("prodDtm", Long.parseLong(date + DateUtil.getHHmmss(dto.time)) //
+					, "dtmType", "M15" //
+					, "inloNo", inloNo //
+					, "engId", engId //
+					, "facNo", facNo);//
+
+			Map<String, Object> data = new HashMap<>(para);
+			data.put("expProdAmt", dto.expAmt);
+
+			ClassDaoEx.open().setOfClass(FE_ENG_PROD_AMT.class, para, data).close();
+
+		} else {
+			Map<String, Object> para = FxApi.makePara("prodDate", date //
+					, "inloNo", inloNo //
+					, "engId", engId //
+					, "facNo", facNo);//
+
+			Map<String, Object> data = new HashMap<>(para);
+			data.put("expProdAmt", dto.expAmt);
+
+			ClassDaoEx.open().setOfClass(FE_ENG_PROD_STAT.class, para, data).close();
+
+		}
+
+		return true;
 	}
 
 	public Boolean updateTran05(Tran05Dto dto) throws Exception {
-		QidDao tran = getTran();
-
+		String date = DateUtil.checkDate(dto.date);
+		long inloNo = VupApi.getApi().getPlant(dto.factory_pid).getInloNo();
+		String engId = VupApi.getApi().getEngId(dto.energy_code);
+		long facNo = -1L;
 		try {
-			tran.start();
-
-			FE_ENG_CONS_STAT data;
-			data = new FE_ENG_CONS_STAT();
-			data.setEngId(VupApi.getApi().getEngId(dto.energy_code));
-			data.setExpConsAmt((double) dto.expAmt);
-			try {
-				data.setFacNo(VupApi.getApi().getFacNo(dto.device_pid));
-			} catch (Exception e2) {
-				data.setFacNo(-1L);
-			}
-			data.setInloNo(VupApi.getApi().getPlant(dto.factory_pid).getInloNo());
-			data.setConsDate(DateUtil.checkDate(dto.date));
-
-			tran.execute(QID.INSERT_FE_ENG_CONS_STAT, data);
-
-			tran.commit();
-
-			return true;
-
-		} catch (Exception ex) {
-			Logger.logger.error(ex);
-			tran.rollback();
-			throw ex;
-		} finally {
-			tran.stop();
+			facNo = VupApi.getApi().getFacNo(dto.device_pid);
+		} catch (Exception e2) {
 		}
+
+		if (FxApi.isNotEmpty(dto.time)) {
+
+			Map<String, Object> para = FxApi.makePara("consDtm", Long.parseLong(date + DateUtil.getHHmmss(dto.time)) //
+					, "dtmType", "M15" //
+					, "inloNo", inloNo //
+					, "engId", engId //
+					, "facNo", facNo);//
+
+			Map<String, Object> data = new HashMap<>(para);
+			data.put("expConsAmt", dto.expAmt);
+
+			ClassDaoEx.open().setOfClass(FE_ENG_CONS_AMT.class, para, data).close();
+
+		} else {
+			Map<String, Object> para = FxApi.makePara("consDate", date //
+					, "inloNo", inloNo //
+					, "engId", engId //
+					, "facNo", facNo);//
+
+			Map<String, Object> data = new HashMap<>(para);
+			data.put("expConsAmt", dto.expAmt);
+
+			ClassDaoEx.open().setOfClass(FE_ENG_CONS_STAT.class, para, data).close();
+
+		}
+
+		return true;
 	}
 }

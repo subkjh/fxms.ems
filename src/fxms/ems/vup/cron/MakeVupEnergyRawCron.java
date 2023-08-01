@@ -19,7 +19,7 @@ import subkjh.dao.QidDao;
 import subkjh.dao.QidDaoEx;
 import subkjh.dao.database.DBManager;
 
-@FxAdapterInfo(service = "VupService", descr = "에너지 공급/소비 원천 데이터 생성하기")
+@FxAdapterInfo(service = "VupService", descr = "에너지 공급/소비 원천 데이터 생성하기. VUP에서 MakeEnergyConsProdAmtCron를 대신한다.")
 public class MakeVupEnergyRawCron extends Crontab {
 
 	enum SOURCE_SINK {
@@ -77,6 +77,8 @@ public class MakeVupEnergyRawCron extends Crontab {
 
 				// 15분 데이터 생성
 				this.makeVupFromEnergy(hstime); // FEMS 원천을 VUP 원천으로
+				
+				
 				this.makeVupToAmt(hstime); // VUP 원천으로 생산/소비량 15분
 				this.makeAmt15MTo1H(hstime); // VUP 15분으로 1시간 데이터
 				this.makeAmt1HToStat(hstime); // VUP 1시간 데이터로 1일 데이터

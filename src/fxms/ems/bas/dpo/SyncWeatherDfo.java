@@ -36,11 +36,10 @@ public class SyncWeatherDfo implements FxDfo<Void, Integer> {
 
 		SyncWeatherDfo dfo = new SyncWeatherDfo();
 		try {
-			System.out.println(dfo.syncWeather("20230628"));
-			System.out.println(dfo.syncWeather("20230629"));
-			System.out.println(dfo.syncWeather("20230630"));
+			System.out.println(dfo.syncWeather("20230705"));
 //			System.out.println(FxmsUtil.toJson(dfo.getDongs()));
 		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -90,10 +89,12 @@ public class SyncWeatherDfo implements FxDfo<Void, Integer> {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private List<Map<String, Object>> getData(String url) throws Exception {
 
+		Logger.logger.debug("url : {}", url);
+
 		UrlClientGet client = new UrlClientGet();
 		String body = client.get(url.toString());
 
-		Logger.logger.debug("{}\n{}", url, body);
+		Logger.logger.debug("body : \n{}", body);
 
 		Map<String, Object> map = FxmsUtil.toMapFromJson(body);
 		Object obj = map.get("data");

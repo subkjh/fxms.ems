@@ -24,13 +24,13 @@ import subkjh.dao.database.DBManager;
  *
  */
 @FxAdapterInfo(service = "VupService", descr = "에너지 생산 소비 예측데이터 가상으로 만들기")
-public class MakeExpAmtCron extends Crontab {
+public class MakeSampleExpAmtCron extends Crontab {
 
 	@FxAttr(description = "실행계획", value = "5 0 * * *")
 	private String schedule;
 
 	public static void main(String[] args) {
-		MakeExpAmtCron cron = new MakeExpAmtCron();
+		MakeSampleExpAmtCron cron = new MakeSampleExpAmtCron();
 
 		try {
 			cron.start();

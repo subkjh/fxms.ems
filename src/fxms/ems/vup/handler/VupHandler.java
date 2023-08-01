@@ -317,9 +317,11 @@ public class VupHandler extends BaseHandler {
 
 	@MethodDescr(name = "VUP-API-TRAN-06. 에너지 최적 라우팅 전송", description = "에너지 거래의 최적 라우팅 내역을 설정한다.")
 	public Object tran06(SessionVo session, Tran06Dto data) throws Exception {
+		
 		FE_ENG_TRANS_BAS bas = new EngTransSelectDfo().select(data.getTrnsNo());
 		if (bas == null)
 			throw new Exception("에너지 거래 정보가 없습니다. 거래번호:" + data.getTrnsNo());
+		
 		FE_ENG_RT_BAS rt = new EngRtSelectDfo().select(data.getEngRtId(), bas.getInloNo());
 		if (rt == null)
 			throw new Exception("존재하지 않는 에너지 경로입니다. 에너지경로ID:" + data.getEngRtId());

@@ -4,14 +4,11 @@ import java.util.List;
 import java.util.Map;
 
 import fxms.bas.api.FxApi;
-import fxms.bas.fxo.FxCfg;
 import fxms.bas.fxo.FxmsUtil;
 import fxms.bas.impl.dpo.FxDfo;
 import fxms.bas.impl.dpo.FxFact;
 import fxms.ems.bas.dbo.FE_ENG_MEASR_RAW;
-import subkjh.bas.co.log.Logger;
-import subkjh.dao.ClassDao;
-import subkjh.dao.database.DBManager;
+import subkjh.dao.ClassDaoEx;
 
 public class SelectEnergyRawDfo implements FxDfo<Map<String, Object>, List<FE_ENG_MEASR_RAW>> {
 
@@ -31,21 +28,7 @@ public class SelectEnergyRawDfo implements FxDfo<Map<String, Object>, List<FE_EN
 	}
 
 	public List<FE_ENG_MEASR_RAW> selectEnergyRaw(Map<String, Object> para) throws Exception {
-		ClassDao tran = DBManager.getMgr().getDataBase(FxCfg.DB_CONFIG).createClassDao();
-
-		try {
-			tran.start();
-
-			List<FE_ENG_MEASR_RAW> list = tran.select(FE_ENG_MEASR_RAW.class, para);
-
-			return list;
-
-		} catch (Exception e) {
-			Logger.logger.error(e);
-			throw e;
-		} finally {
-			tran.stop();
-		}
+		return ClassDaoEx.SelectDatas(FE_ENG_MEASR_RAW.class, para);
 	}
 
 }

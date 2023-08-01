@@ -3,15 +3,13 @@ package fxms.ems.vup.dpo;
 import java.util.ArrayList;
 import java.util.List;
 
-import fxms.bas.fxo.FxCfg;
 import fxms.bas.impl.dpo.FxDpo;
 import fxms.bas.impl.dpo.FxFact;
 import fxms.ems.bas.dbo.FE_ENG_RT_BAS;
 import fxms.ems.bas.dbo.FE_ENG_TRANS_BAS;
 import fxms.ems.bas.dbo.FE_ENG_TRANS_RT;
 import subkjh.bas.co.utils.DateUtil;
-import subkjh.dao.ClassDao;
-import subkjh.dao.database.DBManager;
+import subkjh.dao.ClassDaoEx;
 
 /**
  * 에너지 경로를 이용하여 샘플 거래 정보를 생성한다.<br>
@@ -90,15 +88,7 @@ public class MakeSampleTranDpo implements FxDpo<Void, Boolean> {
 
 	private List<FE_ENG_RT_BAS> selectRt() throws Exception {
 
-		ClassDao tran = DBManager.getMgr().getDataBase(FxCfg.DB_CONFIG).createClassDao();
-		try {
-			tran.start();
-			return tran.select(FE_ENG_RT_BAS.class, null);
-		} catch (Exception e) {
-			throw e;
-		} finally {
-			tran.stop();
-		}
+		return ClassDaoEx.SelectDatas(FE_ENG_RT_BAS.class, null);
 
 	}
 
