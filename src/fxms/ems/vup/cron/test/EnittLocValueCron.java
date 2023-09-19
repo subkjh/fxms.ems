@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import fxms.bas.api.FxApi;
 import fxms.bas.api.VarApi;
 import fxms.bas.cron.Crontab;
 import fxms.bas.fxo.FxAttr;
@@ -27,6 +28,15 @@ import subkjh.dao.database.DBManager;
 @FxAdapterInfo(service = "VupService", descr = "애니트에서 개발한 LOC에 직접 접속해서 센싱데이터를 가져오는 아답터")
 public class EnittLocValueCron extends Crontab {
 
+	class DEVICE {
+		String data_id;
+		String device_id;
+		String col_date;
+		String point_id;
+		Number value;
+		long mstime;
+	}
+
 	public static void main(String[] args) {
 		EnittLocValueCron cron = new EnittLocValueCron();
 		try {
@@ -36,8 +46,73 @@ public class EnittLocValueCron extends Crontab {
 		}
 	}
 
+	private long collectedDt;
+
 	@FxAttr(name = "schedule", description = "실행계획", value = "* * * * *")
 	private String schedule;
+
+	@Override
+	public Object getInPara() {
+		return FxApi.makePara("collectedDt", collectedDt);
+	}
+
+	@Override
+	public String getName() {
+		return "애니트센싱값동기화";
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void start() throws Exception {
+
+		// LOC가 RestAPI를 이용하여 PUT한 내용으로 간주한다.
+		Map<String, Object> map = getMap();
+		Object value = map.get("datas");
+
+		if (value instanceof List) {
+			List<Map<String, Object>> list = (List<Map<String, Object>>) value;
+			Value01Dto dto = convert(list);
+			System.out.println(FxmsUtil.toJson(dto));
+			new VupApi().checkValue(dto);
+		}
+	}
+
+	@Override
+	protected String getSchedule() {
+		return schedule;
+	}
+
+	private Value01Dto convert(List<Map<String, Object>> list) {
+
+		Value01Dto dto = new Value01Dto();
+		dto.setFacilities(new ArrayList<Value01Sub1Dto>());
+
+		Value01Sub1Dto sub0 = new Value01Sub1Dto();
+		Value01Sub2Dto sub1;
+		Value01Sub3Dto sub2;
+
+		// 공장
+		for (Map<String, Object> map : list) {
+
+			sub1 = new Value01Sub2Dto();
+			sub1.collected_dt = map.get("col_date").toString();
+			sub1.device_pid = map.get("device_pid").toString();
+			sub1.device_state = 1;
+			sub1.setData(new ArrayList<Value01Sub3Dto>());
+
+			sub0.getDevices().add(sub1);
+
+			for (String point_pid : map.keySet()) {
+				sub2 = new Value01Sub3Dto();
+				sub2.point_pid = point_pid.toUpperCase();
+				sub2.value =(Number) map.get(point_pid);
+				sub1.getData().add(sub2);
+			}
+
+		}
+
+		return dto;
+	}
 
 	/**
 	 * LOC에서 보낸 데이터, 지금은 DB에서 직접 읽는다.
@@ -49,11 +124,10 @@ public class EnittLocValueCron extends Crontab {
 	private Map<String, Object> getMap() throws Exception {
 		QidDao tran = DBManager.getMgr().getDataBase("ENITTDB")
 				.createQidDao(BasCfg.getHome(EnittLocQid.QUERY_XML_FILE));
-		
+
 		EnittLocQid qid = new EnittLocQid();
 
-		long collectedDt = VarApi.getApi().getVarValue("enitt_loc.select-value-list", 19701104000000L);
-		getInPara().put("collectedDt", collectedDt);
+		this.collectedDt = VarApi.getApi().getVarValue("enitt_loc.select-value-list", 19701104000000L);
 
 		long nowCollectedDt = collectedDt;
 		try {
@@ -95,41 +169,6 @@ public class EnittLocValueCron extends Crontab {
 		}
 	}
 
-	@Override
-	public String getName() {
-		return "애니트센싱값동기화";
-	}
-
-	@Override
-	protected String getSchedule() {
-		return schedule;
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public void start() throws Exception {
-
-		// LOC가 RestAPI를 이용하여 PUT한 내용으로 간주한다.
-		Map<String, Object> map = getMap();
-		Object value = map.get("datas");
-
-		if (value instanceof List) {
-			List<Map<String, Object>> list = (List<Map<String, Object>>) value;
-			Value01Dto dto = convert(list);
-			System.out.println(FxmsUtil.toJson(dto));
-			new VupApi().checkValue(dto);
-		}
-	}
-
-	class DEVICE {
-		String data_id;
-		String device_id;
-		String col_date;
-		String point_id;
-		Number value;
-		long mstime;
-	}
-
 	private long toHstime(String s) {
 
 		Date date1;
@@ -139,37 +178,5 @@ public class EnittLocValueCron extends Crontab {
 		} catch (ParseException e) {
 			return System.currentTimeMillis();
 		}
-	}
-
-	private Value01Dto convert(List<Map<String, Object>> list) {
-
-		Value01Dto dto = new Value01Dto();
-		dto.setFacilities(new ArrayList<Value01Sub1Dto>());
-
-		Value01Sub1Dto sub0 = new Value01Sub1Dto();
-		Value01Sub2Dto sub1;
-		Value01Sub3Dto sub2;
-
-		// 공장
-		for (Map<String, Object> map : list) {
-
-			sub1 = new Value01Sub2Dto();
-			sub1.collected_dt = map.get("col_date").toString();
-			sub1.device_pid = map.get("device_pid").toString();
-			sub1.device_state = 1;
-			sub1.setData(new ArrayList<Value01Sub3Dto>());
-
-			sub0.getDevices().add(sub1);
-
-			for (String point_pid : map.keySet()) {
-				sub2 = new Value01Sub3Dto();
-				sub2.point_pid = point_pid.toUpperCase();
-				sub2.value = map.get(point_pid);
-				sub1.getData().add(sub2);
-			}
-
-		}
-
-		return dto;
 	}
 }

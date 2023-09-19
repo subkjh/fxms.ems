@@ -79,8 +79,10 @@ public class VupInit {
 
 	public void makeSource() {
 		SqlTool tool = new SqlTool();
-		tool.makeXml2JavaQid("deploy/conf/sql/fxms/ems/h2/h2.xml", "fxms.ems.h2.dao.H2Qid", "src/fxms/ems/h2/dao");
-		tool.makeXml2JavaQid("deploy/conf/sql/fxms/ems/vup/gemvax.xml", "fxms.ems.vup.dao.GemvaxQid",
+//		tool.makeXml2JavaQid("deploy/conf/sql/fxms/ems/h2/h2.xml", "fxms.ems.h2.dao.H2Qid", "src/fxms/ems/h2/dao");
+//		tool.makeXml2JavaQid("deploy/conf/sql/fxms/ems/vup/gemvax.xml", "fxms.ems.vup.dao.GemvaxQid",
+//				"src/fxms/ems/vup/dao");
+		tool.makeXml2JavaQid("deploy/conf/sql/fxms/ems/vup/vup.xml", "fxms.ems.vup.dao.VupQid",
 				"src/fxms/ems/vup/dao");
 	}
 

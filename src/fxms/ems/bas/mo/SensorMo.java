@@ -1,7 +1,6 @@
 package fxms.ems.bas.mo;
 
 import fxms.bas.mo.FxMo;
-import subkjh.dao.def.FxColumn;
 
 public class SensorMo extends FxMo {
 
@@ -12,44 +11,19 @@ public class SensorMo extends FxMo {
 
 	public static final String MO_CLASS = "SENSOR";
 
-	/** 센서명 */
-	private String sensrName;
-
-	/** 센서설명 */
-	private String sensrDesc;
-
-	@FxColumn(name = "SENSR_IP_ADDR", size = 39, comment = "센서IP주소")
-	private String sensrIpAddr;
-
-	@FxColumn(name = "COMM_PROTC", size = 50, nullable = true, comment = "통신방식")
-	private String commProtc;
-
-	@FxColumn(name = "ENG_ID", size = 20, nullable = true, comment = "에너지ID")
-	private String engId;
-
-	@FxColumn(name = "PIPE_ID", size = 30, nullable = true, comment = "배관ID")
-	private String pipeId;
-
-	@FxColumn(name = "FAC_NO", size = 14, comment = "설비번호", defValue = "0")
-	private Long facNo = 0L;
-
-	@FxColumn(name = "PLC_MO_NO", size = 19, nullable = true, comment = "PLCMO번호")
-	private Long plcMoNo;
-
-	@FxColumn(name = "MIN_VAL", size = 14, nullable = true, comment = "최소값")
-	private Double minVal;
-
-	@FxColumn(name = "MAX_VAL", size = 14, nullable = true, comment = "최대값")
-	private Double maxVal;
-
-	@FxColumn(name = "BUY_DATE", size = 8, nullable = true, comment = "구입일")
-	private String buyDate;
-
-	@FxColumn(name = "CALIB_DATE", size = 8, nullable = true, comment = "검교정일")
-	private String calibDate;
-
-	@FxColumn(name = "MANFT_SN", size = 50, nullable = true, comment = "제조일련번호")
-	private String manftSn;
+	private String sensrName; // 센서명
+	private String sensrDesc; // 센서설명
+	private String sensrIpAddr; // 센서IP주소
+	private String commProtc; // 통신방식
+	private String engId; // 에너지ID
+	private String pipeId; // 배관ID
+	private Long facNo = 0L; // 설비번호
+	private Long plcMoNo; // PLCMO번호
+	private Double minVal; // 최소값
+	private Double maxVal; // 최대값
+	private String buyDate; // 구입일
+	private String calibDate; // 검교정일
+	private String manftSn; // 제조일련번호
 
 	public SensorMo() {
 		setMoClass(MO_CLASS);

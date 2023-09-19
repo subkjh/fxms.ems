@@ -33,7 +33,7 @@ public class SyncDateCron extends Crontab {
 	}
 
 	@Override
-	public String getGroup() {
+	public String getThreadGroup() {
 		return "FeMS";
 	}
 

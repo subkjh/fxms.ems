@@ -46,7 +46,7 @@ public class CalcTrnsChrgCron extends Crontab {
 	}
 
 	@Override
-	public String getGroup() {
+	public String getThreadGroup() {
 		return "FeMS";
 	}
 

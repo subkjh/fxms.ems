@@ -5,7 +5,6 @@ import java.util.List;
 
 import fxms.bas.api.FxApi;
 import fxms.bas.api.PsApi;
-import fxms.bas.api.ValueApi;
 import fxms.bas.exp.FxNotMatchException;
 import fxms.bas.exp.FxTimeoutException;
 import fxms.bas.fxo.FxmsUtil;
@@ -14,8 +13,6 @@ import fxms.bas.fxo.adapter.FxGetValueAdapter;
 import fxms.bas.impl.dpo.vo.MakeTestPsVoDfo;
 import fxms.bas.mo.Mo;
 import fxms.bas.vo.PsItem;
-import fxms.bas.vo.PsItem.PS_VAL_TYPE;
-import fxms.bas.vo.PsValueComp;
 import fxms.bas.vo.PsVoRaw;
 import subkjh.bas.co.log.Logger;
 
@@ -25,7 +22,7 @@ import subkjh.bas.co.log.Logger;
  * @author subkjh
  *
  */
-@FxAdapterInfo(pollCycle = 60, moJson = "{\"moClass\":\"SENSOR\"}", service = "VupService", descr = "테스트 아답터로 주기적으로 임의 데이터를 생성한다.")
+@FxAdapterInfo(pollCycle = 60, moJson = "{\"moClass\":\"SENSOR\", \"moUsageClCd\":\"TEST\" }", service = "MoService", descr = "테스트 아답터로 주기적으로 임의 데이터를 생성한다.")
 public class TestAdapter extends FxGetValueAdapter {
 
 	public static void main(String[] args) {
@@ -48,7 +45,7 @@ public class TestAdapter extends FxGetValueAdapter {
 		MakeTestPsVoDfo dfo = new MakeTestPsVoDfo();
 
 		for (PsItem item : itemList) {
-			psList.add(dfo.makeTestValue(mo, null, item));
+			psList.add(dfo.makeTestValue(mo, item));
 		}
 
 		return psList;

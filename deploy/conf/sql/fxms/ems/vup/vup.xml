@@ -94,11 +94,9 @@
 					, 0							as EXP_CONS_AMT
 					, truncate(a.DIFF_VAL, 2)   as CONS_AMT
 					, 0							as REG_USER_NO
-					, DATE_FORMAT(now(), '%Y%m%d%H%i%s')	
-												as REG_DTM
+					, $workDtm					as REG_DTM
 					, 0							as CHG_USER_NO
-					, DATE_FORMAT(now(), '%Y%m%d%H%i%s')
-												as CHG_DTM			
+					, $workDtm					as CHG_DTM			
 			from 	VUP_ENG_CONS_RAW a
 			where	a.CONS_DTM	= $psDate
 		)
@@ -107,7 +105,7 @@
 
 		ON DUPLICATE KEY UPDATE
 			CONS_AMT 		= a.CONS_AMT	
-			, CHG_DTM		= DATE_FORMAT(now(), '%Y%m%d%H%i%s')
+			, CHG_DTM		= a.CHG_DTM
 		]]>
 	</insert>
 	
@@ -125,11 +123,9 @@
 					, 0							as EXP_PROD_AMT
 					, truncate(a.DIFF_VAL, 2)   as PROD_AMT
 					, 0							as REG_USER_NO
-					, DATE_FORMAT(now(), '%Y%m%d%H%i%s')	
-												as REG_DTM
+					, $workDtm					as REG_DTM
 					, 0							as CHG_USER_NO
-					, DATE_FORMAT(now(), '%Y%m%d%H%i%s')
-												as CHG_DTM			
+					, $workDtm					as CHG_DTM			
 			from 	VUP_ENG_PROD_RAW a
 			where	a.PROD_DTM	= $psDate
 		)
@@ -138,7 +134,7 @@
 
 		ON DUPLICATE KEY UPDATE
 			PROD_AMT 		= a.PROD_AMT	
-			, CHG_DTM		= DATE_FORMAT(now(), '%Y%m%d%H%i%s')
+			, CHG_DTM		= a.CHG_DTM
 		]]>
 	</insert>
 
@@ -158,11 +154,9 @@
 					, truncate(SUM(a.CONS_AMT), 1) 	
 												as CONS_AMT
 					, 0							as REG_USER_NO
-					, DATE_FORMAT(now(), '%Y%m%d%H%i%s')	
-												as REG_DTM
+					, $workDtm					as REG_DTM
 					, 0							as CHG_USER_NO
-					, DATE_FORMAT(now(), '%Y%m%d%H%i%s')
-												as CHG_DTM			
+					, $workDtm					as CHG_DTM			
 			from FE_ENG_CONS_AMT a
 			where 	a.CONS_DTM	between $psDateStart and $psDateEnd
 			and		a.ENG_ID	= $engId
@@ -176,7 +170,7 @@
 
 		ON DUPLICATE KEY UPDATE
 			CONS_AMT 		= a.CONS_AMT	
-			, CHG_DTM		= DATE_FORMAT(now(), '%Y%m%d%H%i%s')
+			, CHG_DTM		= a.CHG_DTM
 		]]>
 	</insert>
 
@@ -224,16 +218,16 @@
 				, a.INLO_NO
 				, a.EXP_PROD_AMT
 				, a.PROD_AMT
-				, 1											as REG_USER_NO
-				, DATE_FORMAT(now(), '%Y%m%d%H%i%s')		as REG_DTM
-				, 1											as CHG_USER_NO
-				, DATE_FORMAT(now(), '%Y%m%d%H%i%s')		as CHG_DTM
+				, 1					as REG_USER_NO
+				, $workDtm			as REG_DTM
+				, 1					as CHG_USER_NO
+				, $workDtm			as CHG_DTM
 		from	ROWDATAS	a
 		
 		ON DUPLICATE KEY UPDATE		
 				EXP_PROD_AMT 	= a.EXP_PROD_AMT
 				, PROD_AMT		= a.PROD_AMT
-				, CHG_DTM			= DATE_FORMAT(now(), '%Y%m%d%H%i%s')	
+				, CHG_DTM		= $workDtm	
 
 		]]>
 	</insert>
@@ -279,16 +273,16 @@
 					, a.INLO_NO
 					, a.EXP_CONS_AMT
 					, a.CONS_AMT
-					, 1											as REG_USER_NO
-					, DATE_FORMAT(now(), '%Y%m%d%H%i%s')		as REG_DTM
-					, 1											as CHG_USER_NO
-					, DATE_FORMAT(now(), '%Y%m%d%H%i%s')		as CHG_DTM
+					, 1					as REG_USER_NO
+					, $workDtm			as REG_DTM
+					, 1					as CHG_USER_NO
+					, $workDtm			as CHG_DTM
 			from	ROWDATAS	a
 			
 			ON DUPLICATE KEY UPDATE		
 					EXP_CONS_AMT 	= a.EXP_CONS_AMT
 					, CONS_AMT		= a.CONS_AMT
-					, CHG_DTM		= DATE_FORMAT(now(), '%Y%m%d%H%i%s')
+					, CHG_DTM		= $workDtm
 		]]>
 	</insert>
 
@@ -335,16 +329,16 @@
 				, a.INLO_NO
 				, a.EXP_PROD_AMT
 				, a.PROD_AMT
-				, 1											as REG_USER_NO
-				, DATE_FORMAT(now(), '%Y%m%d%H%i%s')		as REG_DTM
-				, 1											as CHG_USER_NO
-				, DATE_FORMAT(now(), '%Y%m%d%H%i%s')		as CHG_DTM
+				, 1				as REG_USER_NO
+				, $workDtm		as REG_DTM
+				, 1				as CHG_USER_NO
+				, $workDtm		as CHG_DTM
 		from	ROWDATAS	a
 		
 		ON DUPLICATE KEY UPDATE		
 				EXP_PROD_AMT 	= a.EXP_PROD_AMT
 				, PROD_AMT		= a.PROD_AMT
-				, CHG_DTM			= DATE_FORMAT(now(), '%Y%m%d%H%i%s')
+				, CHG_DTM		= $workDtm
 		]]>
 	</insert>
 	<insert id="make-cons-stat-from-h1" resultMap="RESULT_MAP">
@@ -386,16 +380,16 @@
 				, a.INLO_NO
 				, a.EXP_CONS_AMT
 				, a.CONS_AMT
-				, 1											as REG_USER_NO
-				, DATE_FORMAT(now(), '%Y%m%d%H%i%s')		as REG_DTM
-				, 1											as CHG_USER_NO
-				, DATE_FORMAT(now(), '%Y%m%d%H%i%s')		as CHG_DTM
+				, 1					as REG_USER_NO
+				, $workDtm			as REG_DTM
+				, 1					as CHG_USER_NO
+				, $workDtm			as CHG_DTM
 		from	ROWDATAS	a
 		
 		ON DUPLICATE KEY UPDATE		
 				EXP_CONS_AMT 	= a.EXP_CONS_AMT
 				, CONS_AMT		= a.CONS_AMT
-				, CHG_DTM		= DATE_FORMAT(now(), '%Y%m%d%H%i%s')
+				, CHG_DTM		= $workDtm
 		]]>
 	</insert>
 
@@ -438,16 +432,18 @@
 			select
 					if(a.PIPE_CL_CD = 'SINK', 'SINK', 'SOURCE') 	as  SINK_SOURCE
 					, c.MO_NO
+					, c.INLO_NO
 			from	FE_FAC_PIPE 		a
 					, FE_FAC_PIPE_PATH 	b
 					, FX_MO 			c
 			where	a.PIPE_ID 			= b.PIPE_ID
 			and 	b.LINK_OBJ_CL_CD 	= 'MO'
 			and 	c.MO_TID 			= b.LINK_OBJ_ID
+			and		c.MO_TYPE in ( '압공유량계', '스팀유량계', '압공압력계', '스팀압력계' )
 		)
 		, DATAS2 as (
 			select 	 $measrDtm						as #measrDtmName
-					, a.INLO_NO						as INLO_NO
+					, b.INLO_NO						as INLO_NO
 					, a.ENG_ID						as ENG_ID
 					, max(a.INST_VAL)				as INST_VAL
 					, max(a.PREV_INTG_VAL)			as PREV_INTG_VAL
@@ -456,17 +452,18 @@
 					, avg(a.PRES_VAL)				as PRES_VAL
 					, avg(a.TEMP_VAL)				as TEMP_VAL
 					, 'FE_ENG_MEASR_RAW'			as MEMO
-					, 1											as REG_USER_NO
-					, DATE_FORMAT(now(), '%Y%m%d%H%i%s')		as REG_DTM
-					, 1											as CHG_USER_NO
-					, DATE_FORMAT(now(), '%Y%m%d%H%i%s')		as CHG_DTM				
+					, 1								as REG_USER_NO
+					, $workDtm						as REG_DTM
+					, 1								as CHG_USER_NO
+					, $workDtm						as CHG_DTM				
 			from	FE_ENG_MEASR_RAW 	a
 					, DATAS 			b
 			where	a.MEASR_DTM		= $measrDtm
 			and		a.MO_NO 		= b.MO_NO
 			and		b.SINK_SOURCE	= $sinkSource
+			and		( a.DIFF_VAL >= 0 or a.DIFF_VAL is null )
 			group by 
-					a.INLO_NO
+					b.INLO_NO
 					, a.ENG_ID
 		)
 		select	*
@@ -483,7 +480,7 @@
 				, CHG_DTM		= a.CHG_DTM
 		]]>
 	</insert>
-	
+		
 	<!-- 전력 데이터 -->
 	<insert id="make-vup-raw-from-energy-raw-epower">
 		<![CDATA[
@@ -510,7 +507,8 @@
 					, max(a.INST_VAL)				as INST_VAL
 					, max(a.PREV_INTG_VAL)			as PREV_INTG_VAL
 					, max(a.CUR_INTG_VAL)			as CUR_INTG_VAL
-					, sum(a.DIFF_VAL)				as DIFF_VAL
+					, max(a.CUR_INTG_VAL) - max(a.PREV_INTG_VAL)
+													as DIFF_VAL
 					, avg(a.PRES_VAL)				as PRES_VAL
 					, avg(a.TEMP_VAL)				as TEMP_VAL
 					, 'FE_ENG_MEASR_RAW'			as MEMO

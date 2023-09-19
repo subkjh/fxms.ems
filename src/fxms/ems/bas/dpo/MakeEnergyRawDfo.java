@@ -38,7 +38,7 @@ import subkjh.dao.util.FxTableMaker;
 public class MakeEnergyRawDfo implements FxDfo<List<EngPsVo>, Integer> {
 
 	public static void main(String[] args) throws Exception {
-		
+
 		AppApi.api = new AppApiDfo();
 		ValueApi.api = new ValueApiDfo();
 		MoApi.api = new MoApiDfo();
@@ -48,7 +48,7 @@ public class MakeEnergyRawDfo implements FxDfo<List<EngPsVo>, Integer> {
 
 		MakeEnergyRawDfo dfo = new MakeEnergyRawDfo();
 		try {
-			dfo.makeEnergyRaws(PsApi.getApi().getPsKind(PsKind.PSKIND_15M), 20230616144500L, psList);
+			dfo.makeEnergyRaws(PsApi.getApi().getPsKind(PsKind.PSKIND_15M), 20230802170000L, psList);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -79,6 +79,10 @@ public class MakeEnergyRawDfo implements FxDfo<List<EngPsVo>, Integer> {
 		PsItem psItem;
 
 		for (EngPsVo ps : psList) {
+
+			Logger.logger.debug("psKind={}, psDtm={}, psId={}, engId={}", psKind.getPsKindName(), psDtm, ps.psId,
+					ps.engId);
+
 			try {
 				psItem = PsApi.getApi().getPsItem(ps.psId);
 				list = ValueApi.getApi().getValues(psItem.getPsId(), psKind.getPsKindName(), psItem.getDefKindCol(),
@@ -113,7 +117,7 @@ public class MakeEnergyRawDfo implements FxDfo<List<EngPsVo>, Integer> {
 
 			prev = mo.getValues().get(0);
 			cur = mo.getValues().get(mo.getValues().size() - 1);
-			key = cur.getPsDtm() + ":" + mo.getMo().getInloNo() + ":" + mo.getMoNo();
+			key = cur.getPsDtm() + ":" + mo.getMo().getInloNo() + ":" + mo.getMoNo() + ":" + engPs.engId;
 			raw = map.get(key);
 
 			if (raw == null) {
@@ -121,7 +125,6 @@ public class MakeEnergyRawDfo implements FxDfo<List<EngPsVo>, Integer> {
 				raw = new FE_ENG_MEASR_RAW();
 				raw.setMeasrDtm(cur.getPsDtm());
 				raw.setMoNo(mo.getMoNo());
-				raw.setInloNo(mo.getMo().getInloNo());
 
 				raw.setEngId(engPs.engId);
 				raw.setMemo(mo.getMo().getMoName());
@@ -146,8 +149,8 @@ public class MakeEnergyRawDfo implements FxDfo<List<EngPsVo>, Integer> {
 	}
 
 	private double round(double val) {
-		long v = (long) (val * 100L);
-		return v / 100d;
+		long v = (long) (val * 1000L);
+		return v / 1000d;
 	}
 
 	/**
@@ -168,8 +171,8 @@ public class MakeEnergyRawDfo implements FxDfo<List<EngPsVo>, Integer> {
 
 			for (FE_ENG_MEASR_RAW raw : map.values()) {
 
-				old = tran.selectOne(FE_ENG_MEASR_RAW.class, FxApi.makePara("measrDtm", raw.getMeasrDtm(), "inloNo",
-						raw.getInloNo(), "moNo", raw.getMoNo()));
+				old = tran.selectOne(FE_ENG_MEASR_RAW.class,
+						FxApi.makePara("measrDtm", raw.getMeasrDtm(), "moNo", raw.getMoNo(), "engId", raw.getEngId()));
 
 				FxTableMaker.initRegChg(0, raw);
 

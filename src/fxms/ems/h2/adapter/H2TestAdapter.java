@@ -83,7 +83,7 @@ public class H2TestAdapter extends FxGetValueAdapter {
 		for (Data data : list) {
 			try {
 				PsItem item = PsApi.getApi().getPsItem(data.psId);
-				psList.add(dfo.makeTestValue(mo, data.moInstance, item));
+				psList.add(dfo.makeTestValue(mo, item));
 			} catch (PsItemNotFoundException e) {
 				continue;
 			}

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import fxms.bas.api.ValueApi;
+import fxms.bas.fxo.FxmsUtil;
 import fxms.bas.impl.dpo.co.ToCheckDfo;
 import fxms.bas.vo.PsVoRaw;
 import fxms.bas.vo.PsVoRawList;
@@ -78,6 +79,10 @@ public class ValueParser {
 		for (Long key : valMap.keySet()) {
 			valList = valMap.get(key);
 			ret.put("date_" + DateUtil.toHstime(key) + "_count", valList.size());
+			
+			
+			System.out.println(FxmsUtil.toJson(valList));
+			
 			try {
 				ValueApi.getApi().addValue(valList, false);
 			} catch (Exception e) {

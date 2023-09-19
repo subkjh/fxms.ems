@@ -7,6 +7,8 @@ import fxms.bas.api.VarApi;
 import fxms.bas.impl.api.AdapterApiDfo;
 import fxms.bas.impl.dpo.ao.iqr.IqrCron;
 import fxms.bas.signal.ReloadSignal.ReloadType;
+import fxms.ems.bas.cron.MakeEnergyAmtStatCron;
+import fxms.ems.bas.cron.MakeEnergyRawCron;
 import fxms.ems.bas.cron.SyncAddrCron;
 import fxms.ems.bas.cron.SyncDateCron;
 import fxms.ems.bas.cron.SyncWeatherCron;
@@ -15,7 +17,7 @@ import subkjh.dao.util.SqlTool;
 
 public class FxmsEmsInit {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		FxmsEmsInit init = new FxmsEmsInit();
 //		init.initAdapter();
 		init.makeSource();
@@ -33,8 +35,8 @@ public class FxmsEmsInit {
 //
 //			api.insert(MakeExpAmtCron.class);
 //
-//			api.insert(MakeEnergyRawCron.class);
-//			api.insert(MakeVupEnergyRawCron.class);
+			api.insert(MakeEnergyRawCron.class);
+			api.insert(MakeEnergyAmtStatCron.class);
 //			api.insert(AnsanEPowerCron.class);
 //			api.insert(CalcTrnsChrgCron.class);
 //
@@ -67,9 +69,12 @@ public class FxmsEmsInit {
 		}
 	}
 
-	public void makeSource() {
+	public void makeSource() throws Exception {
 		SqlTool tool = new SqlTool();
-//		tool.makeXml2JavaQid("deploy/conf/sql/fxms/ems/ems.xml", "fxms.ems.bas.dao.EmsQid", "src/fxms/ems/bas/dao");
-		tool.makeXml2JavaQid("deploy/conf/sql/fxms/ems/vup/iae.xml", "fxms.ems.vup.dao.IaeQid", "src/fxms/ems/vup/dao");
+		tool.makeXml2JavaQid("deploy/conf/sql/fxms/ems/ems.xml", "fxms.ems.bas.dao.EmsQid", "src/fxms/ems/bas/dao");
+//		tool.makeXml2JavaQid("deploy/conf/sql/fxms/ems/vup/iae.xml", "fxms.ems.vup.dao.IaeQid", "src/fxms/ems/vup/dao");
+//		tool.printCreateSql(new MySql(), "datas/tables.txt");
+//		tool.printAddColumnSql(new MySql(), "datas/tables.txt");
+//		tool.makeJavaSource(new File("datas/tables.txt"), "fxms.ems.bas.dbo", "tmp");
 	}
 }

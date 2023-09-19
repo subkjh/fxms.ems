@@ -13,7 +13,7 @@ import subkjh.dao.def.Index.INDEX_TYPE;
  */
 
 @FxTable(name = "FE_ENG_MEASR_RAW", comment = "에너측정원천테이블")
-@FxIndex(name = "FE_ENG_MEASR_RAW__PK", type = INDEX_TYPE.PK, columns = { "MEASR_DTM", "INLO_NO", "MO_NO" })
+@FxIndex(name = "FE_ENG_MEASR_RAW__PK", type = INDEX_TYPE.PK, columns = { "MEASR_DTM", "MO_NO", "ENG_ID" })
 public class FE_ENG_MEASR_RAW {
 
 	public FE_ENG_MEASR_RAW() {
@@ -21,9 +21,6 @@ public class FE_ENG_MEASR_RAW {
 
 	@FxColumn(name = "MEASR_DTM", size = 14, comment = "측정일시")
 	private Long measrDtm;
-
-	@FxColumn(name = "INLO_NO", size = 9, comment = "설치위치번호")
-	private Integer inloNo;
 
 	@FxColumn(name = "MO_NO", size = 19, comment = "MO번호")
 	private Long moNo;
@@ -80,24 +77,6 @@ public class FE_ENG_MEASR_RAW {
 	 */
 	public void setMeasrDtm(Long measrDtm) {
 		this.measrDtm = measrDtm;
-	}
-
-	/**
-	 * 설치위치번호
-	 * 
-	 * @return 설치위치번호
-	 */
-	public Integer getInloNo() {
-		return inloNo;
-	}
-
-	/**
-	 * 설치위치번호
-	 * 
-	 * @param inloNo 설치위치번호
-	 */
-	public void setInloNo(Integer inloNo) {
-		this.inloNo = inloNo;
 	}
 
 	/**

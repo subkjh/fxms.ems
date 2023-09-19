@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import fxms.bas.api.FxApi;
 import fxms.bas.api.VarApi;
 import fxms.bas.cron.Crontab;
 import fxms.bas.fxo.FxAttr;
@@ -31,8 +32,73 @@ public class EnittLocAlarmCron extends Crontab {
 		}
 	}
 
+	private long lastNotiId = 0;
+
 	@FxAttr(name = "schedule", description = "실행계획", value = "* * * * *")
 	private String schedule;
+
+	@Override
+	public Object getInPara() {
+		return FxApi.makePara("lastNotiId", lastNotiId);
+	}
+
+	@Override
+	public String getName() {
+		return "애니트알람동기화";
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void start() throws Exception {
+
+		// LOC가 RestAPI를 이용하여 PUT한 내용으로 간주한다.
+		Map<String, Object> map = getMap();
+		Object value = map.get("datas");
+
+		if (value instanceof List) {
+			List<Map<String, Object>> list = (List<Map<String, Object>>) value;
+			Map<String, Alarm01Dto> dtoMap = convert(list);
+
+			for (Alarm01Dto dto : dtoMap.values()) {
+				System.out.println(FxmsUtil.toJson(dto));
+				new AlarmParser().parse(dto);
+			}
+
+		}
+	}
+
+	@Override
+	protected String getSchedule() {
+		return schedule;
+	}
+
+	private Map<String, Alarm01Dto> convert(List<Map<String, Object>> list) {
+		Alarm01Dto dto;
+		Alarm01Sub1Dto alarm;
+
+		Map<String, Alarm01Dto> dtoMap = new HashMap<String, Alarm01Dto>();
+
+		// 공장
+		for (Map<String, Object> map : list) {
+
+			alarm = new Alarm01Sub1Dto();
+			ObjectUtil.toObject(map, alarm);
+			dto = dtoMap.get(map.get("factory_pid"));
+			if (dto == null) {
+				dto = new Alarm01Dto();
+				dto.factory_id = map.get("factory_pid").toString();
+				dtoMap.put(dto.factory_id, dto);
+				dto.setNotifications(new ArrayList<Alarm01Sub1Dto>());
+			}
+			dto.getNotifications().add(alarm);
+		}
+
+//		System.out.println(FxmsUtil.toJson(facMap));
+		// System.out.println(FxmsUtil.toJson(devMap));
+		// System.out.println(FxmsUtil.toJson(pointMap));
+
+		return dtoMap;
+	}
 
 	/**
 	 * LOC에서 보낸 데이터, 지금은 DB에서 직접 읽는다.
@@ -47,8 +113,7 @@ public class EnittLocAlarmCron extends Crontab {
 		EnittLocQid qid = new EnittLocQid();
 
 		// 현재까지 적재된 번호를 가져온다.
-		long lastNotiId = VarApi.getApi().getVarValue("enitt_loc.select-alarm-list", -1L);
-		getInPara().put("notiId", lastNotiId);
+		this.lastNotiId = VarApi.getApi().getVarValue("enitt_loc.select-alarm-list", -1L);
 		long nowNotiId;
 
 		try {
@@ -83,64 +148,6 @@ public class EnittLocAlarmCron extends Crontab {
 		} finally {
 			tran.stop();
 		}
-	}
-
-	@Override
-	protected String getSchedule() {
-		return schedule;
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public void start() throws Exception {
-
-		// LOC가 RestAPI를 이용하여 PUT한 내용으로 간주한다.
-		Map<String, Object> map = getMap();
-		Object value = map.get("datas");
-
-		if (value instanceof List) {
-			List<Map<String, Object>> list = (List<Map<String, Object>>) value;
-			Map<String, Alarm01Dto> dtoMap = convert(list);
-
-			for (Alarm01Dto dto : dtoMap.values()) {
-				System.out.println(FxmsUtil.toJson(dto));
-				new AlarmParser().parse(dto);
-			}
-
-		}
-	}
-
-	@Override
-	public String getName() {
-		return "애니트알람동기화";
-	}
-
-	private Map<String, Alarm01Dto> convert(List<Map<String, Object>> list) {
-		Alarm01Dto dto;
-		Alarm01Sub1Dto alarm;
-
-		Map<String, Alarm01Dto> dtoMap = new HashMap<String, Alarm01Dto>();
-
-		// 공장
-		for (Map<String, Object> map : list) {
-
-			alarm = new Alarm01Sub1Dto();
-			ObjectUtil.toObject(map, alarm);
-			dto = dtoMap.get(map.get("factory_pid"));
-			if (dto == null) {
-				dto = new Alarm01Dto();
-				dto.factory_id = map.get("factory_pid").toString();
-				dtoMap.put(dto.factory_id, dto);
-				dto.setNotifications(new ArrayList<Alarm01Sub1Dto>());
-			}
-			dto.getNotifications().add(alarm);
-		}
-
-//		System.out.println(FxmsUtil.toJson(facMap));
-		// System.out.println(FxmsUtil.toJson(devMap));
-		// System.out.println(FxmsUtil.toJson(pointMap));
-
-		return dtoMap;
 	}
 
 }

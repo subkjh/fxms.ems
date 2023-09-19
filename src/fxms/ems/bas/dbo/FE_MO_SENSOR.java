@@ -1,7 +1,5 @@
 package fxms.ems.bas.dbo;
 
-import java.io.Serializable;
-
 import fxms.bas.impl.dbo.all.FX_MO;
 import subkjh.dao.def.FxColumn;
 import subkjh.dao.def.FxIndex;
@@ -9,7 +7,7 @@ import subkjh.dao.def.FxTable;
 import subkjh.dao.def.Index.INDEX_TYPE;
 
 /**
- * @since 2023.03.15 14:57
+ * @since 2023.08.03 16:47
  * @author subkjh autometic create by subkjh.dao
  *
  */
@@ -17,7 +15,7 @@ import subkjh.dao.def.Index.INDEX_TYPE;
 @FxTable(name = "FE_MO_SENSOR", comment = "MO센서테이블")
 @FxIndex(name = "FE_MO_SNSR__PK", type = INDEX_TYPE.PK, columns = { "MO_NO" })
 @FxIndex(name = "FE_MO_SNSR__FK_MO", type = INDEX_TYPE.FK, columns = { "MO_NO" }, fkTable = "FX_MO", fkColumn = "MO_NO")
-public class FE_MO_SENSOR extends FX_MO implements Serializable {
+public class FE_MO_SENSOR extends FX_MO {
 
 	public FE_MO_SENSOR() {
 	}
@@ -43,14 +41,14 @@ public class FE_MO_SENSOR extends FX_MO implements Serializable {
 	@FxColumn(name = "FAC_NO", size = 14, nullable = true, comment = "설비번호", defValue = "0")
 	private Long facNo = 0L;
 
-	@FxColumn(name = "PLC_MO_NO", size = 19, nullable = true, comment = "PLCMO번호")
+	@FxColumn(name = "PLC_MO_NO", size = 19, nullable = true, comment = "PLC_MO번호")
 	private Long plcMoNo;
 
-	@FxColumn(name = "MIN_VAL", size = 14, nullable = true, comment = "최소값", defValue = "0")
-	private Double minVal = 0D;
+	@FxColumn(name = "MIN_VAL", size = 14, nullable = true, comment = "측정최소값")
+	private Double minVal;
 
-	@FxColumn(name = "MAX_VAL", size = 14, nullable = true, comment = "최대값", defValue = "0")
-	private Double maxVal = 0D;
+	@FxColumn(name = "MAX_VAL", size = 14, nullable = true, comment = "측정최대값")
+	private Double maxVal;
 
 	@FxColumn(name = "BUY_DATE", size = 8, nullable = true, comment = "구입일")
 	private String buyDate;
@@ -61,9 +59,16 @@ public class FE_MO_SENSOR extends FX_MO implements Serializable {
 	@FxColumn(name = "MANFT_SN", size = 50, nullable = true, comment = "제조일련번호")
 	private String manftSn;
 
+	@FxColumn(name = "IN_OUT_TAG", size = 4, nullable = true, comment = "입출력태그", defValue = "NONE")
+	private String inOutTag = "NONE";
+
+	@FxColumn(name = "OP_ST_VAL", size = 3, nullable = true, comment = "운영상태값")
+	private Integer opStVal;
+
+	@FxColumn(name = "OP_ST_VAL_CHG_DTM", size = 14, nullable = true, comment = "운영상태값변경일시")
+	private Long opStValChgDtm;
+
 	/**
-	 * 센서명
-	 * 
 	 * @return 센서명
 	 */
 	public String getSensrName() {
@@ -71,8 +76,6 @@ public class FE_MO_SENSOR extends FX_MO implements Serializable {
 	}
 
 	/**
-	 * 센서명
-	 * 
 	 * @param sensrName 센서명
 	 */
 	public void setSensrName(String sensrName) {
@@ -80,8 +83,6 @@ public class FE_MO_SENSOR extends FX_MO implements Serializable {
 	}
 
 	/**
-	 * 센서설명
-	 * 
 	 * @return 센서설명
 	 */
 	public String getSensrDesc() {
@@ -89,8 +90,6 @@ public class FE_MO_SENSOR extends FX_MO implements Serializable {
 	}
 
 	/**
-	 * 센서설명
-	 * 
 	 * @param sensrDesc 센서설명
 	 */
 	public void setSensrDesc(String sensrDesc) {
@@ -98,8 +97,6 @@ public class FE_MO_SENSOR extends FX_MO implements Serializable {
 	}
 
 	/**
-	 * 센서IP주소
-	 * 
 	 * @return 센서IP주소
 	 */
 	public String getSensrIpAddr() {
@@ -107,8 +104,6 @@ public class FE_MO_SENSOR extends FX_MO implements Serializable {
 	}
 
 	/**
-	 * 센서IP주소
-	 * 
 	 * @param sensrIpAddr 센서IP주소
 	 */
 	public void setSensrIpAddr(String sensrIpAddr) {
@@ -116,8 +111,6 @@ public class FE_MO_SENSOR extends FX_MO implements Serializable {
 	}
 
 	/**
-	 * 통신방식
-	 * 
 	 * @return 통신방식
 	 */
 	public String getCommProtc() {
@@ -125,8 +118,6 @@ public class FE_MO_SENSOR extends FX_MO implements Serializable {
 	}
 
 	/**
-	 * 통신방식
-	 * 
 	 * @param commProtc 통신방식
 	 */
 	public void setCommProtc(String commProtc) {
@@ -134,8 +125,6 @@ public class FE_MO_SENSOR extends FX_MO implements Serializable {
 	}
 
 	/**
-	 * 에너지ID
-	 * 
 	 * @return 에너지ID
 	 */
 	public String getEngId() {
@@ -143,8 +132,6 @@ public class FE_MO_SENSOR extends FX_MO implements Serializable {
 	}
 
 	/**
-	 * 에너지ID
-	 * 
 	 * @param engId 에너지ID
 	 */
 	public void setEngId(String engId) {
@@ -152,8 +139,6 @@ public class FE_MO_SENSOR extends FX_MO implements Serializable {
 	}
 
 	/**
-	 * 배관ID
-	 * 
 	 * @return 배관ID
 	 */
 	public String getPipeId() {
@@ -161,8 +146,6 @@ public class FE_MO_SENSOR extends FX_MO implements Serializable {
 	}
 
 	/**
-	 * 배관ID
-	 * 
 	 * @param pipeId 배관ID
 	 */
 	public void setPipeId(String pipeId) {
@@ -170,8 +153,6 @@ public class FE_MO_SENSOR extends FX_MO implements Serializable {
 	}
 
 	/**
-	 * 설비번호
-	 * 
 	 * @return 설비번호
 	 */
 	public Long getFacNo() {
@@ -179,8 +160,6 @@ public class FE_MO_SENSOR extends FX_MO implements Serializable {
 	}
 
 	/**
-	 * 설비번호
-	 * 
 	 * @param facNo 설비번호
 	 */
 	public void setFacNo(Long facNo) {
@@ -188,62 +167,48 @@ public class FE_MO_SENSOR extends FX_MO implements Serializable {
 	}
 
 	/**
-	 * PLCMO번호
-	 * 
-	 * @return PLCMO번호
+	 * @return PLC_MO번호
 	 */
 	public Long getPlcMoNo() {
 		return plcMoNo;
 	}
 
 	/**
-	 * PLCMO번호
-	 * 
-	 * @param plcMoNo PLCMO번호
+	 * @param plcMoNo PLC_MO번호
 	 */
 	public void setPlcMoNo(Long plcMoNo) {
 		this.plcMoNo = plcMoNo;
 	}
 
 	/**
-	 * 최소값
-	 * 
-	 * @return 최소값
+	 * @return 측정최소값
 	 */
 	public Double getMinVal() {
 		return minVal;
 	}
 
 	/**
-	 * 최소값
-	 * 
-	 * @param minVal 최소값
+	 * @param minVal 측정최소값
 	 */
 	public void setMinVal(Double minVal) {
 		this.minVal = minVal;
 	}
 
 	/**
-	 * 최대값
-	 * 
-	 * @return 최대값
+	 * @return 측정최대값
 	 */
 	public Double getMaxVal() {
 		return maxVal;
 	}
 
 	/**
-	 * 최대값
-	 * 
-	 * @param maxVal 최대값
+	 * @param maxVal 측정최대값
 	 */
 	public void setMaxVal(Double maxVal) {
 		this.maxVal = maxVal;
 	}
 
 	/**
-	 * 구입일
-	 * 
 	 * @return 구입일
 	 */
 	public String getBuyDate() {
@@ -251,8 +216,6 @@ public class FE_MO_SENSOR extends FX_MO implements Serializable {
 	}
 
 	/**
-	 * 구입일
-	 * 
 	 * @param buyDate 구입일
 	 */
 	public void setBuyDate(String buyDate) {
@@ -260,8 +223,6 @@ public class FE_MO_SENSOR extends FX_MO implements Serializable {
 	}
 
 	/**
-	 * 검교정일
-	 * 
 	 * @return 검교정일
 	 */
 	public String getCalibDate() {
@@ -269,8 +230,6 @@ public class FE_MO_SENSOR extends FX_MO implements Serializable {
 	}
 
 	/**
-	 * 검교정일
-	 * 
 	 * @param calibDate 검교정일
 	 */
 	public void setCalibDate(String calibDate) {
@@ -278,8 +237,6 @@ public class FE_MO_SENSOR extends FX_MO implements Serializable {
 	}
 
 	/**
-	 * 제조일련번호
-	 * 
 	 * @return 제조일련번호
 	 */
 	public String getManftSn() {
@@ -287,11 +244,51 @@ public class FE_MO_SENSOR extends FX_MO implements Serializable {
 	}
 
 	/**
-	 * 제조일련번호
-	 * 
 	 * @param manftSn 제조일련번호
 	 */
 	public void setManftSn(String manftSn) {
 		this.manftSn = manftSn;
+	}
+
+	/**
+	 * @return 입출력태그
+	 */
+	public String getInOutTag() {
+		return inOutTag;
+	}
+
+	/**
+	 * @param inOutTag 입출력태그
+	 */
+	public void setInOutTag(String inOutTag) {
+		this.inOutTag = inOutTag;
+	}
+
+	/**
+	 * @return 운영상태값
+	 */
+	public Integer getOpStVal() {
+		return opStVal;
+	}
+
+	/**
+	 * @param opStVal 운영상태값
+	 */
+	public void setOpStVal(Integer opStVal) {
+		this.opStVal = opStVal;
+	}
+
+	/**
+	 * @return 운영상태값변경일시
+	 */
+	public Long getOpStValChgDtm() {
+		return opStValChgDtm;
+	}
+
+	/**
+	 * @param opStValChgDtm 운영상태값변경일시
+	 */
+	public void setOpStValChgDtm(Long opStValChgDtm) {
+		this.opStValChgDtm = opStValChgDtm;
 	}
 }
