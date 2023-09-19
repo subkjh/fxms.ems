@@ -86,13 +86,10 @@
 		<para name="snmptrap.batch.size" value="30" />
 	</class>
 
-	<!-- InfuxDB -->
-	<!-- When using InfluxDB, use the API below. -->
-	<!-- ValueApi writes collected data to InfluxDB, and AppApi reads data from InfluxDB and writes statistical 
-		data to RDB. -->
-	<class org="fxms.bas.api.AppApi" use="fxms.bas.impl.api.AppApiInfluxDb"
-		service="AppService" enable="false"/>
-	<class org="fxms.bas.api.ValueApi" use="fxms.bas.impl.api.ValueApiInfluxDb"
-		service="ValueService" />
+
+	<!-- 
+	<class org="fxms.bas.api.AppApi" use="fxms.ems.cems.api.AppApiCems" service="AppService" />
+	 -->
+
 
 </classes>

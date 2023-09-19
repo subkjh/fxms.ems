@@ -14,7 +14,6 @@ import fxms.bas.fxo.service.ValueServiceImpl;
 import fxms.bas.impl.api.ValueApiDfo;
 import fxms.bas.vo.PsItem;
 import fxms.bas.vo.PsKind;
-import fxms.ems.vup.api.VupApi;
 
 public class ValueServiceTest {
 
@@ -41,7 +40,7 @@ public class ValueServiceTest {
 	void test() throws Exception {
 		ValueService service = getService();
 		String psKind = PsKind.PSKIND_15M;
-		String psId = VupApi.VUP_PS_ITEM.E01V4.name();
+		String psId = "A";
 		long startDtm = 20230410000000L;
 		long endDtm = 20230410235959L;
 		PsItem item = PsApi.getApi().getPsItem(psId);
@@ -52,8 +51,8 @@ public class ValueServiceTest {
 		for (Long moNo : ret.keySet()) {
 			if (ret.get(moNo).floatValue() > 0) {
 				System.out.println(moNo + " " + ret.get(moNo));
-				System.out.println(
-						FxmsUtil.toJson(service.getValues(moNo, null, psId, psKind, item.getDefKindCol(), startDtm, endDtm)));
+				System.out.println(FxmsUtil
+						.toJson(service.getValues(moNo, psId, psKind, item.getDefKindCol(), startDtm, endDtm)));
 			}
 		}
 	}
@@ -61,7 +60,7 @@ public class ValueServiceTest {
 	void test2() throws Exception {
 		ValueService service = getService();
 		String psKind = PsKind.PSKIND_15M;
-		String psId = VupApi.VUP_PS_ITEM.E01V4.name();
+		String psId = "A";
 		long startDtm = 20230410000000L;
 		long endDtm = 20230410235959L;
 		PsItem item = PsApi.getApi().getPsItem(psId);

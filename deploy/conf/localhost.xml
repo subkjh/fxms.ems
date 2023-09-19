@@ -10,6 +10,4 @@
 	<para name="PORT-SERVICE" value="0" service="ExtService" />
 	<para name="PORT-SERVICE" value="0" service="WsBroadcaster" />
 
-
-
 </service>

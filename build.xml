@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project default="fxms.ems.jar" name="fxms.ems">
+<project default="fxms.ems.cems.jar" name="fxms.ems.cems">
 
 	<property file="build.properties" />
 
@@ -79,14 +79,12 @@
 			<arg line="-extdirs ${libext.dir}/fxms" />
 			<arg line="-g" />
 			<arg line="-v1.2" />
-
-			<arg line="fxms.ems.vup.VupServiceImpl" />
+			
+			<arg line="fxms.ems.cems.CemsServiceImpl" />
 
 		</exec>
 		<echo message="* rmic end *" />
 	</target>
-
-
 
 	<target name="copy_sql">
 		<copydir dest="${classes.dir}/subkjh/dao/queries" src="${sql.dir}">
@@ -94,33 +92,18 @@
 	</target>
 
 
-	<target name="fxms.ems.jar">
+	<target name="fxms.ems.cems.jar">
 
 		<antcall target="copy_sql" />
 
-		<jar destfile="${lib.dir}/fxms.ems.jar" update="false">
+		<jar destfile="${lib.dir}/fxms.ems.cems.jar" update="false">
 			<fileset dir="${classes.dir}">
-				<include name="fxms/ems/**/*" />
+				<include name="fxms/ems/cems/**/*" />
+				<include name="subkjh/**/*" />
 			</fileset>
 		</jar>
 	</target>
 
-	<target name="fxms.ems.vup.jar">
-		<jar destfile="${lib.dir}/fxms.ems.vup.jar" update="false">
-			<fileset dir="${classes.dir}">
-				<include name="fxms/ems/vup/**/*" />
-			</fileset>
-		</jar>
-	</target>
-	
-	<target name="fxms.ems.h2.jar">
-		<jar destfile="${lib.dir}/fxms.ems.h2.jar" update="false">
-			<fileset dir="${classes.dir}">
-				<include name="fxms/ems/bas/**/*" />
-				<include name="fxms/ems/h2/**/*" />
-			</fileset>
-		</jar>
-	</target>
 
 </project>
 

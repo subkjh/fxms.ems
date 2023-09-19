@@ -18,7 +18,7 @@
 <service>
 
 	<!-- Set Site Name -->
-	<para name="project" value="H2" />
+	<para name="project" value="CEMS" />
 
 	<!-- IP주소 설정 -->
 	<para name="fxsvr.ip.addr" value="localhost" />
@@ -37,10 +37,14 @@
 	<para name="fxservice.port" value="63816" service="WebService" />
 	<para name="fxservice.port" value="63817" service="UserService" />
 
+	<!-- 
 	<para name="fxservice.port" value="63820" service="NmsService" />
 	<para name="fxservice.port" value="63821" service="PingService" />
-	<para name="fxservice.port" value="63822" service="VupService" />
+	 -->
+	<para name="fxservice.port" value="63822" service="CemsService" />
+	<!-- 
 	<para name="fxservice.port" value="63823" service="FlareService" />
+	 -->
 	<para name="fxservice.port" value="63824" service="RuleService" />
 
 	<!-- Set Charset For SNMP -->
