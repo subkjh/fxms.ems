@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<!DOCTYPE datas[
+
+<!ELEMENT datas (dto*) >
+
+<!ELEMENT dto (field*, para*) >
+<!ATTLIST dto java-class CDATA #REQUIRED >
+<!ATTLIST dto use CDATA #IMPLIED >
+<!ATTLIST dto descr CDATA #IMPLIED >
+
+<!ELEMENT field EMPTY >
+<!ATTLIST field name CDATA #REQUIRED >
+<!ATTLIST field value CDATA #REQUIRED>
+<!ATTLIST field descr CDATA #IMPLIED >
+
+<!ELEMENT para EMPTY >
+<!ATTLIST para name CDATA #REQUIRED >
+<!ATTLIST para value CDATA #REQUIRED>
+<!ATTLIST para descr CDATA #IMPLIED>
+
+]>
+
+<datas>
+
+	<!-- ServiceDto -->
+	<!-- project -->
+	<!-- ServiceDto End -->
+
+	<!-- MoDefDto -->
+	<!-- project -->
+	<dto java-class="fxms.api.mo.dto.MoDefDto">
+		<field name="moClass" value="SENSOR" />
+		<field name="javaClass" value="fxms.ems.bas.mo.SensorMo" />
+		<field name="dboJavaClass" value="fxms.ems.bas.dbo.FE_MO_SENSOR" />
+	</dto>
+	<!-- MoDefDto End -->
+
+	<!-- ClassDto -->
+	<!-- project -->
+	<dto java-class="fxms.api.ClassDto">
+		<field name="org" value="fxms.api.FxApi" />
+		<field name="use" value="fxms.api.FxApiDfo" />
+	</dto>
+	<dto java-class="fxms.api.ClassDto">
+		<field name="org" value="fxms.api.mo.MoApi" />
+		<field name="use" value="fxms.api.mo.MoApiDfo" />
+	</dto>
+
+	<dto java-class="fxms.api.ClassDto">
+		<field name="org" value="fxms.api.ao.AlarmApi" />
+		<field name="use" value="fxms.api.ao.AlarmApiDfo" />
+	</dto>
+
+	<dto java-class="fxms.api.ClassDto">
+		<field name="org" value="fxms.api.fo.AppApi" />
+		<field name="use" value="fxms.api.fo.AppApiDfo" />
+	</dto>
+
+	<dto java-class="fxms.api.ClassDto">
+		<field name="org" value="fxms.api.uo.UserApi" />
+		<field name="use" value="fxms.api.uo.UserApiDfo" />
+	</dto>
+
+	<dto java-class="fxms.api.ClassDto">
+		<field name="org" value="fxms.api.vo.ValueApi" />
+		<field name="use" value="fxms.api.vo.ValueApiDfo" />
+	</dto>	
+	<!-- ClassDto End -->
+
+	<!-- HandlerDto -->
+	<!-- project -->
+	<dto java-class="fxms.bas.dto.HandlerDto">
+		<field name="name" value="fxms-handler" />
+		<field name="context" value="/ems, fxms.ems.bas.handler.EmsHandler" />
+	</dto>
+	<!-- HandlerDto End -->
+
+	<!-- ThreadDto -->
+	<!-- project -->
+	<!-- ThreadDto End -->
+
+</datas>

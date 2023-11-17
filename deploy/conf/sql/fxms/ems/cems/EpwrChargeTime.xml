@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<queries>
+
+	<resultMap id="RESULT_MAP" javaClass="java.util.HashMap" />
+	<resultMap id="RESULT_JAVA_MAP" javaClass="java.util.HashMap" keyCase="java" />
+
+	<!-- 계절별, 부하 시간대별 단가가 다르기에 시간대별로 사용 금액을 계산한다. -->
+	<insert id="make-epwr-charge-time">
+	<![CDATA[
+		insert into FE_EPWR_CHARGE_TIME       /* 전기요금TIME테이블 */
+		(
+			  INLO_NO                   /* 설치위치번호 */ 
+			, YYYYMMDDHH                /* 년월일시 */ 
+			, USED_AMT                  /* 사용량(kWh) */ 
+			, EPWR_PRICE_ID             /* 전기요금ID */ 
+			, USED_PRICE                /* 사용단가 */ 
+			, USED_CHARGE               /* 사용요금 */ 
+			, EPWR_TM_LOAD_CD           /* 전력부하시간코드 */ 
+			, PEAK_USE_EPWR				/* 최대사용젼력 */
+			, REG_USER_NO               /* 등록사용자번호 */ 
+			, REG_DTM                   /* 등록일시 */ 
+			, CHG_USER_NO               /* 수정사용자번호 */ 
+			, CHG_DTM                   /* 수정일시 */ 
+		)
+		with datas as (
+			select 	a.EPWR_PRICE_ID			as EPWR_PRICE_ID		/* 전기요금ID */
+					, a.EPWR_PRICE_NAME		as EPWR_PRICE_NAME		/* 전기요금명 */
+					, b.BASIC_PRICE			as BASIC_PRICE			/* 기본요금(원/kW) */
+					, c.DESCR				as TMLOAD_DESCR			/* 부하 */
+					, d.EPWR_TM_LOAD_CD		as EPWR_TM_LOAD_CD		/* 시간대부하코드 */
+					, ( select CD_NAME from FX_CO_CD d1 where d1.CD_CLASS = 'EPWR_TM_LOAD_CD' and d1.CD_CODE = d.EPWR_TM_LOAD_CD )
+											as EPWR_TM_LOAD_NM		/* 시간대부하명 */
+					, d.PRICE				as UNIT_PRICE			/* 단가 */
+					, c.MMDD
+					, c.HH
+			from	FE_EPWR_PRICE			a
+					, FE_EPWR_PRICE_BASE 	b
+					, FE_EPWR_PRICE_TMLOAD 	c
+					, FE_EPWR_PRICE_UNIT 	d
+			where 	a.EPWR_PRICE_ID		= b.EPWR_PRICE_ID
+			and		b.START_EFFCT_DATE	<= $date
+			and		b.END_EFFCT_DATE	>= $date
+			and		c.MMDD				= concat(substr($date, 5, 2), '**')			/* 7월. 일자가 적용되면 ** 자리에 일자 넣음 */
+			and		c.START_EFFCT_DATE	<= $date
+			and		c.END_EFFCT_DATE	>= $date
+			and		d.EPWR_PRICE_ID		= a.EPWR_PRICE_ID
+			and		d.MM 				= substr($date, 5, 2)						/* 7월 */
+			and		d.EPWR_TM_LOAD_CD 	in ( c.EPWR_TM_LOAD_CD, '0')				/* 시간대 부하가 없으면 0으로 시간부하가 설정되어 있음 */
+			and		d.START_EFFCT_DATE	<= $date
+			and		d.END_EFFCT_DATE	>= $date
+		)
+		, a as (
+			select  c.INLO_NO						as INLO_NO
+					, substr(b.ENG_DTM, 1, 10)		as YYYYMMDDHH
+					, b.CONS_AMT					as USED_AMT
+					, a.EPWR_PRICE_ID 				as EPWR_PRICE_ID
+					, a.UNIT_PRICE					as USED_PRICE
+					, TRUNCATE(b.CONS_AMT * a.UNIT_PRICE, 1 ) 
+													as USED_CHARGE
+					, a.EPWR_TM_LOAD_CD				as EPWR_TM_LOAD_CD
+			from 	datas a
+					, FE_ENG_MEASR_AMT_INLO b
+					, FE_EPWR_INLO_PRICE c
+			where b.ENG_ID = 'E11' 
+			and b.ENG_DTM >= concat($date, '000000') 
+			and b.ENG_DTM <= concat($date, '235959') 
+			and b.DTM_TYPE = '1H'
+			and c.INLO_NO = b.INLO_NO
+			and a.EPWR_PRICE_ID = c.EPWR_PRICE_ID
+			and substr(b.ENG_DTM, 9, 2) = a.HH
+		)
+		-- 피크 전력량 가져옴.
+		, b as (
+			select	a.*
+					, ( select 	max(t1.CONS_AMT) 				 
+						from 	FE_ENG_MEASR_AMT_INLO t1 
+						where 	t1.ENG_DTM 		between CONCAT(a.YYYYMMDDHH, '0000') and CONCAT(a.YYYYMMDDHH, '5959') 
+						and 	t1.INLO_NO 		= a.INLO_NO 
+						and 	t1.ENG_ID 		= 'E11'
+						and 	t1.DTM_TYPE 	= '15M' 
+						)
+															as PEAK_USE_EPWR			 
+					, 1										as REG_USER_NO
+					, DATE_FORMAT(now(), '%Y%m%d%H%i%s')	as REG_DTM
+					, 1										as CHG_USER_NO
+					, DATE_FORMAT(now(), '%Y%m%d%H%i%s')	as CHG_DTM									
+			from	a
+		)
+		select  *
+		from 	b a
+		
+		ON DUPLICATE KEY UPDATE		
+				USED_AMT 			= a.USED_AMT
+				, EPWR_PRICE_ID		= a.EPWR_PRICE_ID
+				, USED_PRICE		= a.USED_PRICE
+				, USED_CHARGE		= a.USED_CHARGE
+				, EPWR_TM_LOAD_CD	= a.EPWR_TM_LOAD_CD
+				, PEAK_USE_EPWR		= a.PEAK_USE_EPWR
+	]]>
+	</insert>
+
+	<update id="make-epwr-charge-peak-time">
+	<![CDATA[
+		update	FE_EPWR_CHARGE_TIME a
+		set		PEAK_USE_DTM = ( 
+					select 	max(ENG_DTM) 				 
+					from 	FE_ENG_MEASR_AMT_INLO t1 
+					where 	t1.ENG_DTM BETWEEN concat(a.YYYYMMDDHH, '0000') and concat(a.YYYYMMDDHH, '5959') 
+					and 	t1.DTM_TYPE 	= '15M' 
+					and 	t1.INLO_NO 		= a.INLO_NO 
+					and 	t1.ENG_ID 		= 'E11'
+					and		t1.CONS_AMT		= a.PEAK_USE_EPWR
+				)
+				, CHG_DTM =  DATE_FORMAT(now(), '%Y%m%d%H%i%s')
+		where	a.YYYYMMDDHH between concat($date, '00') and concat($date, '23') 	
+	]]>
+	</update>
+
+</queries>
+

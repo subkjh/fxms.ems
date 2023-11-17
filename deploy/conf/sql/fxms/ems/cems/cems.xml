@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<queries>
+
+	<resultMap id="RESULT_MAP" javaClass="java.util.HashMap" keyCase="java" />
+
+	<resultMap id="NodeDto" javaClass="fxms.ems.cems.dto.NodeDto" keyCase="java" />
+
+	<!-- 산단에 설치된 게이트웨이 조회 -->
+	<select id="select_GW__BY_COMPLEX" resultMap="RESULT_MAP">
+		<![CDATA[
+		select a.NODE_IP_ADDR
+				, a.COMM_PORT_NO
+				, a.COMM_PROTC
+				, a.MO_NO
+		from	FX_MO_NODE 	a
+				, FX_MO		b
+		where	a.MO_NO = b.MO_NO
+		and		b.DEL_YN = 'N'	
+		and		exists ( select t1.LOWER_INLO_NO 
+						from 	FX_CF_INLO_MEM 	t1
+								, FX_CF_INLO	t2 
+						where 	t1.INLO_NO 			= t2.INLO_NO
+						and		t2.INLO_TID 		= $inloTid
+						and		t1.LOWER_INLO_NO 	= b.INLO_NO
+						) 
+		]]>
+	</select>
+
+	<!-- 산단에 설치된 센서 조회 -->
+	<select id="select_NODE__BY_COMPLEX" resultMap="NodeDto">
+		<![CDATA[
+		select 	a.MO_NO				as MO_NO
+				, b.MO_TID			as DISPLAY_NAME
+				, a.PLC_MO_NO		as GW_MO_NO
+		from	FE_MO_SENSOR 	a
+				, FX_MO		b
+		where	a.MO_NO = b.MO_NO
+		and		b.DEL_YN = 'N'	
+		and		exists ( select t1.LOWER_INLO_NO 
+						from 	FX_CF_INLO_MEM 	t1
+								, FX_CF_INLO	t2 
+						where 	t1.INLO_NO 			= t2.INLO_NO
+						and		t2.INLO_TID 		= $inloTid
+						and		t1.LOWER_INLO_NO 	= b.INLO_NO
+						) 
+		]]>
+	</select>
+
+</queries>
+

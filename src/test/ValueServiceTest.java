@@ -2,16 +2,16 @@ package test;
 
 import java.util.Map;
 
-import fxms.bas.api.PsApi;
-import fxms.bas.api.ServiceApi;
-import fxms.bas.api.ValueApi;
-import fxms.bas.api.ValueApi.StatFunction;
+import fxms.api.FxApi;
+import fxms.api.fo.AppApi;
+import fxms.api.vo.ValueApi;
+import fxms.api.vo.ValueApiDfo;
+import fxms.api.vo.ValueBaseApi.StatFunction;
+import fxms.api.vo.ValueService;
+import fxms.api.vo.ValueServiceImpl;
 import fxms.bas.exp.FxServiceNotFoundException;
 import fxms.bas.fxo.FxmsUtil;
 import fxms.bas.fxo.service.FxServiceImpl;
-import fxms.bas.fxo.service.ValueService;
-import fxms.bas.fxo.service.ValueServiceImpl;
-import fxms.bas.impl.api.ValueApiDfo;
 import fxms.bas.vo.PsItem;
 import fxms.bas.vo.PsKind;
 
@@ -34,7 +34,7 @@ public class ValueServiceTest {
 	}
 
 	ValueService getService() throws FxServiceNotFoundException, Exception {
-		return ServiceApi.getApi().getService(ValueService.class);
+		return FxApi.getApi().getService(ValueService.class);
 	}
 
 	void test() throws Exception {
@@ -43,16 +43,16 @@ public class ValueServiceTest {
 		String psId = "A";
 		long startDtm = 20230410000000L;
 		long endDtm = 20230410235959L;
-		PsItem item = PsApi.getApi().getPsItem(psId);
+		PsItem item = AppApi.getApi().getPsItem(psId);
 
-		Map<Long, Number> ret = service.getStatValue(item.getPsId(), psKind, startDtm, endDtm, StatFunction.Avg);
+		Map<Long, Number> ret = service.getStatValues(item.getPsId(), psKind, startDtm, endDtm, StatFunction.Avg);
 		System.out.println(FxmsUtil.toJson(ret));
 
 		for (Long moNo : ret.keySet()) {
 			if (ret.get(moNo).floatValue() > 0) {
 				System.out.println(moNo + " " + ret.get(moNo));
 				System.out.println(FxmsUtil
-						.toJson(service.getValues(moNo, psId, psKind, item.getDefKindCol(), startDtm, endDtm)));
+						.toJson(service.getValues(moNo, psId, psKind, item.getStatFuncDef(), startDtm, endDtm)));
 			}
 		}
 	}
@@ -63,8 +63,8 @@ public class ValueServiceTest {
 		String psId = "A";
 		long startDtm = 20230410000000L;
 		long endDtm = 20230410235959L;
-		PsItem item = PsApi.getApi().getPsItem(psId);
+		PsItem item = AppApi.getApi().getPsItem(psId);
 
-		System.out.println(FxmsUtil.toJson(service.getValues(psId, psKind, item.getDefKindCol(), startDtm, endDtm)));
+		System.out.println(FxmsUtil.toJson(service.getValues(psId, psKind, item.getStatFuncDef(), startDtm, endDtm)));
 	}
 }

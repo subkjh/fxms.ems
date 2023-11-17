@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<queries>
+
+	<resultMap id="RESULT_MAP" javaClass="java.util.HashMap" keyCase="java" />
+
+	<select id="select_CEMS_V_UNBAL" resultMap="RESULT_MAP">
+		<![CDATA[
+		select 	a.MO_NO				as MO_NO
+				, a.PS_DATE			as PS_DTM
+				, c.FAC_NO			as FAC_NO
+				, c.INLO_NO			as INLO_NO
+				, a.IA_AVG			as IA_VAL
+				, a.IB_AVG			as IB_VAL
+				, a.IC_AVG			as IC_VAL
+				, a.VA_AVG			as VA_VAL
+				, a.VB_AVG			as VB_VAL
+				, a.VC_AVG			as VC_VAL
+		from	FX_V_EPWR_15M a 
+				, FE_MO_SENSOR b
+				, FE_FAC_BAS c
+		where 	a.PS_DATE 	= $psDate
+		and 	a.MO_NO 	= b.MO_NO 
+		and 	b.FAC_NO 	= c.FAC_NO
+		and		c.DEL_YN	= 'N'
+		]]>
+	</select>
+
+
+	<update id="make_CEMS_V_UNBAL">
+	<![CDATA[
+		insert into CEMS_V_UNBAL ( 
+				  MO_NO
+				, PS_DTM
+				, FAC_NO
+				, INLO_NO
+				, VUNBAL_VAL
+				, VA_VAL
+				, VB_VAL
+				, VC_VAL
+				, IUNBAL_VAL
+				, IA_VAL
+				, IB_VAL
+				, IC_VAL
+				, REG_USER_NO
+				, REG_DTM
+				, CHG_USER_NO
+				, CHG_DTM 
+		) values (
+				  $moNo
+				, $psDtm
+				, $facNo
+				, $inloNo
+				, $vunbalVal
+				, $vaVal
+				, $vbVal
+				, $vcVal
+				, $iunbalVal
+				, $iaVal
+				, $ibVal
+				, $icVal					
+				, 1			
+				, DATE_FORMAT(now(), '%Y%m%d%H%i%s')
+				, 1
+				, DATE_FORMAT(now(), '%Y%m%d%H%i%s')
+		)
+		on duplicate key update			
+			  VUNBAL_VAL	= $vunbalVal
+			, VA_VAL 		= $vaVal
+			, VB_VAL		= $vbVal		
+			, VC_VAL		= $vcVal		
+			, IUNBAL_VAL	= $iunbalVal
+			, IA_VAL 		= $iaVal
+			, IB_VAL		= $ibVal		
+			, IC_VAL		= $icVal		
+			, FAC_NO		= $facNo
+			, INLO_NO		= $inloNo
+			, CHG_DTM		= DATE_FORMAT(now(), '%Y%m%d%H%i%s')
+	]]>
+	</update>
+	
+</queries>
+

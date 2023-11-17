@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<!DOCTYPE datas[
+
+<!ELEMENT datas (dto*) >
+
+<!ELEMENT dto (field*, para*) >
+<!ATTLIST dto java-class CDATA #REQUIRED >
+<!ATTLIST dto use CDATA #IMPLIED >
+<!ATTLIST dto descr CDATA #IMPLIED >
+
+<!ELEMENT field EMPTY >
+<!ATTLIST field name CDATA #REQUIRED >
+<!ATTLIST field value CDATA #REQUIRED>
+<!ATTLIST field descr CDATA #IMPLIED >
+
+<!ELEMENT para EMPTY >
+<!ATTLIST para name CDATA #REQUIRED >
+<!ATTLIST para value CDATA #REQUIRED>
+<!ATTLIST para descr CDATA #IMPLIED>
+
+]>
+
+<datas>
+
+	<!-- ServiceDto -->
+	<!-- project -->
+	<!-- ServiceDto End -->
+
+	<!-- MoDefDto -->
+	<!-- project -->	
+	<!-- MoDefDto End -->
+
+	<!-- ClassDto -->
+	<!-- project -->	
+	<!-- ClassDto End -->
+
+	<!-- HandlerDto -->
+	<!-- project -->
+	<dto java-class="fxms.bas.dto.HandlerDto">
+		<field name="name" value="fxms-handler" />
+		<field name="context" value="/cems, fxms.ems.cems.CemsHandler" />
+	</dto>
+	<!-- HandlerDto End -->
+
+	<!-- ThreadDto -->
+	<!-- project -->
+	<!-- ThreadDto End -->
+
+</datas>

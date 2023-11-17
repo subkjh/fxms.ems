@@ -1,7 +1,7 @@
 package test;
 
-import fxms.bas.fxo.service.AlarmService;
-import fxms.bas.fxo.service.AlarmServiceImpl;
+import fxms.api.ao.AlarmService;
+import fxms.api.ao.AlarmServiceImpl;
 import fxms.bas.fxo.service.FxServiceImpl;
 
 public class AlarmServiceTest {

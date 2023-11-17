@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<queries>
+
+	<resultMap id="RESULT_MAP" javaClass="java.util.HashMap" keyCase="java" />
+
+	<insert id="update_plant_name_1__on_CEMS_FAC_RAW">
+	<![CDATA[
+		update CEMS_FAC_RAW set PLANT_NAME = '사업장'
+	]]>
+	</insert>
+	<insert id="update_plant_name_2__on_CEMS_FAC_RAW">
+	<![CDATA[
+		update CEMS_FAC_RAW set PLANT_NAME = '1공장' where COMPANY_NAME = '㈜단석산업'
+	]]>
+	</insert>
+
+	<insert id="update_complex_inlo_no__on_CEMS_FAC_RAW">
+	<![CDATA[
+		update CEMS_FAC_RAW a
+		set a.COMPLEX_INLO_NO = ( select INLO_NO from FX_CF_INLO where INLO_CL_CD = 'COMPLEX' and INLO_NAME = a.COMPLEX_NAME )
+	]]>
+	</insert>
+
+	<insert id="update_company_inlo_no__on_CEMS_FAC_RAW">
+	<![CDATA[
+		update CEMS_FAC_RAW a
+		set a.COMPANY_INLO_NO = ( select INLO_NO from FX_CF_INLO where INLO_CL_CD = 'COMPANY' and INLO_ALL_NAME = concat(a.COMPLEX_NAME, ' > ', a.COMPANY_NAME) )
+	]]>
+	</insert>
+
+	<insert id="update_plant_inlo_no__on_CEMS_FAC_RAW">
+	<![CDATA[
+		update CEMS_FAC_RAW a
+		set a.PLANT_INLO_NO = ( select INLO_NO from FX_CF_INLO where INLO_CL_CD = 'PLANT' and INLO_ALL_NAME = concat(a.COMPLEX_NAME, ' > ', a.COMPANY_NAME, ' > ', a.PLANT_NAME) )
+	]]>
+	</insert>
+
+	<insert id="update_fac_cl_cd__on_CEMS_FAC_RAW">
+	<![CDATA[
+		update CEMS_FAC_RAW a
+		set a.FAC_CL_CD = ( select CD_CODE from FX_CO_CD where CD_CLASS = 'FAC_CL_CD' and CD_NAME = a.FAC_TYPE )
+	]]>
+	</insert>
+
+	<insert id="update_proc_type_cd_1__on_CEMS_FAC_RAW">
+	<![CDATA[
+		update CEMS_FAC_RAW a
+		set a.PROC_TYPE_CD = ( select CD_CODE from FX_CO_CD where CD_CLASS = 'PROC_TYPE_CD' and CD_NAME = a.PROCESS_NAME )
+	]]>
+	</insert>
+	<insert id="update_proc_type_cd_2__on_CEMS_FAC_RAW">
+	<![CDATA[
+		update CEMS_FAC_RAW a
+		set a.PROC_TYPE_CD = ( select CD_CODE from FX_CO_CD where CD_CLASS = 'PROC_TYPE_CD' and CD_NAME = '공기압축' )
+		where a.PROCESS_NAME in ( '컴프레셔', '콤프레셔' )
+	]]>
+	</insert>
+	<insert id="update_proc_type_cd_3__on_CEMS_FAC_RAW">
+	<![CDATA[
+		update CEMS_FAC_RAW a
+		set a.PROC_TYPE_CD = ( select CD_CODE from FX_CO_CD where CD_CLASS = 'PROC_TYPE_CD' and CD_NAME = '공정기타' )
+		where a.PROCESS_NAME like '%기타%'
+	]]>
+	</insert>
+
+	<insert id="update_mo_type_1__on_CEMS_FAC_RAW">
+	<![CDATA[
+		update 	CEMS_FAC_RAW 
+		set 	MO_TYPE 	= '전력계'
+		where	FAC_NAME not like '%피크계측%'
+		and		TAG 		= '전기'
+	]]>
+	</insert>
+
+	<insert id="update_mo_type_2__on_CEMS_FAC_RAW">
+	<![CDATA[
+		update 	CEMS_FAC_RAW 
+		set 	MO_TYPE 		= '피크전력계'
+		where	FAC_NAME 		like '%피크계측%'
+		and		PROCESS_NAME 	is null
+	]]>
+	</insert>
+
+	<insert id="update_mo_type_3__on_CEMS_FAC_RAW">
+	<![CDATA[
+		update 	CEMS_FAC_RAW 
+		set 	MO_TYPE 		= '피크전력계'
+		where	FAC_NAME 		like '%메인%'
+		and		PROCESS_NAME 	is null
+	]]>
+	</insert>
+
+
+
+	<insert id="update_mo_tid__on_CEMS_FAC_RAW">
+	<![CDATA[
+		update CEMS_FAC_RAW
+		set MO_TID =
+			concat(
+				case 
+					when complex_name = '군산' then 'gunsan'
+					when complex_name = '부산' then 'busan'
+					when complex_name = '울산' then 'ulsan'
+					else 'AAA'
+				end
+				, '.'
+				, replace(GW_IP, '.', '_')
+				, '.'
+				, OPC_METER_ID 
+			) 
+	]]>
+	</insert>
+
+	<insert id="update_fac_tid__on_CEMS_FAC_RAW">
+	<![CDATA[
+		update CEMS_FAC_RAW
+		set FAC_TID =
+			concat(
+				case 
+					when complex_name = '군산' then 'gunsan'
+					when complex_name = '부산' then 'busan'
+					when complex_name = '울산' then 'ulsan'
+					else 'AAA'
+				end
+				, '.'
+				, replace(GW_IP, '.', '_')
+				, '.'
+				, OPC_METER_ID 
+			) 
+	]]>
+	</insert>
+
+	<insert id="insert_FE_FAC_BAS">
+	<![CDATA[
+		insert into FE_FAC_BAS (
+				FAC_NO
+				, FAC_NAME
+				, FAC_TID
+				, INLO_NO
+				, FAC_CL_CD
+				, PROC_TYPE_CD
+		)
+		select 
+				nextval(FX_SEQ_FACNO)	as FAC_NO
+				, a.FAC_NAME  			as FAC_NAME 
+				, a.FAC_TID				as FAC_TID	
+				, a.COMPANY_INLO_NO 	as INLO_NO
+				, a.FAC_CL_CD 			as FAC_CL_CD
+				, ifnull(a.PROC_TYPE_CD, '9999') 	
+										as PROC_TYPE_CD 
+		from 	CEMS_FAC_RAW a
+					left join FE_FAC_BAS a1 on a1.FAC_TID = a.FAC_TID
+		where 	a.FAC_CL_CD 	is not null
+		and 	a1.FAC_TID 		is null
+	]]>
+	</insert>
+
+	<update id="update_fac_no__on_CEMS_FAC_RAW">
+	<![CDATA[
+		update	CEMS_FAC_RAW a
+		set		a.FAC_NO = ( select b.FAC_NO from FE_FAC_BAS b  where b.FAC_TID = a.FAC_TID )
+	]]>
+	</update>
+
+	<insert id="insert_gateway__into_FX_MO">
+	<![CDATA[
+		insert into FX_MO ( 
+				MO_NO
+				, MO_NAME
+				, MO_DISP_NAME
+				, MO_CLASS
+				, MO_TYPE
+				, UPPER_MO_NO
+				, INLO_NO
+				, POLL_CYCLE
+				, MO_TID		
+		)
+		with gws as ( 
+			select	distinct PLANT_INLO_NO
+					, GW_IP
+			from	CEMS_FAC_RAW
+			where	PLANT_INLO_NO is not null
+		)
+		, datas as (	
+			select 
+					GW_IP					as MO_NAME
+					, GW_IP					as MO_DISP_NAME
+					, 'NODE'				as MO_CLASS
+					, 'Gateway'				as MO_TYPE
+					, a.PLANT_INLO_NO		as INLO_NO
+					, 60					as POLL_CYCLE
+					, GW_IP					as MO_TID
+			from 	gws a
+					left join FX_MO_NODE a1 on a1.NODE_IP_ADDR = a.GW_IP
+			where 	a1.NODE_IP_ADDR is null
+		)
+		, mos as (
+			select	
+					nextval(FX_SEQ_MONO)	as MO_NO
+					, a.*
+			from datas a
+		)
+		select 	MO_NO
+				, MO_NAME
+				, MO_DISP_NAME
+				, MO_CLASS
+				, MO_TYPE
+				, MO_NO				as UPPER_MO_NO
+				, INLO_NO
+				, POLL_CYCLE
+				, MO_TID
+		from 	mos		
+	]]>
+	</insert>
+
+
+	<insert id="insert_FX_MO_NODE">
+	<![CDATA[
+		insert into FX_MO_NODE (
+				MO_NO
+				, NODE_IP_ADDR
+		)
+		select	a.MO_NO		as MO_NO
+				, a.MO_NAME	as NODE_IP_ADDR
+		from	FX_MO a
+				left join FX_MO_NODE a1 on a1.MO_NO = a.MO_NO
+		where	a1.MO_NO is null
+	]]>
+	</insert>
+
+
+	<update id="update_gw_mo_no__on_CEMS_FAC_RAW">
+	<![CDATA[
+		update	CEMS_FAC_RAW a
+		set		a.GW_MO_NO = ( 
+					select 	b.MO_NO 
+					from 	FX_MO_NODE b
+							, FX_MO c  
+					where 	b.MO_NO = c.MO_NO
+					and		b.NODE_IP_ADDR = a.GW_IP 
+					and  	c.INLO_NO = a.PLANT_INLO_NO
+				)
+	]]>
+	</update>
+
+	<insert id="insert_sensor__into_FX_MO">
+	<![CDATA[
+		insert into FX_MO ( 
+				MO_NO
+				, MO_NAME
+				, MO_DISP_NAME
+				, MO_CLASS
+				, MO_TYPE
+				, UPPER_MO_NO
+				, INLO_NO
+				, POLL_CYCLE
+				, MO_TID		
+				, MO_ADD_JSON
+		)
+		with datas as ( 
+			select 
+					concat(a.FAC_NAME, ' 전력계')
+											as MO_NAME
+					, concat(a.FAC_NAME, ' 전력계')
+											as MO_DISP_NAME
+					, 'SENSOR'				as MO_CLASS
+					, a.MO_TYPE				as MO_TYPE
+					, a.PLANT_INLO_NO		as INLO_NO
+					, 60					as POLL_CYCLE
+					, a.MO_TID				as MO_TID
+					, JSON_OBJECT( "voltage", a.VOLTAGE, "wiring", a.WIRING, "breakCapacity", a.CIR_BRK_CAPA )	
+											as MO_ADD_JSON
+			from 	CEMS_FAC_RAW a
+					left join FX_MO a1 on a1.MO_TID = a.MO_TID
+			where 	a1.MO_TID is null
+			and		a.PLANT_INLO_NO is not null
+		)
+		, mos as (
+			select 
+					nextval(FX_SEQ_MONO)	as MO_NO
+					, a.*
+			from datas a
+		)		
+		select 	MO_NO
+				, MO_NAME
+				, MO_DISP_NAME
+				, MO_CLASS
+				, MO_TYPE
+				, MO_NO				as UPPER_MO_NO
+				, INLO_NO
+				, POLL_CYCLE
+				, MO_TID
+				, MO_ADD_JSON
+		from 	mos	
+	]]>
+	</insert>
+
+	<update id="update_sensor_mo_no__on_CEMS_FAC_RAW">
+	<![CDATA[
+		update	CEMS_FAC_RAW a
+		set		a.SENSOR_MO_NO = ( 
+					select 	b.MO_NO 
+					from 	FX_MO b  
+					where 	b.MO_CLASS = 'SENSOR'
+					and		b.MO_TID = a.MO_TID 
+					and  	b.INLO_NO = a.PLANT_INLO_NO
+				)
+	]]>
+	</update>
+
+
+
+	<insert id="insert_FE_MO_SENSOR">
+	<![CDATA[
+		insert into FE_MO_SENSOR (
+				MO_NO
+				, SENSR_NAME		
+				, SENSR_DESC
+				, PLC_MO_NO
+				, FAC_NO
+		)
+		select	a.MO_NO			as MO_NO
+				, a.MO_NAME		as SENSR_NAME
+				, a.MO_TYPE		as SENSR_DESC
+				, c.MO_NO		as PLC_MO_NO
+				, b1.FAC_NO		as FAC_NO 
+		from	FX_MO a
+					left join FE_MO_SENSOR 	a1 on a1.MO_NO = a.MO_NO
+				, CEMS_FAC_RAW b
+					left join FE_FAC_BAS	b1 on b1.FAC_TID = b.FAC_TID
+				, FX_MO_NODE c
+		where	a.MO_TID 		= b.MO_TID
+		and		c.NODE_IP_ADDR	= b.GW_IP
+				
+		on duplicate key update
+				FAC_NO 		= b1.FAC_NO		
+				, PLC_MO_NO = c.MO_NO
+	]]>
+	</insert>
+
+</queries>
+

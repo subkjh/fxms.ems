@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<!DOCTYPE datas[
+
+<!ELEMENT datas (dto*) >
+
+<!ELEMENT dto (field*, para*) >
+<!ATTLIST dto java-class CDATA #REQUIRED >
+<!ATTLIST dto use CDATA #IMPLIED >
+<!ATTLIST dto descr CDATA #IMPLIED >
+
+<!ELEMENT field EMPTY >
+<!ATTLIST field name CDATA #REQUIRED >
+<!ATTLIST field value CDATA #REQUIRED>
+<!ATTLIST field descr CDATA #IMPLIED >
+
+<!ELEMENT para EMPTY >
+<!ATTLIST para name CDATA #REQUIRED >
+<!ATTLIST para value CDATA #REQUIRED>
+<!ATTLIST para descr CDATA #IMPLIED>
+
+]>
+
+<datas>
+
+	<!-- ServiceDto -->
+	<!-- ********** -->
+	<!-- default -->
+	<dto java-class="FX.ServiceDto">
+		<field name="fxsvcName" value="BS" />
+		<field name="fxsvcJavaClass" value="fxms.ems.crawler.Crawler" />
+	</dto>
+	<!-- project -->
+	<!-- ServiceDto End -->
+
+	<!-- MoDefDto -->
+	<!-- ******** -->
+	<!-- default -->
+	<dto java-class="fxms.api.mo.dto.MoDefDto">
+		<field name="moClass" value="MO" />
+		<field name="javaClass" value="fxms.bas.mo.FxMo" />
+		<field name="dboJavaClass" value="fxms.bas.impl.dbo.all.FX_MO" />
+	</dto>
+	<dto java-class="fxms.api.mo.dto.MoDefDto">
+		<field name="moClass" value="FXSERVICE" />
+		<field name="javaClass" value="fxms.bas.mo.FxServiceMo" />
+		<field name="dboJavaClass" value="fxms.bas.impl.dbo.all.FX_MO_FXSERVICE" />
+	</dto>
+	<dto java-class="fxms.api.mo.dto.MoDefDto">
+		<field name="moClass" value="NODE" />
+		<field name="javaClass" value="fxms.bas.mo.NodeMo" />
+		<field name="dboJavaClass" value="fxms.bas.impl.dbo.all.FX_MO_NODE" />
+	</dto>
+	<!-- project -->
+	<!-- MoDefDto End -->
+
+	<!-- ClassDto -->
+	<!-- ******** -->
+	<!-- default -->
+	<dto java-class="fxms.api.ClassDto">
+		<field name="org" value="fxms.api.FxApi" />
+		<field name="use" value="fxms.api.FxApiDfo" />
+	</dto>
+	<dto java-class="fxms.api.ClassDto">
+		<field name="org" value="fxms.api.mo.MoApi" />
+		<field name="use" value="fxms.api.mo.MoApiService" />
+		<para name="test" value="30" />
+	</dto>
+	<dto java-class="fxms.api.ClassDto">
+		<field name="org" value="fxms.api.mo.MoApi" />
+		<field name="use" value="fxms.api.mo.MoApiDfo" />
+		<field name="service" value="MoService" />
+	</dto>
+
+	<dto java-class="fxms.api.ClassDto">
+		<field name="org" value="fxms.api.ao.AlarmApi" />
+		<field name="use" value="fxms.api.ao.AlarmApiService" />
+	</dto>
+	<dto java-class="fxms.api.ClassDto">
+		<field name="org" value="fxms.api.ao.AlarmApi" />
+		<field name="use" value="fxms.api.ao.AlarmApiDfo" />
+		<field name="service" value="AlarmService" />
+	</dto>
+
+	<dto java-class="fxms.api.ClassDto">
+		<field name="org" value="fxms.api.fo.AppApi" />
+		<field name="use" value="fxms.api.fo.AppApiService" />
+	</dto>
+	<dto java-class="fxms.api.ClassDto">
+		<field name="org" value="fxms.api.fo.AppApi" />
+		<field name="use" value="fxms.api.fo.AppApiDfo" />
+		<field name="service" value="AppService" />
+	</dto>
+
+	<dto java-class="fxms.api.ClassDto">
+		<field name="org" value="fxms.api.uo.UserApi" />
+		<field name="use" value="fxms.api.uo.UserApiService" />
+	</dto>
+	<dto java-class="fxms.api.ClassDto">
+		<field name="org" value="fxms.api.uo.UserApi" />
+		<field name="use" value="fxms.api.uo.UserApiDfo" />
+		<field name="service" value="UserService" />
+	</dto>
+
+	<dto java-class="fxms.api.ClassDto">
+		<field name="org" value="fxms.api.vo.ValueApi" />
+		<field name="use" value="fxms.api.vo.ValueApiService" />
+	</dto>
+	<dto java-class="fxms.api.ClassDto">
+		<field name="org" value="fxms.api.vo.ValueApi" />
+		<field name="use" value="fxms.api.vo.ValueApiDfo" />
+		<field name="service" value="ValueService" />
+	</dto>
+
+
+	<!-- InfuxDB -->
+	<!-- When using InfluxDB, use the API below. -->
+	<!-- ValueApi writes collected data to InfluxDB, and AppApi reads data from InfluxDB and writes statistical 
+		data to RDB. -->
+	<dto java-class="fxms.api.ClassDto" use="false">
+		<field name="org" value="fxms.api.fo.AppApi" />
+		<field name="use" value="fxms.bas.impl.ext.influxdb.AppApiInfluxDb" />
+		<field name="service" value="AppService" />
+	</dto>
+	<dto java-class="fxms.api.ClassDto" use="false">
+		<field name="org" value="fxms.api.vo.ValueApi" />
+		<field name="use" value="fxms.bas.impl.ext.influxdb.ValueApiInfluxDb" />
+		<field name="service" value="ValueService" />
+		<para name="use.tsdb.for.select" value="false"
+			descr="Sets whether to retrieve data from TSDB." />
+	</dto>
+
+	<dto java-class="fxms.api.ClassDto">
+		<field name="org" value="fxms.rule.RuleApi" />
+		<field name="use" value="fxms.rule.RuleApiDB" />
+	</dto>
+
+	<dto java-class="fxms.api.ClassDto" use="false">
+		<field name="org" value="fxms.nms.api.SyslogApi" />
+		<field name="use" value="fxms.nms.impl.api.SyslogApiSample" />
+		<field name="service" value="SyslogService" />
+		<para name="syslog.save" value="true" />
+		<para name="syslog.broadcast" value="false" />
+		<para name="syslog.max.size.in.queue" value="100" />
+		<para name="syslog.jam.alarm.name" value="syslog-queue-jam" />
+		<para name="syslog.allow.same" value="false" />
+		<para name="syslog.folder" value="datas/syslog" />
+		<para name="syslog.batch.size" value="30" />
+	</dto>
+
+	<dto java-class="fxms.api.ClassDto" use="false">
+		<field name="org" value="fxms.nms.api.SnmptrapApi" />
+		<field name="use" value="fxms.nms.impl.api.SnmptrapApiSample" />
+		<field name="service" value="Snmptrapervice" />
+		<para name="snmptrap.save" value="true" />
+		<para name="snmptrap.broadcast" value="false" />
+		<para name="snmptrap.max.size.in.queue" value="100" />
+		<para name="snmptrap.jam.alarm.name" value="snmptrap-queue-jam" />
+		<para name="snmptrap.allow.same" value="false" />
+		<para name="snmptrap.folder" value="datas/snmptrap" />
+		<para name="snmptrap.batch.size" value="30" />
+	</dto>
+	<!-- project -->
+	<!-- ClassDto End -->
+
+	<!-- HandlerDto -->
+	<!-- ********** -->
+	<!-- default -->
+	<dto java-class="fxms.bas.dto.HandlerDto">
+		<field name="name" value="fxms-handler" />
+		<field name="port" value="10005" />
+		<field name="service" value="WebService" />
+		<field name="context"
+			value="/,fxms.bas.handler.RootHandler:
+		/echo, fxms.bas.handler.EchoHandler:
+		/login, fxms.bas.impl.handler.LoginHandler:
+		/community, fxms.bas.impl.handler.CommHandler :
+		/model, fxms.bas.impl.handler.ModelHandler:
+		/location, fxms.bas.impl.handler.InloHandler:
+		/mo, fxms.bas.impl.handler.MoHandler:
+		/ps, fxms.bas.impl.handler.PsHandler:
+		/alarm, fxms.bas.impl.handler.AlarmHandler:
+		/alarmcfg, fxms.bas.impl.handler.AlarmCfgHandler:
+		/code, fxms.bas.impl.handler.CodeHandler:
+		/diagram, fxms.bas.impl.handler.DiagramHandler:
+		/system, fxms.bas.impl.handler.SystemHandler:
+		/test, fxms.bas.impl.handler.TestHandler:
+		/user, fxms.bas.impl.handler.UserHandler:
+		/ui, fxms.bas.impl.handler.UiHandler:
+		/rule, fxms.rule.handler.RuleHandler:
+		/download, fxms.bas.impl.handler.DownloadHandler" />
+
+		<para name="port2db" value="10005" />
+		<para name="host2db" value="10.0.1.11" />
+	</dto>
+
+	<!-- project -->
+	<!-- HandlerDto End -->
+
+
+	<!-- ThreadDto -->
+	<!-- ********** -->
+	<!-- default -->
+	<dto java-class="fxms.bas.dto.ThreadDto">
+		<field name="name" value="AlarmBroadServer" />
+		<field name="javaClass" value="fxms.bas.ws.ao.AlarmBroadServer" />
+		<field name="service" value="AlarmService" />
+
+		<para name="host" value="10.0.1.11" />
+		<para name="port" value="63818" />
+		<para name="host2db" value="10.0.1.11" />
+		<para name="port2db" value="63818" />
+		<para name="notify.class" value="fxms.bas.event.FxEvent" />
+		<para name="var.name" value="fxms-alarm-broadcaster" />
+	</dto>
+
+	<dto java-class="fxms.bas.dto.ThreadDto">
+		<field name="name" value="WsPsValueServer" />
+		<field name="javaClass" value="fxms.bas.ws.ps.WsPsValueServer" />
+		<field name="service" value="ValueService" />
+
+		<para name="host" value="10.0.1.11" />
+		<para name="port" value="63819" />
+		<para name="host2db" value="10.0.1.11" />
+		<para name="port2db" value="63819" />
+		<para name="var.name" value="fxms-value-peeker" />
+	</dto>
+	<!-- project -->
+	<!-- ThreadDto End -->
+
+
+</datas>

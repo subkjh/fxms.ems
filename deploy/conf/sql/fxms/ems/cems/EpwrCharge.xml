@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<queries>
+
+	<resultMap id="RESULT_MAP" javaClass="java.util.HashMap" keyCase="java" />
+
+	<update id="update_KEPCO_CHARGE">
+	<![CDATA[
+		insert into FE_EPWR_CHARGE ( INLO_NO, YYYY_MM, KEPCO_CHARGE, REG_USER_NO, REG_DTM, CHG_USER_NO, CHG_DTM )
+		with datas as (
+			select 	a.INLO_NO			as INLO_NO
+					, b.PAY_YYYYMM		as YYYY_MM
+					, b.TOTAL_PRICE 	as KEPCO_CHARGE
+					, 1					as REG_USER_NO		
+					, DATE_FORMAT(now(), '%Y%m%d%H%i%s')
+										as REG_DTM
+					, 1					as CHG_USER_NO
+					, DATE_FORMAT(now(), '%Y%m%d%H%i%s')
+										as CHG_DTM
+			from	FE_EPWR_INLO a
+					, KEPCO_PP_EPWR_PRICE b
+			where	a.KEPCO_PP_ID 	= b.KEPCO_PP_ID
+			and		b.PAY_YYYYMM	= $yyyymm
+		)
+		select 	a.*
+		from 	datas a
+		on duplicate key update			
+			KEPCO_CHARGE 	= a.KEPCO_CHARGE
+			, CHG_DTM		= a.CHG_DTM		
+	]]>
+	</update>
+
+
+	<!-- 시간대별 전기요금을 이용하여 부하시간대별 사용량 및 요금을 구한다. -->
+	<insert id="make-epwr-charge-monthly">
+	<![CDATA[
+		insert into FE_EPWR_CHARGE            /* 전기요금테이블 */
+		(
+			  INLO_NO                   /* 설치위치번호 */ 
+			, YYYY_MM                   /* 년월 */ 
+			, EPWR_PRICE_ID             /* 전기요금ID */ 
+			, BASIC_PRICE               /* 기본요금단가(원/kW) */ 
+			, CNTRT_EPWR				/* 계약전력(kWh) */
+			, BASIC_CHARGE				/* 기본요금(BASIC_PRICE * CNTRT_EPWR) */ 
+			
+			, USED_AMT                  /* 사용량(kWh) */ 
+			, PEAK_USE_EPWR             /* 최대사용전력(kWh) */ 
+			, PEAK_USE_DTM				/* 최대사용일시 */
+			, USED_CHARGE               /* 사용요금 */ 
+			
+			, POWER_FACTR_CHARGE		/* 역률요금 */
+			
+			, REG_DESCR					/* 등록설명 */			
+			, REG_USER_NO               /* 등록사용자번호 */ 
+			, REG_DTM                   /* 등록일시 */ 
+			, CHG_USER_NO               /* 수정사용자번호 */ 
+			, CHG_DTM                   /* 수정일시 */ 
+		)
+		with datas as (
+			select 	a.INLO_NO				as INLO_NO 
+					, $yyyymm				as YYYY_MM
+					, sum(USED_AMT)			as USED_AMT
+					, sum(USED_CHARGE)		as USED_CHARGE
+					, max(a.PEAK_USE_EPWR)	as PEAK_USE_EPWR
+					, count(1)				as CNT
+			from 	FE_EPWR_CHARGE_TIME a
+					, FE_EPWR_INLO b
+			where 	a.YYYYMMDDHH 	>= concat($yyyymm, '0100')
+			and 	a.YYYYMMDDHH 	<= concat($yyyymm, '3124')
+			and		a.INLO_NO 		= b.INLO_NO
+			group by a.INLO_NO
+		)
+		, a as (
+			select
+					a.INLO_NO								as INLO_NO
+					, a.YYYY_MM								as YYYY_MM					
+					, b.EPWR_PRICE_ID						as EPWR_PRICE_ID
+					, b.BASIC_PRICE							as BASIC_PRICE
+					, b.CNTRT_EPWR							as CNTRT_EPWR
+					, b.BASIC_PRICE * b.CNTRT_EPWR 			as BASIC_CHARGE					
+					, a.USED_AMT							as USED_AMT
+					, a.PEAK_USE_EPWR						as PEAK_USE_EPWR
+					, ( select 	max(PEAK_USE_DTM)
+						from	FE_EPWR_CHARGE_TIME t1
+						where	t1.YYYYMMDDHH BETWEEN concat($yyyymm, '0100') and concat($yyyymm, '3124')
+						and		t1.INLO_NO 	= a.INLO_NO
+						and		t1.PEAK_USE_EPWR	= a.PEAK_USE_EPWR )
+															as PEAK_USE_DTM
+					, a.USED_CHARGE							as USED_CHARGE					
+					, 0										as POWER_FACTR_CHARGE
+					, concat('1H datas=', CNT)				as REG_DESCR										
+					, 1										as REG_USER_NO
+					, DATE_FORMAT(now(), '%Y%m%d%H%i%s')	as REG_DTM
+					, 1										as CHG_USER_NO
+					, DATE_FORMAT(now(), '%Y%m%d%H%i%s')	as CHG_DTM
+			from 	datas a
+					, V_PLANT_EPWR_PRICE b
+			where	a.INLO_NO = b.INLO_NO
+		)
+		select  *
+		from 	a		
+		ON DUPLICATE KEY UPDATE		
+				EPWR_PRICE_ID			= a.EPWR_PRICE_ID
+ 				, BASIC_PRICE			= a.BASIC_PRICE
+				, CNTRT_EPWR			= a.CNTRT_EPWR
+				, BASIC_CHARGE			= a.BASIC_CHARGE				
+				, USED_AMT 				= a.USED_AMT
+				, PEAK_USE_EPWR			= a.PEAK_USE_EPWR
+				, PEAK_USE_DTM			= a.PEAK_USE_DTM
+				, USED_CHARGE			= a.USED_CHARGE				
+				, POWER_FACTR_CHARGE 	= a.POWER_FACTR_CHARGE
+				, REG_DESCR				= a.REG_DESCR
+	]]>	
+	</insert>
+</queries>
+

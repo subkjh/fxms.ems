@@ -1,6 +1,10 @@
 package test;
 
+import java.util.List;
+
 import fxms.bas.fxo.cron.CheckACron;
+import fxms.ems.bas.dpo.SelectAreaNumDfo;
+import fxms.ems.bas.dpo.SyncWeatherDfo;
 import subkjh.bas.co.log.LOG_LEVEL;
 import subkjh.bas.co.log.Logger;
 import subkjh.dao.database.DBManager;
@@ -15,7 +19,7 @@ public class TestCron {
 		TestCron test = new TestCron();
 
 //		test.testCheckA();
-		test.testQid();
+		test.testWeather();
 	}
 
 	void testCheckA() throws Exception {
@@ -28,5 +32,18 @@ public class TestCron {
 		for (Table table : util.getTableAll(DBManager.getMgr().getDataBase("FXMSDB"))) {
 			System.out.println(table.getName());
 		}
+	}
+
+	void testWeather() throws Exception {
+
+		List<String> areaNums = new SelectAreaNumDfo().getAreaNums();
+		SyncWeatherDfo dfo = new SyncWeatherDfo();
+		try {
+			System.out.println(dfo.syncWeather(areaNums, "20230920"));
+//				System.out.println(FxmsUtil.toJson(dfo.getDongs()));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 	}
 }
