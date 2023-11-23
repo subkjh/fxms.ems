@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<service>
+
+	<!-- 데이터 폴링 주기 -->
+	<para name="data.polling.cycle" value="15" />
+
+	<para name="notiservice.not.use" value="true" />
+
+</service>

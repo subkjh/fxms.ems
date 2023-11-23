@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<queries>
+
+	<resultMap id="RESULT_MAP" javaClass="java.util.HashMap" keyCase="java" />
+
+	<update id="update_EPWR_INLO_PRICE">
+	<![CDATA[
+		update	FE_EPWR_INLO_PRICE a
+				, ( 
+					with lastdatas as ( 
+						select	KEPCO_PP_ID, max(REQ_DATE) REQ_DATE
+						from 	KEPCO_PP_PRICE_INFO
+						group by KEPCO_PP_ID
+					)
+					select 	a.EPWR_PRICE_ID
+							, a.CNTRT_EPWR
+							, c.INLO_NO
+					from 	KEPCO_PP_PRICE_INFO a
+							, lastdatas			b
+							, FE_EPWR_INLO		c		
+					where	a.KEPCO_PP_ID 	= b.KEPCO_PP_ID
+					and		a.REQ_DATE 		= b.REQ_DATE
+					and		b.KEPCO_PP_ID	= c.KEPCO_PP_ID
+				) b
+		set		a.EPWR_PRICE_ID 	= b.EPWR_PRICE_ID
+				, a.CNTRT_EPWR 		= b.CNTRT_EPWR
+				, CHG_DTM			= DATE_FORMAT(now(), '%Y%m%d%H%i%s')
+		where	a.INLO_NO 			= b.INLO_NO
+		and		a.END_EFFCT_DATE 	= '99991231'
+	]]>
+	</update>
+</queries>
+

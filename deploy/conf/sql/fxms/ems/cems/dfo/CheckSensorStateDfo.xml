@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<queries>
+
+	<resultMap id="EpwrColDataDto" javaClass="fxms.ems.cems.dto.EpwrColDataDto" keyCase="java" />
+	<resultMap id="EpwrColMoDataDto" javaClass="fxms.ems.cems.dto.EpwrColMoDataDto" keyCase="java" />
+	
+	<select id="select-epower-collected-mo" resultMap="EpwrColMoDataDto">
+		<![CDATA[
+		select 	a.FAC_NO 				as FAC_NO
+				, c.MO_NO 				as MO_NO
+				, c.MO_NAME 			as MO_NAME
+				, c.MO_TYPE 			as MO_TYPE
+		from	FE_FAC_BAS 		a
+				, FE_MO_SENSOR	b
+				, FX_MO			c
+		where	a.FAC_NO	= b.FAC_NO 
+		and 	b.MO_NO = c.MO_NO 
+		and 	c.MO_TYPE in ( '피크전력계', '전력계')
+		and		c.DEL_YN = 'N'
+		]]>
+	</select>
+
+	<select id="select-epower-collected-data" resultMap="EpwrColDataDto">
+		<![CDATA[
+		select 	c.MO_NO 				as MO_NO
+				, d.Va + d.Vb + d.Vc	as VOLT
+				, d.Kwh 				as KWH
+				, d.PS_DATE 			as PS_DATE
+		from	FE_FAC_BAS 		a
+				, FE_MO_SENSOR	b
+				, FX_MO			c
+				, FX_V_EPWR_RAW d
+		where	a.FAC_NO	= b.FAC_NO 
+		and 	b.MO_NO = c.MO_NO 
+		and 	c.MO_TYPE in ( '피크전력계', '전력계')
+		and 	d.MO_NO = c.mo_NO
+		and 	d.PS_DATE > DATE_FORMAT(DATE_SUB(NOW(), INTERVAL $minute MINUTE) , '%Y%m%d%H%i%s')	
+		order by c.MO_NO
+				, d.PS_DATE desc
+		]]>
+	</select>
+
+</queries>
+

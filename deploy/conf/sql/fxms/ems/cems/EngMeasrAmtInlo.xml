@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<queries>
+
+	<!-- 한전 15분 데이터를 기록한다. -->
+	<insert id="make-E13-energy-amt-inlo">
+		<![CDATA[
+		insert into FE_ENG_MEASR_AMT_INLO (
+				ENG_DTM
+				, DTM_TYPE
+				, ENG_ID
+				, INLO_NO
+				, CONS_AMT
+				, REG_USER_NO
+				, REG_DTM
+				, CHG_USER_NO
+				, CHG_DTM
+		)
+		with datas as (
+			select 	a.ENG_DTM			as ENG_DTM
+					, '15M'				as DTM_TYPE
+					, 'E13'				as ENG_ID
+					, b.INLO_NO			as INLO_NO
+					, a.ACT_PW_AMT		as CONS_AMT
+					, 1					as REG_USER_NO
+					, DATE_FORMAT(now(), '%Y%m%d%H%i%s')	
+										as REG_DTM
+					, 1					as CHG_USER_NO
+					, DATE_FORMAT(now(), '%Y%m%d%H%i%s')	
+										as CHG_DTM				
+			from	KEPCO_PP_EPWR_AMT 	a
+					, FE_EPWR_INLO 		b
+			where 	a.KEPCO_PP_ID 	= b.KEPCO_PP_ID
+			and		a.ENG_DTM		= $engDtm 
+			and		a.DTM_TYPE		= '15M'
+		)
+		select 	*
+		from 	datas a
+								
+		ON DUPLICATE KEY UPDATE		
+				CONS_AMT 		= a.CONS_AMT
+				, CHG_DTM		= a.CHG_DTM
+		]]>
+	</insert>
+
+	<!-- 설비합산 15분 데이터를 기록한다. -->
+	<insert id="make-E14-energy-amt-inlo">
+		<![CDATA[
+		insert into FE_ENG_MEASR_AMT_INLO (
+				ENG_DTM
+				, DTM_TYPE
+				, ENG_ID
+				, INLO_NO
+				, CONS_AMT
+				, REG_USER_NO
+				, REG_DTM
+				, CHG_USER_NO
+				, CHG_DTM
+		)
+		with DATAS as (
+			select 	 'E14'				as ENG_ID
+					, b.INLO_NO			as INLO_NO
+					, sum(a.DIFF_VAL)	as CONS_AMT
+			from	FE_ENG_MEASR_RAW 	a
+					, FX_MO				b
+			where	a.MEASR_DTM			>= $measrDtmStart
+			and		a.MEASR_DTM			<= $measrDtmEnd
+			and		a.MO_NO 			= b.MO_NO
+			and		b.MO_TYPE			= '전력계'
+			group by 
+					b.INLO_NO
+		)
+		select 	 $measrDtmStart			as ENG_DTM
+				, $dtmType				as DTM_TYPE
+				, a.ENG_ID				as ENG_ID
+				, a.INLO_NO				as INLO_NO
+				, a.CONS_AMT			as CONS_AMT
+				, 1						as REG_USER_NO
+				, DATE_FORMAT(now(), '%Y%m%d%H%i%s')	
+										as REG_DTM
+				, 1						as CHG_USER_NO
+				, DATE_FORMAT(now(), '%Y%m%d%H%i%s')	
+										as CHG_DTM				
+		from	DATAS 	a
+								
+		ON DUPLICATE KEY UPDATE		
+				CONS_AMT 		= a.CONS_AMT
+				, CHG_DTM		= DATE_FORMAT(now(), '%Y%m%d%H%i%s')
+		]]>
+	</insert>
+
+	<!-- TOE 15분 데이터를 기록한다. -->
+	<insert id="make-E41-energy-amt-inlo">
+		<![CDATA[
+		insert into FE_ENG_MEASR_AMT_INLO (
+				ENG_DTM
+				, DTM_TYPE
+				, ENG_ID
+				, INLO_NO
+				, CONS_AMT
+				, REG_USER_NO
+				, REG_DTM
+				, CHG_USER_NO
+				, CHG_DTM
+		)
+		with DATAS as (
+			select	a.ENG_DTM				as ENG_DTM
+					, a.DTM_TYPE			as DTM_TYPE
+					, 'E41'					as ENG_ID
+					, a.INLO_NO				as INLO_NO
+					, a.CONS_AMT * 0.000229	as CONS_AMT
+			from	FE_ENG_MEASR_AMT_INLO 	a
+			where	a.ENG_DTM			>= $measrDtmStart
+			and		a.ENG_DTM			<= $measrDtmEnd
+			and		a.ENG_ID			= 'E11'
+		)
+		select 	a.ENG_DTM			as ENG_DTM
+				, a.DTM_TYPE		as DTM_TYPE
+				, a.ENG_ID			as ENG_ID
+				, a.INLO_NO			as INLO_NO
+				, a.CONS_AMT		as CONS_AMT
+				, 1					as REG_USER_NO
+				, DATE_FORMAT(now(), '%Y%m%d%H%i%s')	
+									as REG_DTM
+				, 1					as CHG_USER_NO
+				, DATE_FORMAT(now(), '%Y%m%d%H%i%s')	
+									as CHG_DTM				
+		from	DATAS 	a								
+		on duplicate key update		
+				CONS_AMT 		= a.CONS_AMT
+				, CHG_DTM		= DATE_FORMAT(now(), '%Y%m%d%H%i%s')
+		]]>
+	</insert>
+
+</queries>
+
