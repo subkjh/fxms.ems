@@ -5,10 +5,11 @@
 
 	<update id="update_KEPCO_CHARGE">
 	<![CDATA[
-		insert into FE_EPWR_CHARGE ( INLO_NO, YYYY_MM, KEPCO_CHARGE, REG_USER_NO, REG_DTM, CHG_USER_NO, CHG_DTM )
+		insert into FE_EPWR_CHARGE ( INLO_NO, YYYY_MM, KEPCO_USED_AMT, KEPCO_CHARGE, REG_USER_NO, REG_DTM, CHG_USER_NO, CHG_DTM )
 		with datas as (
 			select 	a.INLO_NO			as INLO_NO
 					, b.PAY_YYYYMM		as YYYY_MM
+					, b.TOTAL_ENERGY	as KEPCO_USED_AMT
 					, b.TOTAL_PRICE 	as KEPCO_CHARGE
 					, 1					as REG_USER_NO		
 					, DATE_FORMAT(now(), '%Y%m%d%H%i%s')
@@ -24,8 +25,49 @@
 		select 	a.*
 		from 	datas a
 		on duplicate key update			
-			KEPCO_CHARGE 	= a.KEPCO_CHARGE
+			KEPCO_USED_AMT 	= a.KEPCO_USED_AMT
+			, KEPCO_CHARGE 	= a.KEPCO_CHARGE
 			, CHG_DTM		= a.CHG_DTM		
+	]]>
+	</update>
+
+	<update id="update_BEST_INFO">
+	<![CDATA[
+		insert into FE_EPWR_CHARGE ( INLO_NO, YYYY_MM, BEST_EPWR_PRICE_ID, BEST_PEAK_USE_EPWR, PEAK_SAVING_CHARGE, REG_USER_NO, REG_DTM, CHG_USER_NO, CHG_DTM )
+		with lastdata as (
+			select 	a.INLO_NO
+					, max(EXE_DTM) as EXE_DTM 
+			from 	CEMS_ELEC_BILL_PLAN a
+			where 	EXE_DTM BETWEEN concat($yyyymm, '00') and concat($yyyymm, '31') 
+			group by 
+			a.INLO_NO
+		) 
+		, datas as (
+			select 	a.INLO_NO				as INLO_NO
+					, $yyyymm				as YYYY_MM
+					, b.BEST_EPWR_PRICE_ID	as BEST_EPWR_PRICE_ID
+					, b.BEST_PEAK_USE_EPWR 	as BEST_PEAK_USE_EPWR
+					, b.PEAK_SAVING_CHARGE 	as PEAK_SAVING_CHARGE
+					, 1						as REG_USER_NO		
+					, DATE_FORMAT(now(), '%Y%m%d%H%i%s')
+											as REG_DTM
+					, 1						as CHG_USER_NO
+					, DATE_FORMAT(now(), '%Y%m%d%H%i%s')
+											as CHG_DTM
+			from	FE_EPWR_INLO a
+					, CEMS_ELEC_BILL_PLAN b
+					, lastdata c
+			where	a.INLO_NO 	= b.INLO_NO
+			and		b.INLO_NO	= c.INLO_NO			
+			and		b.EXE_DTM 	= c.EXE_DTM
+		)
+		select 	a.*
+		from 	datas a
+		on duplicate key update			
+			BEST_EPWR_PRICE_ID 		= a.BEST_EPWR_PRICE_ID
+			, BEST_PEAK_USE_EPWR 	= a.BEST_PEAK_USE_EPWR
+			, PEAK_SAVING_CHARGE 	= a.PEAK_SAVING_CHARGE
+			, CHG_DTM				= a.CHG_DTM		
 	]]>
 	</update>
 
@@ -109,7 +151,7 @@
 				, USED_CHARGE			= a.USED_CHARGE				
 				, POWER_FACTR_CHARGE 	= a.POWER_FACTR_CHARGE
 				, REG_DESCR				= a.REG_DESCR
-	]]>	
+	]]>
 	</insert>
 </queries>
 

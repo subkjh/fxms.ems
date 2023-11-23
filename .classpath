@@ -7,5 +7,34 @@
 	<classpathentry kind="lib" path="deploy/libext/jdrivers/mysql-connector-java-8.0.29.jar"/>
 	<classpathentry kind="lib" path="deploy/libext/fxms/fxms.2023.jar"/>
 	<classpathentry kind="lib" path="deploy/libext/gson/gson-2.10.1.jar"/>
+	<classpathentry kind="lib" path="deploy/libext/fxms/fxms.ems.jar"/>
+	<classpathentry kind="lib" path="deploy/libext/influxdb/influxdb-client-core-6.8.0.jar"/>
+	<classpathentry kind="lib" path="deploy/libext/influxdb/influxdb-client-flux-2.3.0.jar"/>
+	<classpathentry kind="lib" path="deploy/libext/influxdb/influxdb-client-java-6.8.0.jar"/>
+	<classpathentry kind="lib" path="deploy/libext/influxdb/influxdb-client-utils-6.8.0.jar"/>
+	<classpathentry kind="lib" path="deploy/libext/influxdb/influxdb-java-2.23.jar"/>
+	<classpathentry kind="lib" path="deploy/libext/influxdb/adapter-rxjava3-2.9.0.jar"/>
+	<classpathentry kind="lib" path="deploy/libext/influxdb/annotations-13.0.jar"/>
+	<classpathentry kind="lib" path="deploy/libext/influxdb/commons-csv-1.9.0.jar"/>
+	<classpathentry kind="lib" path="deploy/libext/influxdb/converter-gson-2.9.0.jar"/>
+	<classpathentry kind="lib" path="deploy/libext/influxdb/converter-moshi-2.9.0.jar"/>
+	<classpathentry kind="lib" path="deploy/libext/influxdb/converter-scalars-2.9.0.jar"/>
+	<classpathentry kind="lib" path="deploy/libext/influxdb/jsr305-3.0.2.jar"/>
+	<classpathentry kind="lib" path="deploy/libext/influxdb/kotlin-stdlib-1.6.20.jar"/>
+	<classpathentry kind="lib" path="deploy/libext/influxdb/kotlin-stdlib-common-1.6.20.jar"/>
+	<classpathentry kind="lib" path="deploy/libext/influxdb/kotlin-stdlib-jdk7-1.8.0.jar"/>
+	<classpathentry kind="lib" path="deploy/libext/influxdb/kotlin-stdlib-jdk8-1.8.0.jar"/>
+	<classpathentry kind="lib" path="deploy/libext/influxdb/logging-interceptor-4.10.0.jar"/>
+	<classpathentry kind="lib" path="deploy/libext/influxdb/moshi-1.8.0.jar"/>
+	<classpathentry kind="lib" path="deploy/libext/influxdb/msgpack-core-0.9.3.jar"/>
+	<classpathentry kind="lib" path="deploy/libext/influxdb/okhttp-4.10.0.jar"/>
+	<classpathentry kind="lib" path="deploy/libext/influxdb/okio-3.3.0.jar"/>
+	<classpathentry kind="lib" path="deploy/libext/influxdb/okio-jvm-3.3.0.jar"/>
+	<classpathentry kind="lib" path="deploy/libext/influxdb/reactive-streams-1.0.4.jar"/>
+	<classpathentry kind="lib" path="deploy/libext/influxdb/retrofit-2.9.0.jar"/>
+	<classpathentry kind="lib" path="deploy/libext/influxdb/rxjava-3.1.5.jar"/>
+	<classpathentry kind="lib" path="deploy/libext/fxms/fxms.cba.jar"/>
+	<classpathentry kind="lib" path="deploy/libext/milo/sdk-client-0.6.10.jar"/>
+	<classpathentry kind="lib" path="deploy/libext/milo/stack-core-0.6.10.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>

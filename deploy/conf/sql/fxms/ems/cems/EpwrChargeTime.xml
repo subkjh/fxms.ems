@@ -72,7 +72,7 @@
 		-- 피크 전력량 가져옴.
 		, b as (
 			select	a.*
-					, ( select 	max(t1.CONS_AMT) 				 
+					, ( select 	max(t1.CONS_AMT) * 4		/* 15분 사용량에 4를 하여야 1시간 전력 */		 
 						from 	FE_ENG_MEASR_AMT_INLO t1 
 						where 	t1.ENG_DTM 		between CONCAT(a.YYYYMMDDHH, '0000') and CONCAT(a.YYYYMMDDHH, '5959') 
 						and 	t1.INLO_NO 		= a.INLO_NO 
@@ -109,7 +109,7 @@
 					and 	t1.DTM_TYPE 	= '15M' 
 					and 	t1.INLO_NO 		= a.INLO_NO 
 					and 	t1.ENG_ID 		= 'E11'
-					and		t1.CONS_AMT		= a.PEAK_USE_EPWR
+					and		t1.CONS_AMT * 4	= a.PEAK_USE_EPWR
 				)
 				, CHG_DTM =  DATE_FORMAT(now(), '%Y%m%d%H%i%s')
 		where	a.YYYYMMDDHH between concat($date, '00') and concat($date, '23') 	

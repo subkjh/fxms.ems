@@ -87,8 +87,7 @@
 	</target>
 
 	<target name="copy_sql">
-		<copydir dest="${classes.dir}/subkjh/dao/queries" src="${sql.dir}">
-		</copydir>
+		<copydir dest="${classes.dir}/subkjh/deploy/conf/sql" src="${sql.dir}" />
 	</target>
 
 
