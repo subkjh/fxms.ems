@@ -1,4 +1,4 @@
-package fxms.ems.cems.dpo;
+package fxms.ems.cems.dfo;
 
 import fxms.bas.impl.dpo.FxDfo;
 import fxms.bas.impl.dpo.FxFact;

@@ -1,6 +1,5 @@
 package fxms.ems.cems;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,6 +8,7 @@ import fxms.api.mo.dfo.inlo.InloMemSetDfo;
 import fxms.bas.impl.cron.TestCron;
 import fxms.bas.impl.dpo.InsertAdapterDfo;
 import fxms.bas.signal.ReloadSignal.ReloadType;
+import fxms.ems.cems.cron.CemsCheckSensorStateCron;
 import fxms.ems.cems.cron.CemsGwNodeCheckCron;
 import fxms.ems.cems.cron.CemsMake15MDatasCron;
 import fxms.ems.cems.cron.CemsMake1DDatasCron;
@@ -43,11 +43,14 @@ public class CemsInit {
 //			api.insert(MakeEpwr1HChargeCron.class);
 //			api.insert(MakeEpwrMonthlyChargeCron.class);
 //			api.insert(PsTsdb2RdbRawCron.class);
-			api.insert(CemsMake15MDatasCron.class);
-			api.insert(CemsMake1HDatasCron.class);
-			api.insert(CemsMake1DDatasCron.class);
-			api.insert(TestCron.class);
-			api.insert(CemsGwNodeCheckCron.class);
+			
+//			api.insert(CemsMake15MDatasCron.class);
+//			api.insert(CemsMake1HDatasCron.class);
+//			api.insert(CemsMake1DDatasCron.class);
+//			api.insert(TestCron.class);
+//			api.insert(CemsGwNodeCheckCron.class);
+
+			api.insert(CemsCheckSensorStateCron.class);
 
 //			api.insert(SyncAddrCron.class);
 //			api.insert(SyncWeatherCron.class);
@@ -68,7 +71,7 @@ public class CemsInit {
 //
 //			api.insert(IqrCron.class);
 
-			AppApi.getApi().setVar(AppApi.UPDATED_TIME_VAR + ReloadType.Adapter, DateUtil.getDtm());
+//			AppApi.getApi().setVar(AppApi.UPDATED_TIME_VAR + ReloadType.Adapter, DateUtil.getDtm());
 			return;
 		} catch (Exception e) {
 			// TODO: handle exception
@@ -102,14 +105,22 @@ public class CemsInit {
 //		tool.makeXml2JavaQid("deploy/conf/sql/fxms/ems/cems/raw2fac.xml", "fxms.ems.cems.dao.Raw2FacQid",				"src/fxms/ems/cems/dao");
 		tool.makeXml2JavaQid("deploy/conf/sql/fxms/ems/cems/CemsVUnbal.xml", "fxms.ems.cems.dao.CemsVUnbalQid",
 				"src/fxms/ems/cems/dao");
+		tool.makeXml2JavaQid("deploy/conf/sql/fxms/ems/cems/EpwrInloPrice.xml", "fxms.ems.cems.dao.EpwrInloPriceQid",
+				"src/fxms/ems/cems/dao");
 		tool.makeXml2JavaQid("deploy/conf/sql/fxms/ems/cems/EpwrCharge.xml", "fxms.ems.cems.dao.EpwrChargeQid",
 				"src/fxms/ems/cems/dao");
 		tool.makeXml2JavaQid("deploy/conf/sql/fxms/ems/cems/EpwrChargeTime.xml", "fxms.ems.cems.dao.EpwrChargeTimeQid",
 				"src/fxms/ems/cems/dao");
 		tool.makeXml2JavaQid("deploy/conf/sql/fxms/ems/cems/EpwrChargeLoad.xml", "fxms.ems.cems.dao.EpwrChargeLoadQid",
 				"src/fxms/ems/cems/dao");
+
+		tool.makeXml2JavaQid("deploy/conf/sql/fxms/ems/cems/EngMeasrAmtInlo.xml",
+				"fxms.ems.cems.dao.EngMeasrAmtInloQid", "src/fxms/ems/cems/dao");
+		tool.makeXml2JavaQid("deploy/conf/sql/fxms/ems/cems/dfo/CheckSensorStateDfo.xml",
+				"fxms.ems.cems.dao.dfo.CheckSensorStateDfoQid", "src/fxms/ems/cems/dao/dfo");
+
 //		tool.makeXml2JavaQid("deploy/conf/sql/fxms/ems/epwr.xml", "fxms.ems.cems.dao.EpwrQid", "src/fxms/ems/cems/dao");
-//		tool.printInsertSql(new MySql(), "datas/datas.txt");
+		tool.printInsertSql(new MySql(), "datas/datas.txt");
 //		tool.printCreateSql(new MySql(), "datas/tables.txt");
 		tool.printAddColumnSql(new MySql(), "datas/tables.txt");
 

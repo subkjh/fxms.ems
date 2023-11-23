@@ -11,8 +11,8 @@ import fxms.bas.fxo.FxAttr;
 import fxms.bas.fxo.adapter.FxAdapterInfo;
 import fxms.bas.vo.PsKind;
 import fxms.ems.bas.api.FemsApi;
-import fxms.ems.cems.dpo.MakeEpwrMonthlyChargeDfo;
-import fxms.ems.cems.dpo.MakeEpwrMonthlyChargeLoadDfo;
+import fxms.ems.cems.dfo.MakeEpwrMonthlyChargeDfo;
+import fxms.ems.cems.dfo.MakeEpwrMonthlyChargeLoadDfo;
 import subkjh.bas.co.utils.DateUtil;
 
 @FxAdapterInfo(service = "AppService", descr = "월 전력부하별 전기요금 생성하기")

@@ -1,4 +1,4 @@
-package fxms.ems.cems.dpo;
+package fxms.ems.cems.dfo;
 
 import java.util.Map;
 
@@ -21,7 +21,7 @@ public class MakeEpwr1HChargeDfo implements FxDfo<String, Integer> {
 
 		MakeEpwr1HChargeDfo dfo = new MakeEpwr1HChargeDfo();
 		try {
-			System.out.println(dfo.makeEpwrCharge("20231116"));
+			System.out.println(dfo.makeEpwrCharge("20231122"));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

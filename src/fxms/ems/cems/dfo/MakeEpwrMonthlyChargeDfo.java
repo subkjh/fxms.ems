@@ -1,27 +1,28 @@
-package fxms.ems.cems.dpo;
+package fxms.ems.cems.dfo;
 
 import java.util.Map;
 
 import fxms.api.FxApi;
 import fxms.bas.impl.dpo.FxDfo;
 import fxms.bas.impl.dpo.FxFact;
-import fxms.ems.cems.dao.EpwrChargeLoadQid;
+import fxms.ems.cems.dao.EpwrChargeQid;
 import subkjh.bas.BasCfg;
 import subkjh.dao.QidDaoEx;
 
 /**
- * 월간 부하별 전기 요금
+ * 월간 전기 요금
  * 
  * @author subkjh
  *
  */
-public class MakeEpwrMonthlyChargeLoadDfo implements FxDfo<String, Integer> {
+
+public class MakeEpwrMonthlyChargeDfo implements FxDfo<String, Integer> {
 
 	public static void main(String[] args) {
 
-		MakeEpwrMonthlyChargeLoadDfo dfo = new MakeEpwrMonthlyChargeLoadDfo();
+		MakeEpwrMonthlyChargeDfo dfo = new MakeEpwrMonthlyChargeDfo();
 		try {
-			System.out.println(dfo.makeEpwrCharge("202308"));
+			System.out.println(dfo.makeEpwrCharge("202311"));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -34,11 +35,11 @@ public class MakeEpwrMonthlyChargeLoadDfo implements FxDfo<String, Integer> {
 
 	public int makeEpwrCharge(String yyyymm) throws Exception {
 
-		EpwrChargeLoadQid QID = new EpwrChargeLoadQid();
+		EpwrChargeQid QID = new EpwrChargeQid();
 		Map<String, Object> para = FxApi.makePara("yyyymm", yyyymm);
-		return QidDaoEx.open(BasCfg.getHome(EpwrChargeLoadQid.QUERY_XML_FILE))//
-				.execute(QID.make_epwr_charge_load, para) //
-				.close()//
+		return QidDaoEx.open(BasCfg.getHome(EpwrChargeQid.QUERY_XML_FILE)) //
+				.execute(QID.make_epwr_charge_monthly, para) //
+				.close() //
 				.getProcessedCount();
 
 	}

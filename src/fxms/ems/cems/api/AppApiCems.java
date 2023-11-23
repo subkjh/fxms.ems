@@ -2,7 +2,7 @@ package fxms.ems.cems.api;
 
 import fxms.api.fo.AppApiDfo;
 import fxms.bas.vo.PsKind;
-import fxms.ems.cems.dpo.PsStatMakeInflux2RdbDfo;
+import fxms.ems.cems.dfo.PsStatMakeInflux2RdbDfo;
 import subkjh.bas.co.log.Logger;
 
 /**

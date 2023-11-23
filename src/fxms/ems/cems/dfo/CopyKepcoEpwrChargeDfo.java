@@ -1,4 +1,4 @@
-package fxms.ems.cems.dpo;
+package fxms.ems.cems.dfo;
 
 import java.util.List;
 
@@ -16,13 +16,16 @@ import subkjh.dao.QidDaoEx;
  *
  */
 
-public class CopyKepco2EpwrChargeDfo implements FxDfo<String, Integer> {
+public class CopyKepcoEpwrChargeDfo implements FxDfo<String, Integer> {
 
 	public static void main(String[] args) {
 
-		CopyKepco2EpwrChargeDfo dfo = new CopyKepco2EpwrChargeDfo();
+		CopyKepcoEpwrChargeDfo dfo = new CopyKepcoEpwrChargeDfo();
 		try {
 			System.out.println(dfo.makeEpwrCharge("202308"));
+			System.out.println(dfo.makeEpwrCharge("202309"));
+			System.out.println(dfo.makeEpwrCharge("202310"));
+			System.out.println(dfo.makeEpwrCharge("202311"));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -41,7 +44,9 @@ public class CopyKepco2EpwrChargeDfo implements FxDfo<String, Integer> {
 		EpwrChargeQid QID = new EpwrChargeQid();
 		QidDaoEx dao = QidDaoEx.open(EpwrChargeQid.QUERY_XML_FILE) //
 				.execute(QID.update_KEPCO_CHARGE, FxApi.makePara("yyyymm", lastMonth)) //
+				.execute(QID.update_BEST_INFO, FxApi.makePara("yyyymm", lastMonth)) //
 				.execute(QID.update_KEPCO_CHARGE, FxApi.makePara("yyyymm", thisMonth)) //
+				.execute(QID.update_BEST_INFO, FxApi.makePara("yyyymm", thisMonth)) //
 				.close();
 
 		List<Integer> ret = dao.getProcessedCountList();

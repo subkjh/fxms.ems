@@ -6,8 +6,11 @@ import fxms.api.vo.ValueApi;
 import fxms.api.vo.ValueApiDfo;
 import fxms.bas.fxo.adapter.FxAdapterInfo;
 import fxms.ems.bas.cron.FemsMake15MDatasCron;
-import fxms.ems.cems.dpo.FireEpwrThresholdDfo;
-import fxms.ems.cems.dpo.MakeEpwrUnbalDfo;
+import fxms.ems.cems.dfo.FireEpwrThresholdDfo;
+import fxms.ems.cems.dfo.MakeE13_15MDfo;
+import fxms.ems.cems.dfo.MakeE14_15MDfo;
+import fxms.ems.cems.dfo.MakeE41_15MDfo;
+import fxms.ems.cems.dfo.MakeEpwrUnbalDfo;
 
 @FxAdapterInfo(service = "AppService", descr = "15분 단위 데이터 생성하기")
 public class CemsMake15MDatasCron extends FemsMake15MDatasCron {
@@ -25,6 +28,11 @@ public class CemsMake15MDatasCron extends FemsMake15MDatasCron {
 		}
 	}
 
+	public CemsMake15MDatasCron() {
+		// 한전의 사용데이터를 고려하여 1시간 이전부터 재생성한다.
+		this.remakeNumber = 4;
+	}
+
 	@Override
 	protected int makeDatas(long psDtm) throws Exception {
 
@@ -40,6 +48,48 @@ public class CemsMake15MDatasCron extends FemsMake15MDatasCron {
 			@Override
 			public String getProcName() {
 				return "cems:15m";
+			}
+		});
+
+		// 한전 사용 전력을 에너지 계측 테이블에 넣는다. ( E13 )
+		count += execute(psDtm, new WorkRunner() {
+			@Override
+			public int run() throws Exception {
+				MakeE13_15MDfo dfo = new MakeE13_15MDfo();
+				return dfo.make(psDtm);
+			}
+
+			@Override
+			public String getProcName() {
+				return "cems:15m.E13";
+			}
+		});
+
+		// 설비 전력을 에너지 계측 테이블에 넣는다. ( E14 )
+		count += execute(psDtm, new WorkRunner() {
+			@Override
+			public int run() throws Exception {
+				MakeE14_15MDfo dfo = new MakeE14_15MDfo();
+				return dfo.make(psDtm);
+			}
+
+			@Override
+			public String getProcName() {
+				return "cems:15m.E14";
+			}
+		});
+
+		// 석유환산톤 데이터 생성. ( E41 )
+		count += execute(psDtm, new WorkRunner() {
+			@Override
+			public int run() throws Exception {
+				MakeE41_15MDfo dfo = new MakeE41_15MDfo();
+				return dfo.make(psDtm);
+			}
+
+			@Override
+			public String getProcName() {
+				return "cems:15m.E41";
 			}
 		});
 

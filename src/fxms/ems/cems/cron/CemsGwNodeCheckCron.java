@@ -5,7 +5,7 @@ import fxms.bas.cron.CronResult;
 import fxms.bas.cron.Crontab;
 import fxms.bas.fxo.FxAttr;
 import fxms.bas.fxo.adapter.FxAdapterInfo;
-import fxms.ems.cems.dpo.CallGwNodesDfo;
+import fxms.ems.cems.dfo.CallGwNodesDfo;
 
 @FxAdapterInfo(service = "AppService", descr = "게이트웨이 등록된 센서 목록 확인")
 public class CemsGwNodeCheckCron extends Crontab {
