@@ -39,7 +39,7 @@ public class CemsMake1DDatasCron extends FemsMake1DDatasCron {
 		count += execute(psDtm, new WorkRunner() {
 			@Override
 			public int run() throws Exception {
-				return new CopyKepcoEpwrChargeDfo().makeEpwrCharge(String.valueOf(psDtm).substring(0, 6));
+				return new CopyKepcoEpwrChargeDfo().call(null, String.valueOf(psDtm).substring(0, 6));
 			}
 
 			@Override
@@ -52,7 +52,7 @@ public class CemsMake1DDatasCron extends FemsMake1DDatasCron {
 		count += execute(psDtm, new WorkRunner() {
 			@Override
 			public int run() throws Exception {
-				return new CopyPriceInfoDfo().updatePriceInfo();
+				return new CopyPriceInfoDfo().call(null, null);
 			}
 
 			@Override

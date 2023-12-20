@@ -7,65 +7,60 @@ import java.util.Map;
 import fxms.api.FxApi;
 import fxms.api.vo.ValueApi;
 import fxms.bas.fxo.FxCfg;
-import fxms.bas.fxo.FxmsUtil;
 import fxms.bas.impl.dpo.FxDfo;
 import fxms.bas.impl.dpo.FxFact;
 import fxms.bas.vo.PsVoRawList;
-import fxms.ems.cems.dao.dfo.CheckSensorStateDfoQid;
+import fxms.ems.cems.dao.dfo.CheckStateSensorDfoQid;
 import fxms.ems.cems.dto.EpwrColDataDto;
 import fxms.ems.cems.dto.EpwrColMoDataDto;
-import subkjh.bas.co.log.Logger;
-import subkjh.bas.co.utils.DateUtil;
 import subkjh.dao.QidDaoEx;
 
 /**
  * <<< 전력량계 상태 정의>>>
  * 
- * 가동중(1) : 유효전력량 DIFF > 0 <br>
- * 가동중지(2) : 유효전력량 DIFF = 0 and 전압 3상의 합 > 0 <br>
- * 데이터미수신(3) : 가동중, 가동중지 상태외 상태, 가동중지를 5번 반복시 데이터 미수신으로 판단 <br>
+ * (가동 중(1)/정지(2)/데이터 미수신(3)/대기(4))<br>
+ * . 가동 중 : 유효전력량Diff > 0<br>
+ * . 중지 : 유효전력량Diff = 0 && 전압3상의 합 > 0<br>
+ * . 대기 : 설비에 전력량계만 있을 경우와(다른 계량기가 반드시 없어야함), 동시에 가동 중 상태에 만족하는 조건에 들어갈 경우, 미리
+ * 입력된 대기전력시작값, 대기전력종료값 사이에 유효전력량Diff 값이 위치한 경우 대기 상태로 간주.<br>
+ * . 데이터 미수신 : 그 외<br>
  * 
  * @author subkjh
  *
  */
 
-public class CheckSensorStateDfo implements FxDfo<Void, Void> {
+public class CheckStatePowerMeterDfo implements FxDfo<Void, Integer> {
 
 	public static void main(String[] args) {
 
-		CheckSensorStateDfo dfo = new CheckSensorStateDfo();
+		CheckStatePowerMeterDfo dfo = new CheckStatePowerMeterDfo();
 		try {
-			dfo.checkSensorState();
+			dfo.call(null, null);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	@Override
-	public Void call(FxFact fact, Void yyyymm) throws Exception {
-		checkSensorState();
-		return null;
-	}
-
 	@SuppressWarnings("unchecked")
-	public int checkSensorState() throws Exception {
+	@Override
+	public Integer call(FxFact fact, Void empty) throws Exception {
 
 		// 계측기 데이터 수집데이터 주기를 확인하여 최근 n개의 데이터를 가져와 상태를 확인한다.
 		int minute = FxCfg.getCfg().getInt("data.polling.cycle", 1);
 		int dataSize = 5; // 각 계측기당 5개
 
-		CheckSensorStateDfoQid QID = new CheckSensorStateDfoQid();
+		CheckStateSensorDfoQid QID = new CheckStateSensorDfoQid();
 
 		// 1. 계측기와 설비 목록 조회
 		Map<Long, EpwrColMoDataDto> moMap = new HashMap<>();
 		List<EpwrColMoDataDto> mos = (List<EpwrColMoDataDto>) QidDaoEx
-				.SelectDatas(CheckSensorStateDfoQid.QUERY_XML_FILE, QID.select_epower_collected_mo, null);
+				.SelectDatas(CheckStateSensorDfoQid.QUERY_XML_FILE, QID.select_epower_collected_mo, null);
 		for (EpwrColMoDataDto mo : mos) {
 			moMap.put(mo.moNo, mo);
 		}
 
 		// 2. 계측기 수집값 조회
-		List<EpwrColDataDto> datas = (List<EpwrColDataDto>) QidDaoEx.SelectDatas(CheckSensorStateDfoQid.QUERY_XML_FILE,
+		List<EpwrColDataDto> datas = (List<EpwrColDataDto>) QidDaoEx.SelectDatas(CheckStateSensorDfoQid.QUERY_XML_FILE,
 				QID.select_epower_collected_data, FxApi.makePara("minute", minute * dataSize));
 
 		EpwrColMoDataDto dto;

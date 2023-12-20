@@ -24,7 +24,7 @@ public class TestCron {
 
 	void testCheckA() throws Exception {
 		CheckACron c = new CheckACron();
-		c.analysis();
+		c.start();
 	}
 
 	void testQid() throws Exception {

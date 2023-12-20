@@ -18,7 +18,8 @@ import fxms.bas.fxo.adapter.FxAdapterInfo;
 import fxms.bas.vo.PsKind;
 import fxms.bas.vo.PsVoRawList;
 import fxms.ems.bas.api.FemsApi;
-import fxms.ems.cems.dfo.SelectTsdbDataDfo;
+import fxms.ems.cems.dfo.SelectTsdbDataDpo;
+import fxms.ems.cems.dto.PsRangeDto;
 import subkjh.bas.co.log.LOG_LEVEL;
 import subkjh.bas.co.log.Logger;
 import subkjh.bas.co.utils.DateUtil;
@@ -69,8 +70,8 @@ public class PsTsdb2RdbRawCron extends Crontab {
 			mstime = min.getMstimeNext(mstime, 1);
 		}
 
-		SelectTsdbDataDfo dfo = new SelectTsdbDataDfo();
-		dfo.initDatas();
+		SelectTsdbDataDpo dpo = new SelectTsdbDataDpo();
+		PsRangeDto dto = new PsRangeDto();
 
 		dates = DateUtil.toHstime(mstime) + "~";
 
@@ -78,14 +79,16 @@ public class PsTsdb2RdbRawCron extends Crontab {
 
 			long ptime = System.currentTimeMillis();
 			int cnt = 0;
-			;
 
 			hstime = DateUtil.toHstime(ms);
 			startDtm = min.getHstimeStart(hstime);
 			endDtm = min.getHstimeEnd(hstime);
 
 			// 1분 단위로 데이터를 가져옴
-			List<PsVoRawList> values = dfo.selectData(startDtm, endDtm);
+			dto.startDtm = startDtm;
+			dto.endDtm = endDtm;
+
+			List<PsVoRawList> values = dpo.run(null, dto);
 
 			if (values != null && values.size() > 0) {
 				PsVoRawList raw = mergeTest(ms, values);

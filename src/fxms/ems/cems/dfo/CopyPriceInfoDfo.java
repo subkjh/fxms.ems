@@ -18,7 +18,7 @@ public class CopyPriceInfoDfo implements FxDfo<Void, Integer> {
 
 		CopyPriceInfoDfo dfo = new CopyPriceInfoDfo();
 		try {
-			System.out.println(dfo.updatePriceInfo());
+			System.out.println(dfo.call(null, null));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -26,18 +26,10 @@ public class CopyPriceInfoDfo implements FxDfo<Void, Integer> {
 
 	@Override
 	public Integer call(FxFact fact, Void data) throws Exception {
-		return updatePriceInfo();
-	}
-
-	public int updatePriceInfo() throws Exception {
 
 		EpwrInloPriceQid QID = new EpwrInloPriceQid();
+		return QidDaoEx.ExecuteQid(EpwrInloPriceQid.QUERY_XML_FILE, QID.update_EPWR_INLO_PRICE, null);
 
-		QidDaoEx dao = QidDaoEx.open(EpwrInloPriceQid.QUERY_XML_FILE) //
-				.execute(QID.update_EPWR_INLO_PRICE, null) //
-				.close();
-
-		return dao.getProcessedCount();
 	}
 
 }

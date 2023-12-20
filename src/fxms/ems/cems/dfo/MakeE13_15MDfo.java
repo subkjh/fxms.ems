@@ -3,7 +3,10 @@ package fxms.ems.cems.dfo;
 import fxms.api.FxApi;
 import fxms.bas.impl.dpo.FxDfo;
 import fxms.bas.impl.dpo.FxFact;
+import fxms.bas.vo.PsKind;
+import fxms.ems.bas.api.FemsApi;
 import fxms.ems.cems.dao.EngMeasrAmtInloQid;
+import subkjh.bas.co.utils.DateUtil;
 import subkjh.dao.QidDaoEx;
 
 /**
@@ -19,10 +22,18 @@ public class MakeE13_15MDfo implements FxDfo<Long, Integer> {
 
 		MakeE13_15MDfo dfo = new MakeE13_15MDfo();
 		try {
-			System.out.println(dfo.make(20231122000000L));
-			System.out.println(dfo.make(20231122001500L));
-			System.out.println(dfo.make(20231122003000L));
-			System.out.println(dfo.make(20231122004500L));
+
+			PsKind psKind = FemsApi.kind15M;
+			long mstime = DateUtil.toMstime(20231204000000L);
+			long hstime;
+			for (long ms = mstime; ms < System.currentTimeMillis(); ms = psKind.getMstimeNext(ms, 1)) {
+				hstime = DateUtil.getDtm(ms);
+				System.out.println(dfo.make(hstime));
+			}
+//			
+//			System.out.println(dfo.make(20231122001500L));
+//			System.out.println(dfo.make(20231122003000L));
+//			System.out.println(dfo.make(20231122004500L));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -36,12 +47,9 @@ public class MakeE13_15MDfo implements FxDfo<Long, Integer> {
 	public int make(long psDtm) throws Exception {
 
 		EngMeasrAmtInloQid QID = new EngMeasrAmtInloQid();
-		
-		QidDaoEx dao = QidDaoEx.open(EngMeasrAmtInloQid.QUERY_XML_FILE) //
-				.execute(QID.make_E13_energy_amt_inlo, FxApi.makePara("engDtm", psDtm)) //
-				.close();
 
-		return dao.getProcessedCount();
+		return QidDaoEx.ExecuteQid(EngMeasrAmtInloQid.QUERY_XML_FILE, QID.make_E13_energy_amt_inlo,
+				FxApi.makePara("engDtm", psDtm));
 	}
 
 }

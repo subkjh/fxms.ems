@@ -5,6 +5,8 @@ import java.util.List;
 import fxms.api.FxApi;
 import fxms.bas.impl.dpo.FxDfo;
 import fxms.bas.impl.dpo.FxFact;
+import fxms.bas.vo.PsKind;
+import fxms.ems.bas.api.FemsApi;
 import fxms.ems.cems.dao.EpwrChargeQid;
 import subkjh.bas.co.utils.DateUtil;
 import subkjh.dao.QidDaoEx;
@@ -22,10 +24,16 @@ public class CopyKepcoEpwrChargeDfo implements FxDfo<String, Integer> {
 
 		CopyKepcoEpwrChargeDfo dfo = new CopyKepcoEpwrChargeDfo();
 		try {
-			System.out.println(dfo.makeEpwrCharge("202308"));
-			System.out.println(dfo.makeEpwrCharge("202309"));
-			System.out.println(dfo.makeEpwrCharge("202310"));
-			System.out.println(dfo.makeEpwrCharge("202311"));
+			PsKind psKind = FemsApi.kindMonthly;
+			long mstime = DateUtil.toMstime(20200101000000L);
+			for (long ms = mstime; ms < System.currentTimeMillis(); ms = psKind.getMstimeNext(ms, 1)) {
+				System.out.println(dfo.call(null, DateUtil.getYyyymm(ms, 0)));
+			}
+
+//			System.out.println(dfo.makeEpwrCharge("202308"));
+//			System.out.println(dfo.makeEpwrCharge("202309"));
+//			System.out.println(dfo.makeEpwrCharge("202310"));
+//			System.out.println(dfo.makeEpwrCharge("202311"));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -33,20 +41,11 @@ public class CopyKepcoEpwrChargeDfo implements FxDfo<String, Integer> {
 
 	@Override
 	public Integer call(FxFact fact, String yyyymm) throws Exception {
-		return makeEpwrCharge(yyyymm);
-	}
-
-	public int makeEpwrCharge(String yyyymm) throws Exception {
-
-		String lastMonth = DateUtil.getYyyymm(System.currentTimeMillis(), -1);
-		String thisMonth = DateUtil.getYyyymm(System.currentTimeMillis(), 0);
 
 		EpwrChargeQid QID = new EpwrChargeQid();
 		QidDaoEx dao = QidDaoEx.open(EpwrChargeQid.QUERY_XML_FILE) //
-				.execute(QID.update_KEPCO_CHARGE, FxApi.makePara("yyyymm", lastMonth)) //
-				.execute(QID.update_BEST_INFO, FxApi.makePara("yyyymm", lastMonth)) //
-				.execute(QID.update_KEPCO_CHARGE, FxApi.makePara("yyyymm", thisMonth)) //
-				.execute(QID.update_BEST_INFO, FxApi.makePara("yyyymm", thisMonth)) //
+				.execute(QID.update_KEPCO_CHARGE, FxApi.makePara("yyyymm", yyyymm)) //
+				.execute(QID.update_BEST_INFO, FxApi.makePara("yyyymm", yyyymm)) //
 				.close();
 
 		List<Integer> ret = dao.getProcessedCountList();

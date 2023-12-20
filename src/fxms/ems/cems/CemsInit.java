@@ -1,18 +1,14 @@
 package fxms.ems.cems;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
 import fxms.api.fo.AppApi;
 import fxms.api.mo.dfo.inlo.InloMemSetDfo;
-import fxms.bas.impl.cron.TestCron;
 import fxms.bas.impl.dpo.InsertAdapterDfo;
 import fxms.bas.signal.ReloadSignal.ReloadType;
 import fxms.ems.cems.cron.CemsCheckSensorStateCron;
-import fxms.ems.cems.cron.CemsGwNodeCheckCron;
-import fxms.ems.cems.cron.CemsMake15MDatasCron;
-import fxms.ems.cems.cron.CemsMake1DDatasCron;
-import fxms.ems.cems.cron.CemsMake1HDatasCron;
 import subkjh.bas.co.utils.DateUtil;
 import subkjh.dao.database.MySql;
 import subkjh.dao.def.Column;
@@ -24,7 +20,9 @@ public class CemsInit {
 		CemsInit init = new CemsInit();
 //		init.initAdapter();
 //		init.initVar();
-		init.makeSource();
+//		init.makeSource();
+//		init.printTable();
+		init.printInsert();
 //		init.initInloMem();
 //		init.test();
 	}
@@ -43,7 +41,7 @@ public class CemsInit {
 //			api.insert(MakeEpwr1HChargeCron.class);
 //			api.insert(MakeEpwrMonthlyChargeCron.class);
 //			api.insert(PsTsdb2RdbRawCron.class);
-			
+
 //			api.insert(CemsMake15MDatasCron.class);
 //			api.insert(CemsMake1HDatasCron.class);
 //			api.insert(CemsMake1DDatasCron.class);
@@ -102,7 +100,10 @@ public class CemsInit {
 //		tool.makeXml2JavaQid("deploy/conf/sql/fxms/ems/ems.xml", "fxms.ems.bas.dao.EmsQid", "src/fxms/ems/bas/dao");
 		tool.makeXml2JavaQid("deploy/conf/sql/fxms/ems/cems/cems.xml", "fxms.ems.cems.dao.CemsQid",
 				"src/fxms/ems/cems/dao");
-//		tool.makeXml2JavaQid("deploy/conf/sql/fxms/ems/cems/raw2fac.xml", "fxms.ems.cems.dao.Raw2FacQid",				"src/fxms/ems/cems/dao");
+		tool.makeXml2JavaQid("deploy/conf/sql/fxms/ems/cems/raw2fac.xml", "fxms.ems.cems.dao.Raw2FacQid",
+				"src/fxms/ems/cems/dao");
+		tool.makeXml2JavaQid("deploy/conf/sql/fxms/ems/cems/raw2inlo.xml", "fxms.ems.cems.dao.Raw2InloQid",
+				"src/fxms/ems/cems/dao");
 		tool.makeXml2JavaQid("deploy/conf/sql/fxms/ems/cems/CemsVUnbal.xml", "fxms.ems.cems.dao.CemsVUnbalQid",
 				"src/fxms/ems/cems/dao");
 		tool.makeXml2JavaQid("deploy/conf/sql/fxms/ems/cems/EpwrInloPrice.xml", "fxms.ems.cems.dao.EpwrInloPriceQid",
@@ -116,17 +117,37 @@ public class CemsInit {
 
 		tool.makeXml2JavaQid("deploy/conf/sql/fxms/ems/cems/EngMeasrAmtInlo.xml",
 				"fxms.ems.cems.dao.EngMeasrAmtInloQid", "src/fxms/ems/cems/dao");
-		tool.makeXml2JavaQid("deploy/conf/sql/fxms/ems/cems/dfo/CheckSensorStateDfo.xml",
-				"fxms.ems.cems.dao.dfo.CheckSensorStateDfoQid", "src/fxms/ems/cems/dao/dfo");
+		tool.makeXml2JavaQid("deploy/conf/sql/fxms/ems/cems/EngMeasrAmtFac.xml", "fxms.ems.cems.dao.EngMeasrAmtFacQid",
+				"src/fxms/ems/cems/dao");
+		tool.makeXml2JavaQid("deploy/conf/sql/fxms/ems/cems/dfo/CheckStateSensorDfo.xml",
+				"fxms.ems.cems.dao.dfo.CheckStateSensorDfoQid", "src/fxms/ems/cems/dao/dfo");
 
 //		tool.makeXml2JavaQid("deploy/conf/sql/fxms/ems/epwr.xml", "fxms.ems.cems.dao.EpwrQid", "src/fxms/ems/cems/dao");
-		tool.printInsertSql(new MySql(), "datas/datas.txt");
+//		tool.printInsertSql(new MySql(), "datas/datas.txt");
 //		tool.printCreateSql(new MySql(), "datas/tables.txt");
-		tool.printAddColumnSql(new MySql(), "datas/tables.txt");
+//		tool.printAddColumnSql(new MySql(), "datas/tables.txt");
 
 //		tool.makeInsertSampleSql(new MySql(), "datas/tables.txt");
 //		tool.makeJpaSource(new File("datas/tables.txt"), "fxms.ems.cems.dbo", "tmp");
 //		tool.makeJavaSource(new File("datas/tables.txt"), "fxms.ems.cems.dbo", "tmp");
+	}
+
+	public void printTable() throws Exception {
+
+		SqlTool tool = new SqlTool();
+
+		Column.JAVA_FIELD_STYLE_OBJECT = true;
+
+		tool.printCreateSql(new MySql(), "datas/tables.txt");
+		tool.printAddColumnSql(new MySql(), "datas/tables.txt");
+		tool.makeJpaSource(new File("datas/tables.txt"), "fxms.ems.cems.dbo", "tmp");
+		tool.makeJavaSource(new File("datas/tables.txt"), "fxms.ems.cems.dbo", "tmp");
+	}
+
+	public void printInsert() throws Exception {
+		SqlTool tool = new SqlTool();
+		Column.JAVA_FIELD_STYLE_OBJECT = true;
+		tool.printInsertSql(new MySql(), "datas/datas.txt");
 	}
 
 	public void initInloMem() throws Exception {

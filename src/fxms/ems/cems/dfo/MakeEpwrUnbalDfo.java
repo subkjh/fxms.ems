@@ -34,7 +34,7 @@ public class MakeEpwrUnbalDfo implements FxDfo<Long, Integer> {
 			for (long ms = mstime; ms < System.currentTimeMillis(); ms = pskind.getMstimeNext(ms, 1)) {
 				System.out.println(DateUtil.toHstime(ms) + " = " + dfo.make(DateUtil.toHstime(ms)));
 			}
-			
+
 //			System.out.println(dfo.make(20231101000000L));
 
 		} catch (Exception e) {
@@ -55,36 +55,38 @@ public class MakeEpwrUnbalDfo implements FxDfo<Long, Integer> {
 		CemsVUnbalQid QID = new CemsVUnbalQid();
 		Map<String, Object> para = FxApi.makePara("psDate", psDate);
 		QidDaoEx dao = QidDaoEx.open(BasCfg.getHome(CemsVUnbalQid.QUERY_XML_FILE));
+		try {
+			List<Map<String, Object>> datas = dao.selectQid2Res(QID.select_CEMS_V_UNBAL, para);
+			if (datas == null || datas.size() == 0)
+				return 0;
 
-		List<Map<String, Object>> datas = dao.selectQid2Res(QID.select_CEMS_V_UNBAL, para);
-		if (datas == null || datas.size() == 0)
-			return 0;
+			float values[];
 
-		float values[];
+			for (Map<String, Object> map : datas) {
+				values = new float[] { ((Number) map.get("iaVal")).floatValue() //
+						, ((Number) map.get("ibVal")).floatValue() //
+						, ((Number) map.get("icVal")).floatValue() };
 
-		for (Map<String, Object> map : datas) {
-			values = new float[] { ((Number) map.get("iaVal")).floatValue() //
-					, ((Number) map.get("ibVal")).floatValue() //
-					, ((Number) map.get("icVal")).floatValue() };
+				map.put("iunbalVal", KepcoUtil.getUnbalanceRate(values));
 
-			map.put("iunbalVal", KepcoUtil.getUnbalanceRate(values));
+				values = new float[] { ((Number) map.get("vaVal")).floatValue() //
+						, ((Number) map.get("vbVal")).floatValue() //
+						, ((Number) map.get("vcVal")).floatValue() };
 
-			values = new float[] { ((Number) map.get("vaVal")).floatValue() //
-					, ((Number) map.get("vbVal")).floatValue() //
-					, ((Number) map.get("vcVal")).floatValue() };
+				map.put("vunbalVal", KepcoUtil.getUnbalanceRate(values));
 
-			map.put("vunbalVal", KepcoUtil.getUnbalanceRate(values));
+			}
 
+			dao.execute(QID.make_CEMS_V_UNBAL, datas);
+			int ret = dao.getProcessedCount();
+			Logger.logger.info("EpwrUnbal : {} data(s) executed - {}ms", ret, (System.currentTimeMillis() - ptime));
+
+			return ret;
+		} catch (Exception e) {
+			throw e;
+		} finally {
+			dao.close();
 		}
-
-		dao.execute(QID.make_CEMS_V_UNBAL, datas);
-		int ret = dao.getProcessedCount();
-
-		dao.close();
-
-		Logger.logger.info("EpwrUnbal : {} data(s) executed - {}ms", ret, (System.currentTimeMillis() - ptime));
-
-		return ret;
 
 	}
 

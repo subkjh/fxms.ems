@@ -36,10 +36,7 @@ public class MakeEpwrMonthlyChargeLoadDfo implements FxDfo<String, Integer> {
 
 		EpwrChargeLoadQid QID = new EpwrChargeLoadQid();
 		Map<String, Object> para = FxApi.makePara("yyyymm", yyyymm);
-		return QidDaoEx.open(BasCfg.getHome(EpwrChargeLoadQid.QUERY_XML_FILE))//
-				.execute(QID.make_epwr_charge_load, para) //
-				.close()//
-				.getProcessedCount();
+		return QidDaoEx.ExecuteQid(BasCfg.getHome(EpwrChargeLoadQid.QUERY_XML_FILE), QID.make_epwr_charge_load, para);
 
 	}
 

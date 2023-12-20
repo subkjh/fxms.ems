@@ -46,12 +46,8 @@ public class SelectGwsDfo implements FxDfo<Void, List<GwDto>> {
 	public List<Map<String, Object>> select(String complexTid) throws Exception {
 
 		CemsQid QID = new CemsQid();
-		QidDaoEx dao = QidDaoEx.open(CemsQid.QUERY_XML_FILE);
-		List<Map<String, Object>> datas = dao.selectQid2Res(QID.select_GW__BY_COMPLEX,
+		return (List<Map<String, Object>>) QidDaoEx.SelectDatas(CemsQid.QUERY_XML_FILE, QID.select_GW__BY_COMPLEX,
 				FxApi.makePara("inloTid", complexTid));
-		dao.close();
-
-		return datas;
 
 	}
 }

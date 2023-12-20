@@ -7,7 +7,6 @@ import java.util.Map;
 
 import fxms.api.FxApi;
 import fxms.api.mo.MoApi;
-import fxms.api.mo.MoApiDfo;
 import fxms.bas.fxo.FxmsUtil;
 import fxms.bas.impl.dbo.all.FX_MX_MO_ATTR;
 import fxms.bas.impl.dpo.FxDfo;
@@ -22,11 +21,10 @@ import subkjh.dao.QidDaoEx;
 public class SelectSensorsDfo implements FxDfo<String, List<NodeGwDto>> {
 
 	public static void main(String[] args) {
-		MoApi.api = new MoApiDfo();
 
 		SelectSensorsDfo dfo = new SelectSensorsDfo();
 		try {
-			System.out.println(FxmsUtil.toJson(dfo.select("BS")));
+			System.out.println(FxmsUtil.toJson(dfo.call(null, "ET")));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -34,10 +32,6 @@ public class SelectSensorsDfo implements FxDfo<String, List<NodeGwDto>> {
 
 	@Override
 	public List<NodeGwDto> call(FxFact arg0, String complexTid) throws Exception {
-		return select(complexTid);
-	}
-
-	public List<NodeGwDto> select(String complexTid) throws Exception {
 		return make(selectNodes(complexTid));
 	}
 
@@ -58,33 +52,48 @@ public class SelectSensorsDfo implements FxDfo<String, List<NodeGwDto>> {
 		Map<Long, NodeMo> nodeMap = getNodeMap();
 
 		for (NodeDto node : nodes) {
-			gw = nodeMap.get(node.getGwMoNo());
+			gw = nodeMap.get(node.gwMoNo);
 			if (gw != null) {
 				dto = ret.get(gw.getNodeIpAddr());
 				if (dto == null) {
 					dto = new NodeGwDto();
-					dto.setNodeIpAddr(gw.getNodeIpAddr());
-					dto.setCommPortNo(gw.getCommPortNo());
-					ret.put(dto.getNodeIpAddr(), dto);
+					dto.moNo = gw.getMoNo();
+					dto.nodeIpAddr = gw.getNodeIpAddr();
+					dto.commPortNo = gw.getCommPortNo();
+					dto.moTid = gw.getMoTid();
+					ret.put(dto.nodeIpAddr, dto);
 				}
-				dto.addNode(node);
+
+				if (node.nodeId != null && node.nodeId.length() > 0) {
+					dto.addNode(node);
+				} else {
+					dto.hasNullNodeId = true;
+				}
 			}
 		}
 		return new ArrayList<>(ret.values());
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<NodeDto> selectNodes(String complexTid) throws Exception {
+	private List<NodeDto> selectNodes(String complexTid) throws Exception {
 
 		// 센서 목록
 		CemsQid QID = new CemsQid();
-		QidDaoEx dao = QidDaoEx.open(CemsQid.QUERY_XML_FILE);
-		List<NodeDto> nodes = dao.selectQid2Res(QID.select_NODE__BY_COMPLEX, FxApi.makePara("inloTid", complexTid));
-		dao.close();
+		List<NodeDto> nodes = (List<NodeDto>) QidDaoEx.SelectDatas(CemsQid.QUERY_XML_FILE, QID.select_NODE__BY_COMPLEX,
+				FxApi.makePara("inloTid", complexTid));
 
 		Map<Long, NodeDto> map = new HashMap<>();
 		for (NodeDto node : nodes) {
-			map.put(node.getMoNo(), node);
+			map.put(node.moNo, node);
+
+			if (node.moType.contains("전력")) {
+				node.moType = "epwr";
+			} else if (node.moType.contains("가스")) {
+				node.moType = "gas";
+			} else if (node.moType.contains("열")) {
+				node.moType = "heat";
+			}
+
 		}
 
 		// 센서 속성
@@ -101,6 +110,5 @@ public class SelectSensorsDfo implements FxDfo<String, List<NodeGwDto>> {
 		}
 
 		return nodes;
-
 	}
 }

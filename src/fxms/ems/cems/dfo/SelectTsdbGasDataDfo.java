@@ -13,42 +13,110 @@ import org.influxdb.dto.QueryResult;
 import org.influxdb.dto.QueryResult.Result;
 import org.influxdb.dto.QueryResult.Series;
 
+import fxms.api.FxApi;
 import fxms.api.fo.AppApi;
+import fxms.api.mo.MoApi;
+import fxms.api.mo.MoApiDfo;
+import fxms.bas.exp.NotDefineException;
+import fxms.bas.fxo.FxCfg;
+import fxms.bas.fxo.FxmsUtil;
 import fxms.bas.impl.dpo.FxDfo;
 import fxms.bas.impl.dpo.FxFact;
 import fxms.bas.vo.PsItem;
 import fxms.bas.vo.PsVoRawList;
+import fxms.ems.bas.api.FemsApi;
 import fxms.ems.bas.mo.SensorMo;
-import fxms.ems.cems.dto.TsdbDto;
 import subkjh.bas.co.log.Logger;
 import subkjh.bas.co.utils.DateUtil;
 import subkjh.dao.database.DBManager;
 import subkjh.dao.database.DataBase;
 
-public class SelectTsdbDataDfo implements FxDfo<TsdbDto, List<PsVoRawList>> {
+/**
+ * @deprecated
+ * @author subkjh
+ *
+ */
+public class SelectTsdbGasDataDfo implements FxDfo<Void, List<PsVoRawList>> {
 
-	public List<PsVoRawList> call(FxFact arg0, TsdbDto data) throws Exception {
+	public static void main(String[] args) {
+		MoApi.api = new MoApiDfo();
 
-		List<PsItem> psItems = AppApi.getApi().getPsItemList(data.psTable);
-		if (psItems == null || psItems.size() == 0)
-			return new ArrayList<>();
+		SelectTsdbGasDataDfo dfo = new SelectTsdbGasDataDfo();
+		try {
+			dfo.initDatas();
+			List<PsVoRawList> list = dfo.call(null, null);
+			for (PsVoRawList raw : list) {
+				System.out.println(FxmsUtil.toJson(raw));
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	private Map<String, SensorMo> sensorMap = new HashMap<>();
+	private List<PsItem> psItems;
+	private List<String> measurements = new ArrayList<>();
+
+	@Override
+	public List<PsVoRawList> call(FxFact arg0, Void arg1) throws Exception {
+
+		initDatas();
+
+		long mstime = System.currentTimeMillis() - 3600000L;
+		long startDtm = FemsApi.kind1M.getHstimeStart(DateUtil.getDtm(mstime));
+		long endDtm = FemsApi.kind1M.getHstimeNext(startDtm, 1);
+
+		return selectData(startDtm, endDtm);
+	}
+
+	public void initDatas() throws Exception {
+		
+		String val = FxCfg.getCfg().getString("tsdb.measurements", null);
+		if (val == null) {
+			throw new NotDefineException("tsdb.measurements");
+		} else {
+			String ss[] = val.split(",");
+			for (String s : ss) {
+				measurements.add(s.trim());
+			}
+		}
+		
+
+		this.psItems = AppApi.getApi().getPsItemList("FX_V_EPWR");
+
+		List<SensorMo> sensorList = MoApi.getApi().getMos(FxApi.makePara("moClass", "SENSOR"), SensorMo.class);
+		for (SensorMo node : sensorList) {
+			this.sensorMap.put(node.getMoTid(), node);
+		}
+
+		Logger.logger.debug("psitem={}, sensor={}", this.psItems.size(), this.sensorMap.size());
+
+	}
+
+	public List<PsVoRawList> selectData(long startDtm, long endDtm) throws Exception {
+
+		if (sensorMap.size() == 0) {
+			initDatas();
+		}
 
 		Map<Long, PsVoRawList> values = new HashMap<>();
 
-		for (String measurement : data.measurements) {
+		for (String measurement : measurements) {
+
 			try {
-				String sql = makeSqlSelect(measurement, psItems, data.psRange.startDtm, data.psRange.endDtm);
-				selectTsdbDatas(measurement, psItems, sql, values, data.sensorMap);
+				String sql = getSqlSelect(measurement, startDtm, endDtm);
+				selectTsdbDatas(measurement, sql, values);
 			} catch (Exception e) {
 				Logger.logger.error(e);
 			}
+
 		}
 
 		return new ArrayList<>(values.values());
 	}
 
-	private void selectTsdbDatas(String measurement, List<PsItem> psItems, String sql, Map<Long, PsVoRawList> values,
-			Map<String, SensorMo> sensorMap) throws Exception {
+	private void selectTsdbDatas(String measurement, String sql, Map<Long, PsVoRawList> values) throws Exception {
 
 		final DataBase database = DBManager.getMgr().getDataBase("FXMSTSDB");
 		final InfluxDB influxDB = InfluxDBFactory.connect(database.getUrl(), database.getUser(),
@@ -87,9 +155,8 @@ public class SelectTsdbDataDfo implements FxDfo<TsdbDto, List<PsVoRawList>> {
 								values.put(raw.getMstime(), raw);
 							}
 
-							// siheung_gas -> siheung
-							moTid = measurement.split("_")[0] + "." + list.get(1).toString();
-							mo = sensorMap.get(moTid);
+							moTid = measurement + "." + list.get(1).toString();
+							mo = this.sensorMap.get(moTid);
 
 							if (mo != null) {
 
@@ -119,7 +186,7 @@ public class SelectTsdbDataDfo implements FxDfo<TsdbDto, List<PsVoRawList>> {
 
 	}
 
-	private String makeSqlSelect(String measurement, List<PsItem> psItems, long startDtm, long endDtm) {
+	private String getSqlSelect(String measurement, long startDtm, long endDtm) {
 
 		long mstimeStart = DateUtil.toMstime(startDtm);
 		long mstimeEnd = DateUtil.toMstime(endDtm);
@@ -133,7 +200,7 @@ public class SelectTsdbDataDfo implements FxDfo<TsdbDto, List<PsVoRawList>> {
 		StringBuffer sql = new StringBuffer();
 
 		sql.append("select GateWay.Device ");
-		for (PsItem psItem : psItems) {
+		for (PsItem psItem : this.psItems) {
 			sql.append(", ").append(psItem.getPsId());
 		}
 		sql.append("\n from ").append(measurement).append("\n");
@@ -146,5 +213,4 @@ public class SelectTsdbDataDfo implements FxDfo<TsdbDto, List<PsVoRawList>> {
 		return sql.toString();
 
 	}
-
 }

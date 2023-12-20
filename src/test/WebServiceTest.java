@@ -15,10 +15,6 @@ public class WebServiceTest {
 
 		new InitLangDpo().initLang();
 
-		UserApi.api = new UserApiDfo();
-
-		FxApi.getApi().setServiceUrl(UserService.class, "rmi://10.0.1.11:63810/" + UserService.class.getSimpleName());
-
 		// ServiceApi.getApi().setServiceUrl(ValueService.class,
 		// "rmi://10.0.1.11:63810/" + ValueService.class.getSimpleName());
 

@@ -58,7 +58,7 @@ public class CallGwNodesDfo implements FxDfo<Void, Integer> {
 
 		CallGwNodesDfo dfo = new CallGwNodesDfo();
 		try {
-			dfo.checkNodes();
+			dfo.call(null, null);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -66,15 +66,6 @@ public class CallGwNodesDfo implements FxDfo<Void, Integer> {
 
 	@Override
 	public Integer call(FxFact arg0, Void arg1) throws Exception {
-		return checkNodes();
-	}
-
-	/**
-	 * 
-	 * @return
-	 * @throws Exception
-	 */
-	public Integer checkNodes() throws Exception {
 
 		List<Data> datas = callUrlParallel();
 
@@ -95,13 +86,13 @@ public class CallGwNodesDfo implements FxDfo<Void, Integer> {
 
 		for (GwDto gw : list) {
 
-			if (gw.getCommPortNo() <= 0) {
+			if (gw.commPortNo <= 0) {
 				port = "4840";
 			} else {
-				port = String.valueOf(gw.getCommPortNo());
+				port = String.valueOf(gw.commPortNo);
 			}
 
-			url = URL.replaceFirst("\\$ip", gw.getNodeIpAddr());
+			url = URL.replaceFirst("\\$ip", gw.nodeIpAddr);
 			url = url.replaceFirst("\\$port", port);
 
 			response = get(url, 30);
@@ -132,13 +123,13 @@ public class CallGwNodesDfo implements FxDfo<Void, Integer> {
 			FxResponse response;
 			Data data;
 
-			if (gw.getCommPortNo() <= 0) {
+			if (gw.commPortNo <= 0) {
 				port = "4840";
 			} else {
-				port = String.valueOf(gw.getCommPortNo());
+				port = String.valueOf(gw.commPortNo);
 			}
 
-			url = URL.replaceFirst("\\$ip", gw.getNodeIpAddr());
+			url = URL.replaceFirst("\\$ip", gw.nodeIpAddr);
 			url = url.replaceFirst("\\$port", port);
 
 			try {
@@ -233,7 +224,7 @@ public class CallGwNodesDfo implements FxDfo<Void, Integer> {
 
 				try {
 					// 응답이 없으면 타임아웃 이벤트 발생
-					AlarmApi.getApi().fireAlarms(data.gw.getMoNo(), null, ALARM_CODE.mo_timeout.getAlcdNo());
+					AlarmApi.getApi().fireAlarms(data.gw.moNo, null, ALARM_CODE.mo_timeout.getAlcdNo());
 				} catch (Exception e) {
 					Logger.logger.error(e);
 				}
@@ -242,7 +233,7 @@ public class CallGwNodesDfo implements FxDfo<Void, Integer> {
 
 				try {
 					// 정상적인 응답이 아니면 응답 오류 이벤트 발생
-					AlarmApi.getApi().fireAlarms(data.gw.getMoNo(), null, ALARM_CODE.value_error_response.getAlcdNo());
+					AlarmApi.getApi().fireAlarms(data.gw.moNo, null, ALARM_CODE.value_error_response.getAlcdNo());
 				} catch (Exception e) {
 					Logger.logger.error(e);
 				}
@@ -250,7 +241,7 @@ public class CallGwNodesDfo implements FxDfo<Void, Integer> {
 			} else {
 
 				// 정상적이면 기존 알람 해제
-				AlarmApi.getApi().clearAlarms(data.gw.getMoNo(), null //
+				AlarmApi.getApi().clearAlarms(data.gw.moNo, null //
 						, ALARM_CODE.mo_timeout.getAlcdNo() //
 						, ALARM_CODE.value_error_response.getAlcdNo());
 
@@ -330,7 +321,7 @@ public class CallGwNodesDfo implements FxDfo<Void, Integer> {
 
 			try {
 				// 응답이 없으면 타임아웃 이벤트 발생
-				AlarmApi.getApi().fireAlarms(data.gw.getMoNo(), null, ALARM_CODE.mo_timeout.getAlcdNo());
+				AlarmApi.getApi().fireAlarms(data.gw.moNo, null, ALARM_CODE.mo_timeout.getAlcdNo());
 			} catch (Exception e) {
 				Logger.logger.error(e);
 			}
@@ -339,7 +330,7 @@ public class CallGwNodesDfo implements FxDfo<Void, Integer> {
 
 			try {
 				// 정상적인 응답이 아니면 응답 오류 이벤트 발생
-				AlarmApi.getApi().fireAlarms(data.gw.getMoNo(), null, ALARM_CODE.value_error_response.getAlcdNo());
+				AlarmApi.getApi().fireAlarms(data.gw.moNo, null, ALARM_CODE.value_error_response.getAlcdNo());
 			} catch (Exception e) {
 				Logger.logger.error(e);
 			}
@@ -347,7 +338,7 @@ public class CallGwNodesDfo implements FxDfo<Void, Integer> {
 		} else {
 
 			// 정상적이면 기존 알람 해제
-			AlarmApi.getApi().clearAlarms(data.gw.getMoNo(), null //
+			AlarmApi.getApi().clearAlarms(data.gw.moNo, null //
 					, ALARM_CODE.mo_timeout.getAlcdNo() //
 					, ALARM_CODE.value_error_response.getAlcdNo());
 

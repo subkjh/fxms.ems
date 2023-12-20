@@ -26,7 +26,7 @@ public class CemsGwNodeCheckCron extends Crontab {
 	public CronResult start() throws Exception {
 
 		CallGwNodesDfo dfo = new CallGwNodesDfo();
-		int updatedCount = dfo.checkNodes();
+		int updatedCount = dfo.call(null, null);
 
 		return new CronResult(null, FxApi.makePara("updatedCount", updatedCount));
 	}

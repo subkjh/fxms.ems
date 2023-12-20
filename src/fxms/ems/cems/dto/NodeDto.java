@@ -1,8 +1,15 @@
 package fxms.ems.cems.dto;
 
+import java.io.Serializable;
+
 import fxms.bas.fxo.FxAttr;
 
-public class NodeDto {
+public class NodeDto implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6325315261706614573L;
 
 	@FxAttr(description = "노드 ID", example = "54111")
 	public String nodeId;
@@ -13,16 +20,10 @@ public class NodeDto {
 	@FxAttr(description = "노드 이름", example = "busan.172_29_29_100.DX01001")
 	public String displayName;
 
-	private long moNo;
+	public long moNo;
 
-	private long gwMoNo;
+	public long gwMoNo;
 
-	public long getGwMoNo() {
-		return gwMoNo;
-	}
-
-	public long getMoNo() {
-		return moNo;
-	}
+	public String moType;
 
 }

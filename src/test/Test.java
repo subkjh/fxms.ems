@@ -1,32 +1,39 @@
 package test;
 
-import java.util.Comparator;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 
-import fxms.api.FxDataApi;
+import fxms.api.FxBaseApi;
 import fxms.api.ao.AlarmApi;
 import fxms.api.ao.AlarmApiDfo;
+import fxms.api.ao.AlarmApiService;
 import fxms.api.fo.AppApi;
 import fxms.api.fo.AppApiDfo;
+import fxms.api.fo.dfo.ps.AlertPsTableDfo;
 import fxms.api.mo.MoApi;
 import fxms.api.mo.MoApiDfo;
 import fxms.api.vo.ValueApi;
 import fxms.api.vo.ValueApiDfo;
-import fxms.bas.fxo.FxActorParser;
-import fxms.bas.handler.vo.HandlerVo;
+import fxms.bas.fxo.FxCfg;
+import fxms.bas.impl.dpo.FxFact;
+import fxms.bas.vo.PsItem;
 import fxms.bas.vo.PsKind;
 import fxms.ems.bas.dpo.MakeMeasrRawDfo;
 import fxms.ems.bas.dpo.SelectEnergyPsIdDfo;
 import fxms.ems.bas.vo.EngPsVo;
+import fxms.test.dfo.FireTestAlarmDfo;
 
 public class Test {
 
 	public static void main(String[] args) throws Exception {
 
 		Test test = new Test();
-
-		test.testHandler();
-
+		
+		test.alertPs();
+		
+//		test.testAlarm();
+//		test.testParse();
 //		test.불균형(new float[] { 226.3f, 225.7f, 225.2f });
 //		test.불균형(new float[] { 220f, 230f, 210f }); // 4.55
 //		test.불균형(new float[] { 225.1f, 224.6f, 226.1f }); // 0.402
@@ -90,7 +97,7 @@ public class Test {
 		MoApi.api = new MoApiDfo();
 		AlarmApi.api = new AlarmApiDfo();
 
-		List<EngPsVo> psList = new SelectEnergyPsIdDfo().selectEnergyPsId();
+		List<EngPsVo> psList = new SelectEnergyPsIdDfo().call(null, null);
 
 		MakeMeasrRawDfo dfo = new MakeMeasrRawDfo();
 		try {
@@ -101,22 +108,33 @@ public class Test {
 		}
 	}
 
-	void testHandler() {
-		FxDataApi.serviceName = "WebService";
-		List<HandlerVo> handlers = FxActorParser.getParser().getActorList(HandlerVo.class);
-
-		// 0을 제일 뒤로 보낸다.
-		handlers.sort(new Comparator<HandlerVo>() {
-			@Override
-			public int compare(HandlerVo o1, HandlerVo o2) {
-				return o1.getPort() > o2.getPort() ? -1 : 1;
-			}
-		});
-
-		System.out.println(handlers.size());
-
-		for (HandlerVo vo : handlers) {
-			System.out.println(vo.getPort());
+	void testAlarm() throws Exception {
+		FireTestAlarmDfo dfo = new FireTestAlarmDfo();
+		FxFact fact = new FxFact();
+		try {
+			dfo.call(fact, FxBaseApi.makePara("moNo", 1002649));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	void testParse() throws MalformedURLException
+	{
+		String crawler = FxCfg.getCfg().getString("opcua.crawler", "http://localhost:10006");
+		URL url = new URL(crawler);
+		
+		System.out.println(url.getHost());
+		System.out.println(url.getPort());
+	}
+	
+	void alertPs() throws Exception {
+		AlertPsTableDfo dfo = new AlertPsTableDfo();
+		PsItem psItem;
+		try {
+			psItem = AppApi.getApi().getPsItem("mflinst");			
+			System.out.println(dfo.call(null, psItem));
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 }

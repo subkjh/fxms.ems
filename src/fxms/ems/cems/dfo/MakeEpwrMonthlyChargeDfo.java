@@ -22,6 +22,8 @@ public class MakeEpwrMonthlyChargeDfo implements FxDfo<String, Integer> {
 
 		MakeEpwrMonthlyChargeDfo dfo = new MakeEpwrMonthlyChargeDfo();
 		try {
+			System.out.println(dfo.makeEpwrCharge("202309"));
+			System.out.println(dfo.makeEpwrCharge("202310"));
 			System.out.println(dfo.makeEpwrCharge("202311"));
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -37,10 +39,7 @@ public class MakeEpwrMonthlyChargeDfo implements FxDfo<String, Integer> {
 
 		EpwrChargeQid QID = new EpwrChargeQid();
 		Map<String, Object> para = FxApi.makePara("yyyymm", yyyymm);
-		return QidDaoEx.open(BasCfg.getHome(EpwrChargeQid.QUERY_XML_FILE)) //
-				.execute(QID.make_epwr_charge_monthly, para) //
-				.close() //
-				.getProcessedCount();
+		return QidDaoEx.ExecuteQid(BasCfg.getHome(EpwrChargeQid.QUERY_XML_FILE), QID.make_epwr_charge_monthly, para);
 
 	}
 

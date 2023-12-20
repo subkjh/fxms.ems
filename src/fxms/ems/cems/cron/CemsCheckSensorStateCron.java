@@ -5,7 +5,8 @@ import fxms.bas.cron.CronResult;
 import fxms.bas.cron.Crontab;
 import fxms.bas.fxo.FxAttr;
 import fxms.bas.fxo.adapter.FxAdapterInfo;
-import fxms.ems.cems.dfo.CheckSensorStateDfo;
+import fxms.ems.cems.dfo.CheckStatePowerMeterDfo;
+import subkjh.bas.co.utils.DateUtil;
 
 @FxAdapterInfo(service = "AppService", descr = "전력계 데이터 수신 여부 확인")
 public class CemsCheckSensorStateCron extends Crontab {
@@ -25,10 +26,25 @@ public class CemsCheckSensorStateCron extends Crontab {
 	@Override
 	public CronResult start() throws Exception {
 
-		CheckSensorStateDfo dfo = new CheckSensorStateDfo();
-		int checkSize = dfo.checkSensorState();
+		int pCnt = 0, gCnt = 0, hCnt = 0;
+		long ptime;
 
-		return new CronResult(null, FxApi.makePara("check-size", checkSize));
+		ptime = System.currentTimeMillis();
+		CheckStatePowerMeterDfo dfo = new CheckStatePowerMeterDfo();
+		pCnt = dfo.call(null, null);
+		FxApi.getApi().logProc(dfo.getClass().getSimpleName(), DateUtil.getDtm(), ptime, true, pCnt, null);
+
+//		ptime = System.currentTimeMillis();
+//		CheckStateGasMeterDfo gasDfo = new CheckStateGasMeterDfo();
+//		gCnt = gasDfo.call(null, null);
+//		FxApi.getApi().logProc(gasDfo.getClass().getSimpleName(), DateUtil.getDtm(), ptime, true, gCnt, null);
+//
+//		ptime = System.currentTimeMillis();
+//		CheckStateHeatMeterDfo heatDfo = new CheckStateHeatMeterDfo();
+//		hCnt = heatDfo.call(null, null);
+//		FxApi.getApi().logProc(heatDfo.getClass().getSimpleName(), DateUtil.getDtm(), ptime, true, hCnt, null);
+
+		return new CronResult(null, FxApi.makePara("power", pCnt, "gas", gCnt, "heat", hCnt));
 	}
 
 	@Override

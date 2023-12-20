@@ -45,10 +45,8 @@ public class MakeE14_15MDfo implements FxDfo<Long, Integer> {
 		Map<String, Object> para = FxApi.makePara("measrDtmStart", measrDtmStart, "measrDtmEnd", measrDtmEnd, "dtmType",
 				psKind.getPsKindName());
 
-		return QidDaoEx.open(BasCfg.getHome(EngMeasrAmtInloQid.QUERY_XML_FILE))//
-				.execute(QID.make_E14_energy_amt_inlo, para) //
-				.close()//
-				.getProcessedCount();
+		return QidDaoEx.ExecuteQid(BasCfg.getHome(EngMeasrAmtInloQid.QUERY_XML_FILE), QID.make_E14_energy_amt_inlo,
+				para);
 
 	}
 

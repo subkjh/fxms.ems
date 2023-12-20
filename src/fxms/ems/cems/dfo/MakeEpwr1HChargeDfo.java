@@ -21,7 +21,12 @@ public class MakeEpwr1HChargeDfo implements FxDfo<String, Integer> {
 
 		MakeEpwr1HChargeDfo dfo = new MakeEpwr1HChargeDfo();
 		try {
-			System.out.println(dfo.makeEpwrCharge("20231122"));
+			for (int yyyymmdd = 20231001; yyyymmdd <= 20231031; yyyymmdd++) {
+				System.out.println(dfo.makeEpwrCharge(String.valueOf(yyyymmdd)));
+			}
+			for (int yyyymmdd = 20231101; yyyymmdd <= 20231127; yyyymmdd++) {
+				System.out.println(dfo.makeEpwrCharge(String.valueOf(yyyymmdd)));
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
